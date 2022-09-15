@@ -1,0 +1,35 @@
+@top Program { Process }
+
+Process { Assignment | Input | Output | "SKIP" | "STOP" | Sequence | Conditional | Parallel }
+
+/// Assignment and values
+
+//need to allow parallel multiple assignment 
+Assignment { variable ":=" expression }
+
+expression { operand | Monop operand | operand Binop operand }
+
+operand { variable | literal }
+
+variable { Name }
+
+literal { Integer }
+
+Monop { "-" | "MINUS" | "~" | "BITNOT" | "NOT" | "SIZE" }
+
+Binop { "+" | "-" | "*" | "/" | "\\" | "REM" | "PLUS" | "MINUS" | "TIMES" | "/\\" | "\\/" | "><" | "BITAND" | "BITOR" | "AND" | "OR" | "=" | "<>" | "<" | ">" | ">=" | "<=" | "AFTER" }
+
+/// Input and Output
+
+//need to allow input to multiple items in a row
+Input { Channel "?" inputItem }
+
+//find out what is :: here
+inputItem { variable }
+
+/// Tokens
+
+@tokens {
+  Name { @asciiLetter+ }
+  Integer { @digit+ }
+}

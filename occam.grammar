@@ -2,9 +2,10 @@
 
 Process { Assignment | Input | Output | "SKIP" | "STOP" | Sequence | Conditional | Parallel }
 
+processList = { Process processList | Process }
+
 /// Assignment and values
 
-//need to allow parallel multiple assignment 
 Assignment { variable ":=" expression }
 
 expression { operand | Monop operand | operand Binop operand }
@@ -21,13 +22,25 @@ Binop { "+" | "-" | "*" | "/" | "\\" | "REM" | "PLUS" | "MINUS" | "TIMES" | "/\\
 
 /// Input and Output
 
-//need to allow input to multiple items in a row
 Input { Channel "?" inputItem }
 
-//find out what is :: here
 inputItem { variable }
 
+Output { Channel "!" outputItem }
+
+outputItem { expression }
+
+Channel { name }
+
+/// Sequencing
+
+Sequence { "SEQ" newline indent processList }
+
 /// Tokens
+
+@external tokens indentation from "./tokens" { indent, dedent }
+
+@external tokens newlines from "./tokens" { newline, newlineBracketed, newlineEmpty, eof }
 
 @tokens {
   Name { @asciiLetter+ }

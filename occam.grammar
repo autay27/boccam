@@ -1,24 +1,28 @@
 @top Program { Process }
 
-Process { Assignment | Input | Output | "SKIP" | "STOP" | Sequence | Conditional | Parallel }
+Process { Assignment | Input | Output | Skip | Stop | Sequence }
+//  | Conditional | Parallel
 
-processList = { Process processList | Process }
+processList { Process processList | Process }
 
 /// Assignment and values
 
 Assignment { variable ":=" expression }
 
-expression { operand | Monop operand | operand Binop operand }
+@precedence { minus @left, negate @right }
+
+expression { operand 
+  | @specialize<Name, "~" | "BITNOT" | "NOT" | "SIZE"> operand 
+  | operand @specialize<Name, "+" | "*" | "/" | "\\" | "REM" | "PLUS" | "TIMES" | "/\\" | "\\/" | "><" | "BITAND" | "BITOR" | "AND" | "OR" | "=" | "<>" | "<" | ">" | ">=" | "<=" | "AFTER"> operand 
+  | operand !minus @specialize<Name, "-" | "MINUS">
+  | !negate @specialize<Name, "-" | "MINUS"> operand }
+//need to add a lot more operator precedences hopefully it will look less weird then
 
 operand { variable | literal }
 
 variable { Name }
 
 literal { Integer }
-
-Monop { "-" | "MINUS" | "~" | "BITNOT" | "NOT" | "SIZE" }
-
-Binop { "+" | "-" | "*" | "/" | "\\" | "REM" | "PLUS" | "MINUS" | "TIMES" | "/\\" | "\\/" | "><" | "BITAND" | "BITOR" | "AND" | "OR" | "=" | "<>" | "<" | ">" | ">=" | "<=" | "AFTER" }
 
 /// Input and Output
 
@@ -30,17 +34,27 @@ Output { Channel "!" outputItem }
 
 outputItem { expression }
 
-Channel { name }
+Channel { Name }
 
 /// Sequencing
 
-Sequence { "SEQ" newline indent processList }
+Sequence { Seq newline indent processList dedent }
 
-/// Tokens
+/// Keywords & tokens
+
+Seq { @specialize<Name, "SEQ"> }
+
+Skip { @specialize<Name, "SKIP"> }
+
+Stop { @specialize<Name, "STOP"> }
+
+//Monop { @specialize<Name, "-" | "MINUS" | "~" | "BITNOT" | "NOT" | "SIZE"> }
+
+//Binop { @specialize<Name, "+" | "-" | "*" | "/" | "\\" | "REM" | "PLUS" | "MINUS" | "TIMES" | "/\\" | "\\/" | "><" | "BITAND" | "BITOR" | "AND" | "OR" | "=" | "<>" | "<" | ">" | ">=" | "<=" | "AFTER"> }
 
 @external tokens indentation from "./tokens" { indent, dedent }
 
-@external tokens newlines from "./tokens" { newline, newlineBracketed, newlineEmpty, eof }
+@external tokens newlines from "./tokens" { newline }
 
 @tokens {
   Name { @asciiLetter+ }

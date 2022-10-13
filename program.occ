@@ -1,0 +1,4 @@
+PAR
+  chan ! 0
+  chan ! 5
+  

@@ -1,0 +1,71 @@
+@top Program { Process }
+
+Process { Assignment | Input | Output | Skip | Stop | Sequence | Parallel }
+
+processList { processList newline Process | Process }
+
+/// Assignment and values
+
+Assignment { variable ":=" expression }
+
+@precedence { minus @left, negate @right }
+
+expression { operand 
+  | @specialize<Name, "~" | "BITNOT" | "NOT" | "SIZE"> operand 
+  | operand @specialize<Name, "+" | "*" | "/" | "\\" | "REM" | "PLUS" | "TIMES" | "/\\" | "\\/" | "><" | "BITAND" | "BITOR" | "AND" | "OR" | "=" | "<>" | "<" | ">" | ">=" | "<=" | "AFTER"> operand 
+  | operand !minus @specialize<Name, "-" | "MINUS">
+  | !negate @specialize<Name, "-" | "MINUS"> operand }
+//need to add a lot more operator precedences hopefully it will look less weird then
+
+operand { variable | literal }
+
+variable { Name }
+
+literal { Integer }
+
+/// Input and Output
+
+Input { Channel "?" inputItem }
+
+inputItem { variable }
+
+Output { Channel "!" outputItem }
+
+outputItem { expression }
+
+Channel { Name }
+
+/// Sequencing
+
+Sequence { @specialize<Name, "SEQ"> newline indent processList (dedent | eof) }
+
+/// Parallel
+
+Parallel { @specialize<Name, "PAR"> newline indent processList (dedent | eof) }
+
+/// Whitespace & comments
+
+@skip { space | Comment }
+
+/// Keywords & tokens
+
+Skip { @specialize<Name, "SKIP"> }
+
+Stop { @specialize<Name, "STOP"> }
+
+//Monop { @specialize<Name, "-" | "MINUS" | "~" | "BITNOT" | "NOT" | "SIZE"> }
+
+//Binop { @specialize<Name, "+" | "-" | "*" | "/" | "\\" | "REM" | "PLUS" | "MINUS" | "TIMES" | "/\\" | "\\/" | "><" | "BITAND" | "BITOR" | "AND" | "OR" | "=" | "<>" | "<" | ">" | ">=" | "<=" | "AFTER"> }
+
+@context trackIndent from "./tokens.js"
+
+@external tokens indentation from "./tokens.js" { indent, dedent }
+
+@external tokens newlines from "./tokens.js" { newline, eof }
+
+@tokens {
+  Name { @asciiLetter+ }
+  Integer { @digit+ }
+  space { @whitespace+ }
+  Comment { "//" ![\n]* }
+}

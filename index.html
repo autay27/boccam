@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset=utf8>
+<h3>Browser Occam</h3>
+<!--<script src="editor.bundle.js"></script>-->
+<script src="jison/occam.js"></script>
+<script>
+    function parse () {
+        var input = document.getElementById("editor").value
+        var result = occam.parse(input);
+        console.log(JSON.stringify(result));
+    }
+</script>
+<textarea id="editor" style="width: 50vw; min-height: 10vh;">chan ! 0</textarea>
+<button onclick="parse()">parse</button>

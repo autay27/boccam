@@ -9,17 +9,17 @@
 %% 
 
 process
-    : proc
-        { console.log("AST: %j", $proc); }
+    : proc ENDOFFILE
+        { console.log("AST: %j", $proc); return $proc }
     ;
 
 proc
     : ID OUT expr 
-        { console.log("matching out"); $$ = ["out", $1, $expr] }
+        { $$ = ["out", $1, $expr] }
     | ID IN ID 
         { $$ = ["in", $1, $expr] }
     | PAR proc_block
-        { console.log("matching par"); $$ = ["par", $proc_block] }
+        { $$ = ["par", $proc_block] }
     ;
 
 proc_block
@@ -36,5 +36,5 @@ proc_list
 
 expr
     : INTEGER
-        {console.log("matching int");$$ = Number(yytext);}
+        { $$ = Number(yytext);}
     ;

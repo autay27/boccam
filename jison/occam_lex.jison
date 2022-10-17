@@ -16,14 +16,12 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 {id}				return 'ID';
 \d+				return 'INTEGER';
 
-//<<EOF>>				return "ENDOFFILE";
+<<EOF>>				return "ENDOFFILE";
 
 <INITIAL>\s*<<EOF>>		%{
 					// remaining DEDENTs implied by EOF, regardless of tabs/spaces
 					var tokens = [];
-                    console.log("Appending dedents")
 					while (0 < _iemitstack[0]) {
-                        console.log("a dedent")
 						this.popState();
 						tokens.unshift("DEDENT");
 						_iemitstack.shift();
@@ -31,7 +29,7 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 					if (tokens.length) return tokens;
 				%}
 
-//WHY did I have to stop matching EOF everywhere to make it behave NORMALLY?
+//WHY IT ONLY HAPPENS WHEN THERES A CHARACTER BEFORE EOF!?!?!?
 
 [\n\r]+{spc}*/![^\n\r]		/* eat blank lines */
 

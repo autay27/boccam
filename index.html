@@ -7,7 +7,25 @@
     function parse () {
         var input = document.getElementById("editor").value
         var result = occam.parse(input);
-        console.log(JSON.stringify(result));
+
+        function organise (input) {
+            if(typeof input == "string"){
+                return {idleaf: input}
+            }else if (typeof input == "number"){
+                return {numleaf: input}
+            } else {
+                var cs = []
+                for (let i = 1; i < input.length; i++){
+                    cs.push(organise(input[i]))
+                }
+
+                return { rule: input[0],
+                         children: cs }
+            }
+        }
+
+        console.log(JSON.stringify(organise(result)));
+
     }
 </script>
 <textarea id="editor" style="width: 50vw; min-height: 10vh;">chan ! 0</textarea>

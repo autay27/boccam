@@ -1,0 +1,1 @@
+{"rule":"par","children":[{"rule":"proc_list","children":[{"rule":"out","children":[{"idleaf":"chan"},{"numleaf":0}]},{"rule":"out","children":[{"idleaf":"chan"},{"numleaf":1}]}]}]}

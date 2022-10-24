@@ -1,51 +1,41 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, Attribute, div, input, text)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
-import Json.Decode exposing (Decoder, int, string, list, oneOf)
+import Html exposing (Html, button, div, text, br)
+import Html.Events exposing (onClick)
 
-
-type Leaf = Str String | IntVal Int
-
-type Ast = Leaf | Nested (List Ast)
-
-testast: Ast
-testast = [Str "hello",Nested [Str "hi"]]
+import Compile exposing (Tree, Proc, WaitingProc, State)
 
 -- MAIN
 
 main =
   Browser.sandbox { init = init, update = update, view = view }
 
--- model
+-- MODEL
 
-type alias Model =
-  { content : Ast }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
 
 init : Model
-init =
-  { content = ["par",["proc_list",["out","chan",0],["out","chan",1]]] }
+init = { output = "",  running = [example_tree], waiting = [], state = Dict.empty }
+--should generate it by calling a function
 
--- view
-
-filename = "../../exampleast.json"
-
-view : Model -> Html Msg
-
-view model =
-    div [] [ "hello" ]
---  div [] [ head model.content ]
-
--- update
+-- UPDATE
 
 type Msg
-  = Change String
+  = Step | Run
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    Change newContent ->
-      { model | content = [] }
+    Step ->
+      model ++ "\na"
+    Run -> 
+      model ++ "\nI don't know how to run"
 
+-- VIEW
+
+view : Model -> Html Msg
+view model =
+  div []
+    [ div [] [ text model.output ]
+    , button [ onClick Step ] [ text "Step" ]]

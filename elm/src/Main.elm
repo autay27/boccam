@@ -5,6 +5,7 @@ import Html exposing (Html, button, div, text, br)
 import Html.Events exposing (onClick)
 
 import Compile exposing (Tree, Proc, WaitingProc, State)
+import Dict exposing (Dict, empty)
 
 -- MAIN
 
@@ -16,7 +17,7 @@ main =
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
 
 init : Model
-init = { output = "",  running = [example_tree], waiting = [], state = Dict.empty }
+init = { output = "",  running = [Compile.example_tree], waiting = [], state = Dict.empty }
 --should generate it by calling a function
 
 -- UPDATE
@@ -28,9 +29,17 @@ update : Msg -> Model -> Model
 update msg model =
   case msg of
     Step ->
-      model ++ "\na"
+      case Compile.run model of 
+        Ok m -> m
+        Err s -> { output = model.output ++ s,
+                  running = model.running,
+                  waiting = model.waiting,
+                  state = model.state }
     Run -> 
-      model ++ "\nI don't know how to run"
+                { output = model.output ++ "\nI don't know how to run",
+                  running = model.running,
+                  waiting = model.waiting,
+                  state = model.state }
 
 -- VIEW
 

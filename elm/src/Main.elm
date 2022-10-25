@@ -31,20 +31,22 @@ update msg model =
     Step ->
       case Compile.run model of 
         Ok m -> m
-        Err s -> { output = model.output ++ s,
+        Err s -> { output = model.output ++ s ++ "\n",
                   running = model.running,
                   waiting = model.waiting,
                   state = model.state }
     Run -> 
-                { output = model.output ++ "\nI don't know how to run",
+                { output = model.output ++ "I don't know how to run\n",
                   running = model.running,
                   waiting = model.waiting,
                   state = model.state }
 
 -- VIEW
 
+print s = List.intersperse (br [] []) (List.map text (String.lines s))
+
 view : Model -> Html Msg
 view model =
   div []
-    [ div [] [ text model.output ]
-    , button [ onClick Step ] [ text "Step" ]]
+    ( (print model.output) ++
+    [ button [ onClick Step ] [ text "Step" ]])

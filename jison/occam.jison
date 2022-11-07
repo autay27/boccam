@@ -20,6 +20,12 @@ proc
         { $$ = ["in", $1, $expr] }
     | PAR proc_block
         { $$ = ["par", $proc_block] }
+    | SEQ proc_block
+        { $$ = ["seq", $proc_block] }
+    | ID ASSIGN expr
+        { $$ = ["assign_expr", $1, $expr] }
+    | ID ASSIGN proc
+        { $$ = ["assign_proc", $1, $proc] }
     ;
 
 proc_block

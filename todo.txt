@@ -4,5 +4,4 @@ I have some kind of compilation with a lot of cheats. Right now
 -add looping to the parser
 -need to make the channel value type correct and like.. process it correctly
 -organise the code better somehow
--change the model type to (output, program)
 -add randomness(?)

@@ -72,12 +72,12 @@
   }
 */
 var occam = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,3],$V1=[1,4],$V2=[5,6,10,14],$V3=[6,10,14];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,3],$V1=[1,4],$V2=[1,5],$V3=[1,11],$V4=[1,14],$V5=[5,6,10,12,16],$V6=[6,10,12,16];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"process":3,"proc":4,"ENDOFFILE":5,"ID":6,"OUT":7,"expr":8,"IN":9,"PAR":10,"proc_block":11,"INDENT":12,"proc_list":13,"DEDENT":14,"INTEGER":15,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"ENDOFFILE",6:"ID",7:"OUT",9:"IN",10:"PAR",12:"INDENT",14:"DEDENT",15:"INTEGER"},
-productions_: [0,[3,2],[4,3],[4,3],[4,2],[11,3],[13,1],[13,2],[8,1]],
+symbols_: {"error":2,"process":3,"proc":4,"ENDOFFILE":5,"ID":6,"OUT":7,"expr":8,"IN":9,"PAR":10,"proc_block":11,"SEQ":12,"ASSIGN":13,"INDENT":14,"proc_list":15,"DEDENT":16,"INTEGER":17,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"ENDOFFILE",6:"ID",7:"OUT",9:"IN",10:"PAR",12:"SEQ",13:"ASSIGN",14:"INDENT",16:"DEDENT",17:"INTEGER"},
+productions_: [0,[3,2],[4,3],[4,3],[4,2],[4,2],[4,3],[4,3],[11,3],[15,1],[15,2],[8,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -96,21 +96,30 @@ case 4:
  this.$ = ["par", $$[$0]] 
 break;
 case 5:
- this.$ = $$[$0-1] 
+ this.$ = ["seq", $$[$0]] 
 break;
 case 6:
- this.$ = ["proc_list", $$[$0] ] 
+ this.$ = ["assign_expr", $$[$0-2], $$[$0]] 
 break;
 case 7:
- $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
+ this.$ = ["assign_proc", $$[$0-2], $$[$0]] 
 break;
 case 8:
+ this.$ = $$[$0-1] 
+break;
+case 9:
+ this.$ = ["proc_list", $$[$0] ] 
+break;
+case 10:
+ $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
+break;
+case 11:
  this.$ = Number(yytext);
 break;
 }
 },
-table: [{3:1,4:2,6:$V0,10:$V1},{1:[3]},{5:[1,5]},{7:[1,6],9:[1,7]},{11:8,12:[1,9]},{1:[2,1]},{8:10,15:[1,11]},{6:[1,12]},o($V2,[2,4]),{4:14,6:$V0,10:$V1,13:13},o($V2,[2,2]),o($V2,[2,8]),o($V2,[2,3]),{4:16,6:$V0,10:$V1,14:[1,15]},o($V3,[2,6]),o($V2,[2,5]),o($V3,[2,7])],
-defaultActions: {5:[2,1]},
+table: [{3:1,4:2,6:$V0,10:$V1,12:$V2},{1:[3]},{5:[1,6]},{7:[1,7],9:[1,8],13:[1,9]},{11:10,14:$V3},{11:12,14:$V3},{1:[2,1]},{8:13,17:$V4},{6:[1,15]},{4:17,6:$V0,8:16,10:$V1,12:$V2,17:$V4},o($V5,[2,4]),{4:19,6:$V0,10:$V1,12:$V2,15:18},o($V5,[2,5]),o($V5,[2,2]),o($V5,[2,11]),o($V5,[2,3]),o($V5,[2,6]),o($V5,[2,7]),{4:21,6:$V0,10:$V1,12:$V2,16:[1,20]},o($V6,[2,9]),o($V5,[2,8]),o($V6,[2,10])],
+defaultActions: {6:[2,1]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -594,17 +603,21 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:return 10;
 break;
-case 1:return 7;
+case 1:return 12
 break;
-case 2:return 9;
+case 2:return 7;
 break;
-case 3:return 6;
+case 3:return 9;
 break;
-case 4:return 15;
+case 4:return 13;
 break;
-case 5:return "ENDOFFILE";
+case 5:return 6;
 break;
-case 6:
+case 6:return 17;
+break;
+case 7:return "ENDOFFILE";
+break;
+case 8:
 					// remaining DEDENTs implied by EOF, regardless of tabs/spaces
 					var tokens = [];
 					while (0 < _iemitstack[0]) {
@@ -615,13 +628,13 @@ case 6:
 					if (tokens.length) return tokens;
 				
 break;
-case 7:/* eat blank lines */
+case 9:/* eat blank lines */
 break;
-case 8:
+case 10:
 					var indentation = yy_.yytext.length - yy_.yytext.search(/\s/) - 1;
 					if (indentation > _iemitstack[0]) {
 						_iemitstack.unshift(indentation);
-						return 12;
+						return 14;
 					}
 				
 					var tokens = [];
@@ -634,12 +647,12 @@ case 8:
 					if (tokens.length) return tokens;
 				
 break;
-case 9:/* ignore all other whitespace */
+case 11:/* ignore all other whitespace */
 break;
 }
 },
-rules: [/^(?:PAR\b)/,/^(?:!)/,/^(?:\?)/,/^(?:([a-zA-Z][a-zA-Z0-9]*))/,/^(?:\d+)/,/^(?:$)/,/^(?:\s*$)/,/^(?:[\n\r]+([\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000])*(?![^\n\r]))/,/^(?:[\n\r]([\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000])*)/,/^(?:([\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000])+)/],
-conditions: {"EXPR":{"rules":[0,1,2,3,4,5,7,9],"inclusive":true},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9],"inclusive":true}}
+rules: [/^(?:PAR\b)/,/^(?:SEQ\b)/,/^(?:!)/,/^(?:\?)/,/^(?::=)/,/^(?:([a-zA-Z][a-zA-Z0-9]*))/,/^(?:\d+)/,/^(?:$)/,/^(?:\s*$)/,/^(?:[\n\r]+([\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000])*(?![^\n\r]))/,/^(?:[\n\r]([\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000])*)/,/^(?:([\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000])+)/],
+conditions: {"EXPR":{"rules":[0,1,2,3,4,5,6,7,9,11],"inclusive":true},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11],"inclusive":true}}
 });
 /* initialize the pseudo-token stack with 0 indents */
 _iemitstack = [0];;

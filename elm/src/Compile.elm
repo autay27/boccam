@@ -11,14 +11,11 @@ example_tree = Branch "seq" [Branch "proc_list" [Branch "out" [Leaf (Ident "chan
 
 -- simulating program
 
---Could have a counter for the sequential block - which line comes next. solves the blocking problem too.
---aim to give all 'threads' equal expected time - Not dpeendnet on how deep in the trre it is
-
 type WaitCond = PlchldWait
 
 type Outcome a b c = RunErr a | Ran b | Blocked c
 
-type Value = Number Int | Channel String | Process Proc
+type Value = Number Int | Channel String | Process Proc | Boolval Bool
 
 type alias Chan = { inUse: Bool, value: Value, lastUser: Int }
 
@@ -88,8 +85,8 @@ step e out rs ws state =
                                 waiting = ws,
                                 state = state })
                         _ -> RunErr "must output number"
-                Ok (Number n) -> RunErr "cannot output to number"
-                _ -> RunErr "must output to channel"
+                Err msg -> RunErr ("Tried to output but: " ++ msg)
+                _ -> RunErr "must output to a channel"
 
         Branch "assign_expr" (id::e1::[]) ->
             case (eval e1 state) of
@@ -110,8 +107,43 @@ step e out rs ws state =
                             state = s }
                 Err m -> RunErr m
 
-        Leaf l -> case eval l state of 
-            Process proc -> step proc out rs ws state
+        Branch "while" (cond::e1) ->
+            case (eval cond state) of
+                Ok (Boolval True) -> 
+                    let aw = Branch "active_while" [cond,e1,e1] in
+                        Ran { output = out,
+                            running = (aw::rs),
+                            waiting = ws,
+                            state = state }
+                Ok (Boolval False) -> Ran { output = out,
+                                            running = rs,
+                                            waiting = ws,
+                                            state = state }
+                _ -> RunErr "Condition must evaluate to boolean value"
+                --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
+        
+        Branch "active_while" (cond::original::e1) ->
+            case (step e1 out [] ws state) of
+                Ran model -> case model.running of 
+                    [] -> let w = Branch "while" [cond, original] in
+                        Ran { output = out,
+                            running = (w::rs),
+                            waiting = ws,
+                            state = state }
+                    (y::ys) -> let aw = Branch "active_while" [cond,original,(y::ys)] in
+                        Ran { output = out,
+                            running = (aw::rs),
+                            waiting = ws,
+                            state = state }
+                Blocked wc -> let new = {  proc = e, waitingFor = wc } in
+                        Ran { output = out,
+                            running = rs,
+                            waiting = new :: ws,
+                            state = state }
+--not very space efficient to store two copies of the code.. 
+
+        Leaf l -> case eval (Leaf l) state of 
+            Ok (Process proc) -> step proc out rs ws state
             _ -> RunErr "Tried to run variable, but it didn't hold a process"
 
         Branch _ _ -> RunErr "Wrong tree structure"
@@ -120,7 +152,9 @@ eval : Tree -> State -> Result String Value
 eval t state =
     case t of
         Leaf (Ident s) -> 
-            Need to actually look it up
+            case Dict.get s state of
+                Just v -> Ok v
+                Nothing -> Err ("Variable " ++ s ++ " not declared")
         Leaf (Num n) -> Ok (Number n)
         Branch rule children -> Err "eval processing a tree"
 

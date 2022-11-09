@@ -14,7 +14,15 @@ process
     ;
 
 proc
-    : ID OUT expr 
+    : INT ID DECLARED
+        { $$ = ["declare", "int", $2] }
+    | CHAN OF INT ID DECLARED
+        { $$ = ["declare_chan", "int", $4] }
+    | ID ASSIGN expr
+        { $$ = ["assign_expr", $1, $expr] }
+    | ID ASSIGN proc
+        { $$ = ["assign_proc", $1, $proc] }
+    | ID OUT expr 
         { $$ = ["out", $1, $expr] }
     | ID IN ID 
         { $$ = ["in", $1, $expr] }
@@ -22,10 +30,8 @@ proc
         { $$ = ["par", $proc_block] }
     | SEQ proc_block
         { $$ = ["seq", $proc_block] }
-    | ID ASSIGN expr
-        { $$ = ["assign_expr", $1, $expr] }
-    | ID ASSIGN proc
-        { $$ = ["assign_proc", $1, $proc] }
+    | WHILE expr INDENT proc DEDENT
+        { $$ = ["while", $expr, $proc] }
     ;
 
 proc_block
@@ -43,4 +49,8 @@ proc_list
 expr
     : INTEGER
         { $$ = Number(yytext);}
+    | BTRUE
+        { $$ = ["boolexp", "true"] }
+    | BFALSE
+        { $$ = ["boolexp", "false"] }
     ;

@@ -6,10 +6,17 @@ type TreeValue = Num Int | Ident String
 
 type Tree = Leaf TreeValue | Branch String (List Tree)
 
-example_tree = Branch "seq" [Branch "proc_list" [Branch "out" [Leaf (Ident "chan"), Leaf (Num 0)], 
-                                                Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]]]
+--example_tree = Branch "seq" [Branch "proc_list" [Branch "out" [Leaf (Ident "chan"), Leaf (Num 0)], Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]]]
+
+example_tree = Branch "seq" [Branch "proc_list"[
+    Branch "declare_chan" [Leaf (Ident "chan")], 
+    Branch "par" [Branch "proc_list" 
+        [Branch "while" [Leaf (Ident "true"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]],
+        Branch "while" [Leaf (Ident "true"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]]]]]]
 
 -- simulating program
+--I really want to change from string identifiers for branches to just having crap ton of... what are they called, idk, the different instances of Tree. 
+--I also want to make it more monadic, look at all the times i re-create the Model, this is what monads are for. I will do this in the winter
 
 type WaitCond = PlchldWait
 
@@ -107,14 +114,14 @@ step e out rs ws state =
                             state = s }
                 Err m -> RunErr m
 
-        Branch "while" (cond::e1) ->
+        Branch "while" (cond::e1::[]) ->
             case (eval cond state) of
                 Ok (Boolval True) -> 
                     let aw = Branch "active_while" [cond,e1,e1] in
-                        Ran { output = out,
+                        Ran (addLine "evald while cond to true" { output = out,
                             running = (aw::rs),
                             waiting = ws,
-                            state = state }
+                            state = state })
                 Ok (Boolval False) -> Ran { output = out,
                                             running = rs,
                                             waiting = ws,
@@ -122,35 +129,46 @@ step e out rs ws state =
                 _ -> RunErr "Condition must evaluate to boolean value"
                 --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
         
-        Branch "active_while" (cond::original::e1) ->
+        Branch "active_while" (cond::original::e1::[]) ->
             case (step e1 out [] ws state) of
                 Ran model -> case model.running of 
                     [] -> let w = Branch "while" [cond, original] in
-                        Ran { output = out,
+                        Ran { output = model.output,
                             running = (w::rs),
                             waiting = ws,
                             state = state }
-                    (y::ys) -> let aw = Branch "active_while" [cond,original,(y::ys)] in
-                        Ran { output = out,
+                    (y::ys) -> let aw = Branch "active_while" [cond, original, Branch "par" (y::ys)] in
+                        Ran { output = model.output,
                             running = (aw::rs),
                             waiting = ws,
                             state = state }
                 Blocked wc -> let new = {  proc = e, waitingFor = wc } in
-                        Ran { output = out,
+                        Ran ( addLine "while body blocked" { output = out,
                             running = rs,
                             waiting = new :: ws,
-                            state = state }
---not very space efficient to store two copies of the code.. 
+                            state = state })
+                RunErr msg -> RunErr msg
+--not very space efficient to store two copies of the code
+
+        Branch "declare_chan" ((Leaf (Ident id))::[]) -> 
+            case (update state (Leaf (Ident id)) (Channel id)) of
+                Ok state2 -> Ran ( addLine ("declared " ++ id) { output = out,
+                                running = rs,
+                                waiting = ws,
+                                state = state2 })
+                Err msg -> RunErr msg
 
         Leaf l -> case eval (Leaf l) state of 
             Ok (Process proc) -> step proc out rs ws state
             _ -> RunErr "Tried to run variable, but it didn't hold a process"
 
-        Branch _ _ -> RunErr "Wrong tree structure"
+        Branch s _ -> RunErr ("Wrong tree structure for " ++ s)
 
 eval : Tree -> State -> Result String Value
 eval t state =
     case t of
+        Leaf (Ident "true") -> Ok (Boolval True)
+        --need to put this in an init state
         Leaf (Ident s) -> 
             case Dict.get s state of
                 Just v -> Ok v

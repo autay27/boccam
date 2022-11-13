@@ -15,9 +15,9 @@ process
 
 proc
     : INT ID DECLARED
-        { $$ = ["declare", "int", $2] }
+        { $$ = ["declare", $2] }
     | CHAN OF INT ID DECLARED
-        { $$ = ["declare_chan", "int", $4] }
+        { $$ = ["declare_chan", $4] }
     | ID ASSIGN expr
         { $$ = ["assign_expr", $1, $expr] }
     | ID ASSIGN proc

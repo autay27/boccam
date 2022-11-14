@@ -1,6 +1,7 @@
 module Compile exposing (..)
 
 import Dict exposing (Dict, empty, insert)
+import List exposing (head, take, drop)
 
 type TreeValue = Num Int | Ident String
 
@@ -12,7 +13,7 @@ example_tree = Branch "seq" [Branch "proc_list"[
     Branch "declare_chan" [Leaf (Ident "chan")], 
     Branch "par" [Branch "proc_list" 
         [Branch "while" [Leaf (Ident "true"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]],
-        Branch "while" [Leaf (Ident "true"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]]]]]]
+        Branch "while" [Leaf (Ident "true"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
 
 -- simulating program
 --I really want to change from string identifiers for branches to just having crap ton of... what are they called, idk, the different instances of Tree. 
@@ -34,15 +35,21 @@ type alias WaitingProc = { proc: Proc, waitingFor: WaitCond }
 
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
 
-run : Model -> Result String Model
-run m =
+run : Model -> Int -> Result String Model
+run m n =
     case m.running of
-        (x::xs) ->
-            --we won't do it randomly for now
-            case step x m.output xs m.waiting m.state of
-                Ran s -> Ok s
-                RunErr e -> Err e
-                Blocked b -> Err "Blocking reached top level"
+        (x::xs) -> 
+            let
+                chosen = head (drop n m.running)
+                notChosen = (take n m.running) ++ (drop (n+1) m.running)
+            in
+                case chosen of 
+                    Just t ->
+                        case step t m.output notChosen m.waiting m.state of
+                            Ran s -> Ok s
+                            RunErr e -> Err e
+                            Blocked b -> Err "Blocking reached top level"
+                    Nothing -> Err "Failed to choose a thread"
         [] -> Err "program finished"
 
 step : Proc -> String -> (List Proc) -> (List WaitingProc) -> State -> Outcome String Model WaitCond
@@ -52,12 +59,10 @@ step e out rs ws state =
         Branch "par" (x::[]) ->
             case x of
                 Branch "proc_list" ys -> 
-                    case run { output = out,
-                                running = (rs ++ ys), 
-                                waiting = ws, 
-                                state = state} of
-                        Ok model -> Ran model
-                        Err msg -> RunErr msg
+                    Ran { output = out,
+                            running = (rs ++ ys), 
+                            waiting = ws, 
+                            state = state}
                 _ -> RunErr "PAR rule must be followed by process list only"
 
         Branch "seq" (x::[]) ->

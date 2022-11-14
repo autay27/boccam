@@ -6,40 +6,54 @@ import Html.Events exposing (onClick)
 
 import Compile exposing (Tree, Proc, WaitingProc, State)
 import Dict exposing (Dict, empty)
+import Random exposing (generate, int)
+import List exposing (length)
 
 -- MAIN
 
 main =
-  Browser.sandbox { init = init, update = update, view = view }
+  Browser.element { init = init, update = update, subscriptions = subscriptions, view = view }
 
 -- MODEL
 
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
 
-init : Model
-init = { output = "",  running = [Compile.example_tree], waiting = [], state = Dict.empty }
---should generate it by calling a function
+init : () -> (Model, Cmd Msg)
+init _ = 
+  ({ output = "",  running = [Compile.example_tree], waiting = [], state = Dict.empty }
+  , Cmd.none
+  )
 
 -- UPDATE
 
 type Msg
-  = Step | Run
+  = Step | Run | Thread Int
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Step ->
-      case Compile.run model of 
-        Ok m -> m
-        Err s -> { output = model.output ++ s ++ "\n",
+      (model, Random.generate Thread (Random.int 0 (length model.running - 1)))
+    Thread n ->
+      case Compile.run model n of 
+        Ok m -> (m, Cmd.none)
+        Err s -> ({ output = model.output ++ s ++ "\n",
                   running = model.running,
                   waiting = model.waiting,
-                  state = model.state }
+                  state = model.state }, Cmd.none)
     Run -> 
-                { output = model.output ++ "I don't know how to run\n",
+                ({ output = model.output ++ "I don't know how to run\n",
                   running = model.running,
                   waiting = model.waiting,
-                  state = model.state }
+                  state = model.state }, Cmd.none)
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  Sub.none
+
 
 -- VIEW
 

@@ -49,8 +49,6 @@ proc_list
 expr
     : INTEGER
         { $$ = Number(yytext);}
-    | BTRUE
-        { $$ = ["boolexp", "true"] }
-    | BFALSE
-        { $$ = ["boolexp", "false"] }
+    | ID
+        { $$ = yytext }
     ;

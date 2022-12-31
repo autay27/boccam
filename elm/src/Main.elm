@@ -20,7 +20,7 @@ type alias Model = { output: String, running: (List Proc), waiting: (List Waitin
 
 init : () -> (Model, Cmd Msg)
 init _ = 
-  ({ output = "",  running = [Compile.example_tree], waiting = [], state = Dict.empty }
+  ({ output = "\n",  running = [Compile.example_tree], waiting = [], state = Dict.empty }
   , Cmd.none
   )
 
@@ -62,5 +62,7 @@ print s = List.intersperse (br [] []) (List.map text (String.lines s))
 view : Model -> Html Msg
 view model =
   div []
-    ( (print model.output) ++
-    [ button [ onClick Step ] [ text "Step" ]])
+    ( 
+      [ button [ onClick Step ] [ text "Step" ]] ++
+      (print model.output)
+    )

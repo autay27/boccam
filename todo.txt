@@ -1,7 +1,30 @@
-Fix the EOF-related parsing/lexing problem
-I have some kind of compilation with a lot of cheats. Right now
--add declarations to the parser
--add looping to the parser
--need to make the channel value type correct and like.. process it correctly
--organise the code better somehow
--add randomness(?)
+-Fix the EOF-related parsing/lexing problem
+-use monads
+-hook up more parts of the program - Need to figure out elm subscriptions!
+-keyboard and screen channels which connect into elm
+
+What should the monad be? atm we have this thing
+
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
+
+for a monad we need M a, $>, and result. Here, it's a bit complicated because... I guess it's the monad for a bunch of processes? 
+
+Does it even matter as long as we never touch it directly? all we need is stuff like
+
+print m xs = (m with xs concat'd on the output)
+
+update m s = (m with state s)
+
+spawn m xs = (m with xs concat on running states)
+
+ready m xs = (m with xs concat on waiting states)
+
+we also need stuff like 'processesOf m' because the pattern matching and reconstructing is just a pain right?
+
+---
+
+I remember I have an issue where because you need to hit the while loop to unroll all the processes inside it, they're less likely which is wrong? I dunno something to do wit the while we'll find it.
+
+Thinking about whether to implement the type system from occam 2.1 so that users can easily work with strings and chars. > Enough to be able to draw primitves to the screen (maybe even have sounds) so users can make graphics easily 
+
+codemirror can allow some services like automatic indentation help?

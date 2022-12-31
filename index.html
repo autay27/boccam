@@ -5,7 +5,7 @@
 <script src="jison/occam.js"></script>
 <script>
     function parse () {
-        var input = document.getElementById("editor").value
+        var input = document.getElementById("editor").value.concat(" ")
         var result = occam.parse(input);
 
         function organise (input) {
@@ -24,9 +24,36 @@
             }
         }
 
-        console.log(JSON.stringify(organise(result)));
+        var tree = (organise(result));
 
+        document.getElementById("jsonTree").innerHTML = JSON.stringify(tree);
     }
 </script>
-<textarea id="editor" style="width: 50vw; min-height: 10vh;">chan ! 0</textarea>
-<button onclick="parse()">parse</button>
+
+<div style="display: flex; flex-direction: row; column-gap: 10px;">
+
+    <div style="width: 50vw; display:flex; flex-direction: column;">
+        <textarea id="editor" style="min-height: 50vh;">
+SEQ 
+    CHAN OF INT chan:
+    PAR
+        WHILE TRUE
+            chan ! 0
+        WHILE TRUE
+            chan ! 1
+        </textarea>
+        <button onclick="parse()">parse</button>
+
+        <div id="jsonTree"></div>
+    </div>
+
+    <div id="elm-app"></div>
+    
+    <script src="elm/elm.js"></script>
+    <script>
+    var app = Elm.Main.init({
+        node: document.getElementById("elm-app")
+    });      
+    </script>
+
+</div>

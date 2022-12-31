@@ -16,15 +16,13 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 "WHILE"			return 'WHILE';
 
 ":="			return 'ASSIGN';
-"INT"			return 'TYPEINT';
-"CHAN"			return 'TYPECHAN';
+"INT"			return 'INT';
+"CHAN"			return 'CHAN';
 "OF"			return 'OF'
 ":"				return 'DECLARED';
 
 {id}				return 'ID';
 \d+				return 'INTEGER';
-"TRUE"				return 'BTRUE';
-"FALSE"				return 'BFALSE';
 
 
 <<EOF>>				return "ENDOFFILE";

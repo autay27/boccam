@@ -12,12 +12,13 @@ type Tree = Leaf TreeValue | Branch String (List Tree)
 example_tree = Branch "seq" [Branch "proc_list"[
     Branch "declare_chan" [Leaf (Ident "chan")], 
     Branch "par" [Branch "proc_list" 
-        [Branch "while" [Leaf (Ident "true"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]],
-        Branch "while" [Leaf (Ident "true"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
+        [Branch "while" [Leaf (Ident "TRUE"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]],
+        Branch "while" [Leaf (Ident "TRUE"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
 
 -- simulating program
---I really want to change from string identifiers for branches to just having crap ton of... what are they called, idk, the different instances of Tree. 
+--I really want to change from string identifiers for branches to just having ton of... what are they called, idk, the different instances of Tree. 
 --I also want to make it more monadic, look at all the times i re-create the Model, this is what monads are for. I will do this in the winter
+--At the moment the threads inside a WHILE loop are less likely than the rest, I need to change it so that each thread has an ID and the while restarts when all processes with spwaned ids are gone
 
 type WaitCond = PlchldWait
 
@@ -123,10 +124,10 @@ step e out rs ws state =
             case (eval cond state) of
                 Ok (Boolval True) -> 
                     let aw = Branch "active_while" [cond,e1,e1] in
-                        Ran (addLine "evald while cond to true" { output = out,
+                        Ran { output = out,
                             running = (aw::rs),
                             waiting = ws,
-                            state = state })
+                            state = state }
                 Ok (Boolval False) -> Ran { output = out,
                                             running = rs,
                                             waiting = ws,
@@ -157,7 +158,8 @@ step e out rs ws state =
 
         Branch "declare_chan" ((Leaf (Ident id))::[]) -> 
             case (update state (Leaf (Ident id)) (Channel id)) of
-                Ok state2 -> Ran ( addLine ("declared " ++ id) { output = out,
+                Ok state2 -> Ran ( addLine ("declared " ++ id) 
+                                { output = out,
                                 running = rs,
                                 waiting = ws,
                                 state = state2 })
@@ -172,7 +174,7 @@ step e out rs ws state =
 eval : Tree -> State -> Result String Value
 eval t state =
     case t of
-        Leaf (Ident "true") -> Ok (Boolval True)
+        Leaf (Ident "TRUE") -> Ok (Boolval True)
         --need to put this in an init state
         Leaf (Ident s) -> 
             case Dict.get s state of
@@ -186,7 +188,6 @@ update state id v =
     case id of
         Leaf (Ident str) -> Ok (Dict.insert str v state)
         _ -> Err "tried to assign to a number"
-
 
 addLine : String -> Model -> Model
 addLine s m = { output = m.output ++ s ++ "\n",

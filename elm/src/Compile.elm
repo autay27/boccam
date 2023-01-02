@@ -2,18 +2,15 @@ module Compile exposing (..)
 
 import Dict exposing (Dict, empty, insert)
 import List exposing (head, take, drop)
+import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 
-type TreeValue = Num Int | Ident String
+--example_tree = Branch Seq [Branch ProcList [Branch Out [Leaf (Ident "chan"), Leaf (Num 0)], Branch Out [Leaf (Ident "chan"), Leaf (Num 1)]]]
 
-type Tree = Leaf TreeValue | Branch String (List Tree)
-
---example_tree = Branch "seq" [Branch "proc_list" [Branch "out" [Leaf (Ident "chan"), Leaf (Num 0)], Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]]]
-
-example_tree = Branch "seq" [Branch "proc_list"[
-    Branch "declare_chan" [Leaf (Ident "chan")], 
-    Branch "par" [Branch "proc_list" 
-        [Branch "while" [Leaf (Ident "TRUE"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 1)]],
-        Branch "while" [Leaf (Ident "TRUE"), Branch "out" [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
+example_tree = Branch Seq [Branch ProcList[
+    Branch DeclareChannel [Leaf (Ident "chan")], 
+    Branch Par [Branch ProcList 
+        [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 1)]],
+        Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
 
 -- simulating program
 --I really want to change from string identifiers for branches to just having ton of... what are they called, idk, the different instances of Tree. 
@@ -46,130 +43,95 @@ run m n =
             in
                 case chosen of 
                     Just t ->
-                        case step t m.output notChosen m.waiting m.state of
-                            Ran s -> Ok s
-                            RunErr e -> Err e
-                            Blocked b -> Err "Blocking reached top level"
+                        let m2 = {  output = m.output,
+                                    running = notChosen,
+                                    waiting = m.waiting,
+                                    state = m.state }
+                        in 
+                            case step t m2 of
+                                Ran s -> Ok s
+                                RunErr e -> Err e
+                                Blocked b -> Err "Blocking reached top level"
                     Nothing -> Err "Failed to choose a thread"
         [] -> Err "program finished"
 
-step : Proc -> String -> (List Proc) -> (List WaitingProc) -> State -> Outcome String Model WaitCond
-step e out rs ws state =
+step : Proc -> Model -> Outcome String Model WaitCond
+step e m = let state = m.state in
     case e of
 
-        Branch "par" (x::[]) ->
+        Branch Par (x::[]) ->
             case x of
-                Branch "proc_list" ys -> 
-                    Ran { output = out,
-                            running = (rs ++ ys), 
-                            waiting = ws, 
-                            state = state}
+                Branch ProcList ys -> 
+                    Ran (spawn ys m)
                 _ -> RunErr "PAR rule must be followed by process list only"
 
-        Branch "seq" (x::[]) ->
+        Branch Seq (x::[]) ->
             case x of 
-                Branch "proc_list" (y::ys) -> 
-                    case (step y out rs ws state) of 
-                        Ran model -> if (ys == []) then 
-                                        Ran model
-                                    else
-                                        Ran { output = model.output,
-                                        running = [Branch "seq" [Branch "proc_list" ys]] ++ model.running,
-                                        waiting = model.waiting,
-                                        state = model.state }
-                        Blocked wc ->  let 
-                                            new = {  proc = e, waitingFor = wc }
-                                        in                        
-                                            Ran { output = out,
-                                            running = rs,
-                                            waiting = new :: ws,
-                                            state = state }
-                        RunErr m -> RunErr m
+                Branch ProcList (y::ys) -> 
+                    case (step y m) of 
+                        Ran model -> 
+                            if (ys == []) then Ran model
+                            else Ran (spawn [Branch Seq [Branch ProcList ys]] model)
+
+                        Blocked wc -> let new = {  proc = e, waitingFor = wc } in                        
+                            Ran (block [new] m)
+
+                        RunErr msg -> RunErr msg
                 _ -> RunErr "SEQ rule must be followed by process list only"
 
-        Branch "out" (x::y::[]) -> 
+        Branch Out (x::y::[]) -> 
             case (eval x state) of 
                 Ok (Channel c) ->
                     case (eval y state) of
                         Ok (Number n) ->
-                            Ran ( addLine (c ++ " ! " ++ (String.fromInt n)) 
-                                { output = out,
-                                running = rs,
-                                waiting = ws,
-                                state = state })
+                            Ran ( print (c ++ " ! " ++ (String.fromInt n)) m)
                         _ -> RunErr "must output number"
                 Err msg -> RunErr ("Tried to output but: " ++ msg)
                 _ -> RunErr "must output to a channel"
 
-        Branch "assign_expr" (id::e1::[]) ->
+        Branch AssignExpr (id::e1::[]) ->
             case (eval e1 state) of
                 Ok v -> 
-                    case (update state id v) of
-                        Ok s -> Ran { output = out,
-                                    running = rs,
-                                    waiting = ws,
-                                    state = s }
-                        Err m -> RunErr m
-                Err m -> RunErr m
+                    case (assign state id v) of
+                        Ok s -> Ran (update s m)
+                        Err msg -> RunErr msg
+                Err msg -> RunErr msg
         
-        Branch "assign_proc" (id::e1::[]) ->
-            case (update state id (Process e1)) of
-                Ok s -> Ran { output = out,
-                            running = rs,
-                            waiting = ws,
-                            state = s }
-                Err m -> RunErr m
+        Branch AssignProc (id::e1::[]) ->
+            case (assign state id (Process e1)) of
+                Ok s -> Ran (update s m)
+                Err msg -> RunErr msg
 
-        Branch "while" (cond::e1::[]) ->
+        Branch While (cond::e1::[]) ->
             case (eval cond state) of
                 Ok (Boolval True) -> 
-                    let aw = Branch "active_while" [cond,e1,e1] in
-                        Ran { output = out,
-                            running = (aw::rs),
-                            waiting = ws,
-                            state = state }
-                Ok (Boolval False) -> Ran { output = out,
-                                            running = rs,
-                                            waiting = ws,
-                                            state = state }
+                    let aw = Branch ActiveWhile [cond,e1,e1] in
+                        Ran (spawn [aw] m)
+                Ok (Boolval False) -> Ran m
                 _ -> RunErr "Condition must evaluate to boolean value"
-                --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
+        --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
         
-        Branch "active_while" (cond::original::e1::[]) ->
-            case (step e1 out [] ws state) of
+        Branch ActiveWhile (cond::original::e1::[]) ->
+            case (step e1 (update m.state freshModel)) of
                 Ran model -> case model.running of 
-                    [] -> let w = Branch "while" [cond, original] in
-                        Ran { output = model.output,
-                            running = (w::rs),
-                            waiting = ws,
-                            state = state }
-                    (y::ys) -> let aw = Branch "active_while" [cond, original, Branch "par" (y::ys)] in
-                        Ran { output = model.output,
-                            running = (aw::rs),
-                            waiting = ws,
-                            state = state }
+                    [] -> let w = Branch While [cond, original] in
+                        Ran (print model.output (spawn [w] m))
+                    (y::ys) -> let aw = Branch ActiveWhile [cond, original, Branch Par (y::ys)] in
+                        Ran (print model.output (spawn [aw] m))
                 Blocked wc -> let new = {  proc = e, waitingFor = wc } in
-                        Ran ( addLine "while body blocked" { output = out,
-                            running = rs,
-                            waiting = new :: ws,
-                            state = state })
+                        Ran (print "while body blocked" (block [new] m))
                 RunErr msg -> RunErr msg
---not very space efficient to store two copies of the code
+        --not very space efficient to store two copies of the code
 
-        Branch "declare_chan" ((Leaf (Ident id))::[]) -> 
-            case (update state (Leaf (Ident id)) (Channel id)) of
-                Ok state2 -> Ran ( addLine ("declared " ++ id) 
-                                { output = out,
-                                running = rs,
-                                waiting = ws,
-                                state = state2 })
+        Branch DeclareChannel ((Leaf (Ident id))::[]) -> 
+            case (assign state (Leaf (Ident id)) (Channel id)) of
+                Ok state2 -> Ran ( print ("declared " ++ id) (update state2 m))
                 Err msg -> RunErr msg
 
         Leaf l -> case eval (Leaf l) state of 
-            Ok (Process proc) -> step proc out rs ws state
+            Ok (Process proc) -> step proc m
             _ -> RunErr "Tried to run variable, but it didn't hold a process"
-
-        Branch s _ -> RunErr ("Wrong tree structure for " ++ s)
+        Branch s _ -> RunErr ("Wrong tree structure")
 
 eval : Tree -> State -> Result String Value
 eval t state =
@@ -183,14 +145,37 @@ eval t state =
         Leaf (Num n) -> Ok (Number n)
         Branch rule children -> Err "eval processing a tree"
 
-update : State -> Tree -> Value -> Result String State
-update state id v = 
+assign : State -> Tree -> Value -> Result String State
+assign state id v = 
     case id of
         Leaf (Ident str) -> Ok (Dict.insert str v state)
         _ -> Err "tried to assign to a number"
 
-addLine : String -> Model -> Model
-addLine s m = { output = m.output ++ s ++ "\n",
+freshModel = { output = "",
+                running = [],
+                waiting = [],
+                state = Dict.empty }
+
+print : String -> Model -> Model
+print s m = { output = m.output ++ s ++ "\n",
                 running = m.running,
                 waiting = m.waiting,
+                state = m.state }
+
+update : State -> Model -> Model 
+update s m = { output = m.output,
+                running = m.running,
+                waiting = m.waiting,
+                state = s }
+
+spawn : (List Proc) -> Model -> Model 
+spawn xs m = { output = m.output,
+                running = xs ++ m.running,
+                waiting = m.waiting,
+                state = m.state }
+
+block : (List WaitingProc) -> Model -> Model 
+block xs m = { output = m.output,
+                running = m.running,
+                waiting = xs ++ m.waiting,
                 state = m.state }

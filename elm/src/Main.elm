@@ -4,7 +4,8 @@ import Browser
 import Html exposing (Html, button, div, text, br)
 import Html.Events exposing (onClick)
 
-import Compile exposing (Tree, Proc, WaitingProc, State)
+import Readfile exposing (Tree)
+import Compile exposing (Model, Proc, WaitingProc, State)
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int)
 import List exposing (length)
@@ -15,8 +16,6 @@ main =
   Browser.element { init = init, update = update, subscriptions = subscriptions, view = view }
 
 -- MODEL
-
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
 
 init : () -> (Model, Cmd Msg)
 init _ = 

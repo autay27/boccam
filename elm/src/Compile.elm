@@ -13,9 +13,6 @@ example_tree = Branch Seq [Branch ProcList[
         Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
 
 -- simulating program
---I really want to change from string identifiers for branches to just having ton of... what are they called, idk, the different instances of Tree. 
---I also want to make it more monadic, look at all the times i re-create the Model, this is what monads are for. I will do this in the winter
---At the moment the threads inside a WHILE loop are less likely than the rest, I need to change it so that each thread has an ID and the while restarts when all processes with spwaned ids are gone
 
 type WaitCond = PlchldWait
 
@@ -118,6 +115,7 @@ step e m = let state = m.state in
                         Ran (print model.output (spawn [w] m))
                     (y::ys) -> let aw = Branch ActiveWhile [cond, original, Branch Par (y::ys)] in
                         Ran (print model.output (spawn [aw] m))
+                    --broken, but I wanted to change it up anyway!
                 Blocked wc -> let new = {  proc = e, waitingFor = wc } in
                         Ran (print "while body blocked" (block [new] m))
                 RunErr msg -> RunErr msg

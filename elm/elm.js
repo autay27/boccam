@@ -5244,81 +5244,87 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $author$project$Compile$Branch = F2(
+var $author$project$Readfile$Branch = F2(
 	function (a, b) {
 		return {$: 'Branch', a: a, b: b};
 	});
-var $author$project$Compile$Ident = function (a) {
+var $author$project$Readfile$DeclareChannel = {$: 'DeclareChannel'};
+var $author$project$Readfile$Ident = function (a) {
 	return {$: 'Ident', a: a};
 };
-var $author$project$Compile$Leaf = function (a) {
+var $author$project$Readfile$Leaf = function (a) {
 	return {$: 'Leaf', a: a};
 };
-var $author$project$Compile$Num = function (a) {
+var $author$project$Readfile$Num = function (a) {
 	return {$: 'Num', a: a};
 };
+var $author$project$Readfile$Out = {$: 'Out'};
+var $author$project$Readfile$Par = {$: 'Par'};
+var $author$project$Readfile$ProcList = {$: 'ProcList'};
+var $author$project$Readfile$Seq = {$: 'Seq'};
+var $author$project$Readfile$While = {$: 'While'};
 var $author$project$Compile$example_tree = A2(
-	$author$project$Compile$Branch,
-	'seq',
+	$author$project$Readfile$Branch,
+	$author$project$Readfile$Seq,
 	_List_fromArray(
 		[
 			A2(
-			$author$project$Compile$Branch,
-			'proc_list',
+			$author$project$Readfile$Branch,
+			$author$project$Readfile$ProcList,
 			_List_fromArray(
 				[
 					A2(
-					$author$project$Compile$Branch,
-					'declare_chan',
+					$author$project$Readfile$Branch,
+					$author$project$Readfile$DeclareChannel,
 					_List_fromArray(
 						[
-							$author$project$Compile$Leaf(
-							$author$project$Compile$Ident('chan'))
+							$author$project$Readfile$Leaf(
+							$author$project$Readfile$Ident('chan'))
 						])),
 					A2(
-					$author$project$Compile$Branch,
-					'par',
+					$author$project$Readfile$Branch,
+					$author$project$Readfile$Par,
 					_List_fromArray(
 						[
 							A2(
-							$author$project$Compile$Branch,
-							'proc_list',
+							$author$project$Readfile$Branch,
+							$author$project$Readfile$ProcList,
 							_List_fromArray(
 								[
 									A2(
-									$author$project$Compile$Branch,
-									'while',
+									$author$project$Readfile$Branch,
+									$author$project$Readfile$While,
 									_List_fromArray(
 										[
-											$author$project$Compile$Leaf(
-											$author$project$Compile$Ident('true')),
+											$author$project$Readfile$Leaf(
+											$author$project$Readfile$Ident('TRUE')),
 											A2(
-											$author$project$Compile$Branch,
-											'out',
+											$author$project$Readfile$Branch,
+											$author$project$Readfile$Out,
 											_List_fromArray(
 												[
-													$author$project$Compile$Leaf(
-													$author$project$Compile$Ident('chan')),
-													$author$project$Compile$Leaf(
-													$author$project$Compile$Num(1))
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Ident('chan')),
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Num(1))
 												]))
 										])),
 									A2(
-									$author$project$Compile$Branch,
-									'while',
+									$author$project$Readfile$Branch,
+									$author$project$Readfile$While,
 									_List_fromArray(
 										[
-											$author$project$Compile$Leaf(
-											$author$project$Compile$Ident('true')),
+											$author$project$Readfile$Leaf(
+											$author$project$Readfile$Ident('TRUE')),
 											A2(
-											$author$project$Compile$Branch,
-											'out',
+											$author$project$Readfile$Branch,
+											$author$project$Readfile$Out,
 											_List_fromArray(
 												[
-													$author$project$Compile$Leaf(
-													$author$project$Compile$Ident('chan')),
-													$author$project$Compile$Leaf(
-													$author$project$Compile$Num(0))
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Ident('chan')),
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Num(0))
 												]))
 										]))
 								]))
@@ -5338,14 +5344,19 @@ var $author$project$Main$init = function (_v0) {
 		},
 		$elm$core$Platform$Cmd$none);
 };
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$Main$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$none;
+var $author$project$Main$ReceivedDataFromJS = function (a) {
+	return {$: 'ReceivedDataFromJS', a: a};
+};
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Main$messageReceiver = _Platform_incomingPort('messageReceiver', $elm$json$Json$Decode$value);
+var $author$project$Main$subscriptions = function (_v0) {
+	return $author$project$Main$messageReceiver($author$project$Main$ReceivedDataFromJS);
 };
 var $author$project$Main$Thread = function (a) {
 	return {$: 'Thread', a: a};
 };
+var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$Compile$freshModel = {output: '', running: _List_Nil, state: $elm$core$Dict$empty, waiting: _List_Nil};
 var $elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
 };
@@ -5495,6 +5506,10 @@ var $elm$random$Random$int = F2(
 				}
 			});
 	});
+var $author$project$Compile$print = F2(
+	function (s, m) {
+		return {output: m.output + (s + '\n'), running: m.running, state: m.state, waiting: m.waiting};
+	});
 var $elm$core$List$drop = F2(
 	function (n, list) {
 		drop:
@@ -5525,6 +5540,7 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
+var $author$project$Readfile$ActiveWhile = {$: 'ActiveWhile'};
 var $author$project$Compile$Channel = function (a) {
 	return {$: 'Channel', a: a};
 };
@@ -5537,76 +5553,6 @@ var $author$project$Compile$Ran = function (a) {
 var $author$project$Compile$RunErr = function (a) {
 	return {$: 'RunErr', a: a};
 };
-var $author$project$Compile$addLine = F2(
-	function (s, m) {
-		return {output: m.output + (s + '\n'), running: m.running, state: m.state, waiting: m.waiting};
-	});
-var $author$project$Compile$Boolval = function (a) {
-	return {$: 'Boolval', a: a};
-};
-var $author$project$Compile$Number = function (a) {
-	return {$: 'Number', a: a};
-};
-var $elm$core$Basics$compare = _Utils_compare;
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
-var $author$project$Compile$eval = F2(
-	function (t, state) {
-		if (t.$ === 'Leaf') {
-			if (t.a.$ === 'Ident') {
-				if (t.a.a === 'true') {
-					return $elm$core$Result$Ok(
-						$author$project$Compile$Boolval(true));
-				} else {
-					var s = t.a.a;
-					var _v1 = A2($elm$core$Dict$get, s, state);
-					if (_v1.$ === 'Just') {
-						var v = _v1.a;
-						return $elm$core$Result$Ok(v);
-					} else {
-						return $elm$core$Result$Err('Variable ' + (s + ' not declared'));
-					}
-				}
-			} else {
-				var n = t.a.a;
-				return $elm$core$Result$Ok(
-					$author$project$Compile$Number(n));
-			}
-		} else {
-			var rule = t.a;
-			var children = t.b;
-			return $elm$core$Result$Err('eval processing a tree');
-		}
-	});
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5667,6 +5613,7 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
+var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -5715,7 +5662,7 @@ var $elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
-var $author$project$Compile$update = F3(
+var $author$project$Compile$assign = F3(
 	function (state, id, v) {
 		if ((id.$ === 'Leaf') && (id.a.$ === 'Ident')) {
 			var str = id.a.a;
@@ -5725,30 +5672,112 @@ var $author$project$Compile$update = F3(
 			return $elm$core$Result$Err('tried to assign to a number');
 		}
 	});
-var $author$project$Compile$step = F5(
-	function (e, out, rs, ws, state) {
+var $author$project$Compile$block = F2(
+	function (xs, m) {
+		return {
+			output: m.output,
+			running: m.running,
+			state: m.state,
+			waiting: _Utils_ap(xs, m.waiting)
+		};
+	});
+var $author$project$Compile$Boolval = function (a) {
+	return {$: 'Boolval', a: a};
+};
+var $author$project$Compile$Number = function (a) {
+	return {$: 'Number', a: a};
+};
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
+var $author$project$Compile$eval = F2(
+	function (t, state) {
+		if (t.$ === 'Leaf') {
+			if (t.a.$ === 'Ident') {
+				if (t.a.a === 'TRUE') {
+					return $elm$core$Result$Ok(
+						$author$project$Compile$Boolval(true));
+				} else {
+					var s = t.a.a;
+					var _v1 = A2($elm$core$Dict$get, s, state);
+					if (_v1.$ === 'Just') {
+						var v = _v1.a;
+						return $elm$core$Result$Ok(v);
+					} else {
+						return $elm$core$Result$Err('Variable ' + (s + ' not declared'));
+					}
+				}
+			} else {
+				var n = t.a.a;
+				return $elm$core$Result$Ok(
+					$author$project$Compile$Number(n));
+			}
+		} else {
+			var rule = t.a;
+			var children = t.b;
+			return $elm$core$Result$Err('eval processing a tree');
+		}
+	});
+var $author$project$Compile$spawn = F2(
+	function (xs, m) {
+		return {
+			output: m.output,
+			running: _Utils_ap(xs, m.running),
+			state: m.state,
+			waiting: m.waiting
+		};
+	});
+var $author$project$Compile$update = F2(
+	function (s, m) {
+		return {output: m.output, running: m.running, state: s, waiting: m.waiting};
+	});
+var $author$project$Compile$step = F2(
+	function (e, m) {
 		step:
 		while (true) {
+			var state = m.state;
 			_v0$9:
 			while (true) {
 				if (e.$ === 'Leaf') {
 					var l = e.a;
-					var _v28 = A2(
+					var _v38 = A2(
 						$author$project$Compile$eval,
-						$author$project$Compile$Leaf(l),
+						$author$project$Readfile$Leaf(l),
 						state);
-					if ((_v28.$ === 'Ok') && (_v28.a.$ === 'Process')) {
-						var proc = _v28.a.a;
+					if ((_v38.$ === 'Ok') && (_v38.a.$ === 'Process')) {
+						var proc = _v38.a.a;
 						var $temp$e = proc,
-							$temp$out = out,
-							$temp$rs = rs,
-							$temp$ws = ws,
-							$temp$state = state;
+							$temp$m = m;
 						e = $temp$e;
-						out = $temp$out;
-						rs = $temp$rs;
-						ws = $temp$ws;
-						state = $temp$state;
+						m = $temp$m;
 						continue step;
 					} else {
 						return $author$project$Compile$RunErr('Tried to run variable, but it didn\'t hold a process');
@@ -5757,24 +5786,25 @@ var $author$project$Compile$step = F5(
 					if (e.b.b) {
 						if (e.b.b.b) {
 							if (!e.b.b.b.b) {
-								switch (e.a) {
-									case 'out':
-										var _v7 = e.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = A2($author$project$Compile$eval, x, state);
-										if (_v9.$ === 'Ok') {
-											if (_v9.a.$ === 'Channel') {
-												var c = _v9.a.a;
-												var _v10 = A2($author$project$Compile$eval, y, state);
-												if ((_v10.$ === 'Ok') && (_v10.a.$ === 'Number')) {
-													var n = _v10.a.a;
+								switch (e.a.$) {
+									case 'Out':
+										var _v11 = e.a;
+										var _v12 = e.b;
+										var x = _v12.a;
+										var _v13 = _v12.b;
+										var y = _v13.a;
+										var _v14 = A2($author$project$Compile$eval, x, state);
+										if (_v14.$ === 'Ok') {
+											if (_v14.a.$ === 'Channel') {
+												var c = _v14.a.a;
+												var _v15 = A2($author$project$Compile$eval, y, state);
+												if ((_v15.$ === 'Ok') && (_v15.a.$ === 'Number')) {
+													var n = _v15.a.a;
 													return $author$project$Compile$Ran(
 														A2(
-															$author$project$Compile$addLine,
+															$author$project$Compile$print,
 															c + (' ! ' + $elm$core$String$fromInt(n)),
-															{output: out, running: rs, state: state, waiting: ws}));
+															m));
 												} else {
 													return $author$project$Compile$RunErr('must output number');
 												}
@@ -5782,71 +5812,72 @@ var $author$project$Compile$step = F5(
 												return $author$project$Compile$RunErr('must output to a channel');
 											}
 										} else {
-											var msg = _v9.a;
+											var msg = _v14.a;
 											return $author$project$Compile$RunErr('Tried to output but: ' + msg);
 										}
-									case 'assign_expr':
-										var _v11 = e.b;
-										var id = _v11.a;
-										var _v12 = _v11.b;
-										var e1 = _v12.a;
-										var _v13 = A2($author$project$Compile$eval, e1, state);
-										if (_v13.$ === 'Ok') {
-											var v = _v13.a;
-											var _v14 = A3($author$project$Compile$update, state, id, v);
-											if (_v14.$ === 'Ok') {
-												var s = _v14.a;
+									case 'AssignExpr':
+										var _v16 = e.a;
+										var _v17 = e.b;
+										var id = _v17.a;
+										var _v18 = _v17.b;
+										var e1 = _v18.a;
+										var _v19 = A2($author$project$Compile$eval, e1, state);
+										if (_v19.$ === 'Ok') {
+											var v = _v19.a;
+											var _v20 = A3($author$project$Compile$assign, state, id, v);
+											if (_v20.$ === 'Ok') {
+												var s = _v20.a;
 												return $author$project$Compile$Ran(
-													{output: out, running: rs, state: s, waiting: ws});
+													A2($author$project$Compile$update, s, m));
 											} else {
-												var m = _v14.a;
-												return $author$project$Compile$RunErr(m);
+												var msg = _v20.a;
+												return $author$project$Compile$RunErr(msg);
 											}
 										} else {
-											var m = _v13.a;
-											return $author$project$Compile$RunErr(m);
+											var msg = _v19.a;
+											return $author$project$Compile$RunErr(msg);
 										}
-									case 'assign_proc':
-										var _v15 = e.b;
-										var id = _v15.a;
-										var _v16 = _v15.b;
-										var e1 = _v16.a;
-										var _v17 = A3(
-											$author$project$Compile$update,
+									case 'AssignProc':
+										var _v21 = e.a;
+										var _v22 = e.b;
+										var id = _v22.a;
+										var _v23 = _v22.b;
+										var e1 = _v23.a;
+										var _v24 = A3(
+											$author$project$Compile$assign,
 											state,
 											id,
 											$author$project$Compile$Process(e1));
-										if (_v17.$ === 'Ok') {
-											var s = _v17.a;
+										if (_v24.$ === 'Ok') {
+											var s = _v24.a;
 											return $author$project$Compile$Ran(
-												{output: out, running: rs, state: s, waiting: ws});
+												A2($author$project$Compile$update, s, m));
 										} else {
-											var m = _v17.a;
-											return $author$project$Compile$RunErr(m);
+											var msg = _v24.a;
+											return $author$project$Compile$RunErr(msg);
 										}
-									case 'while':
-										var _v18 = e.b;
-										var cond = _v18.a;
-										var _v19 = _v18.b;
-										var e1 = _v19.a;
-										var _v20 = A2($author$project$Compile$eval, cond, state);
-										if ((_v20.$ === 'Ok') && (_v20.a.$ === 'Boolval')) {
-											if (_v20.a.a) {
+									case 'While':
+										var _v25 = e.a;
+										var _v26 = e.b;
+										var cond = _v26.a;
+										var _v27 = _v26.b;
+										var e1 = _v27.a;
+										var _v28 = A2($author$project$Compile$eval, cond, state);
+										if ((_v28.$ === 'Ok') && (_v28.a.$ === 'Boolval')) {
+											if (_v28.a.a) {
 												var aw = A2(
-													$author$project$Compile$Branch,
-													'active_while',
+													$author$project$Readfile$Branch,
+													$author$project$Readfile$ActiveWhile,
 													_List_fromArray(
 														[cond, e1, e1]));
 												return $author$project$Compile$Ran(
-													{
-														output: out,
-														running: A2($elm$core$List$cons, aw, rs),
-														state: state,
-														waiting: ws
-													});
+													A2(
+														$author$project$Compile$spawn,
+														_List_fromArray(
+															[aw]),
+														m));
 											} else {
-												return $author$project$Compile$Ran(
-													{output: out, running: rs, state: state, waiting: ws});
+												return $author$project$Compile$Ran(m);
 											}
 										} else {
 											return $author$project$Compile$RunErr('Condition must evaluate to boolean value');
@@ -5855,69 +5886,82 @@ var $author$project$Compile$step = F5(
 										break _v0$9;
 								}
 							} else {
-								if ((e.a === 'active_while') && (!e.b.b.b.b.b)) {
-									var _v21 = e.b;
-									var cond = _v21.a;
-									var _v22 = _v21.b;
-									var original = _v22.a;
-									var _v23 = _v22.b;
-									var e1 = _v23.a;
-									var _v24 = A5($author$project$Compile$step, e1, out, _List_Nil, ws, state);
-									switch (_v24.$) {
+								if ((e.a.$ === 'ActiveWhile') && (!e.b.b.b.b.b)) {
+									var _v29 = e.a;
+									var _v30 = e.b;
+									var cond = _v30.a;
+									var _v31 = _v30.b;
+									var original = _v31.a;
+									var _v32 = _v31.b;
+									var e1 = _v32.a;
+									var _v33 = A2(
+										$author$project$Compile$step,
+										e1,
+										A2($author$project$Compile$update, m.state, $author$project$Compile$freshModel));
+									switch (_v33.$) {
 										case 'Ran':
-											var model = _v24.a;
-											var _v25 = model.running;
-											if (!_v25.b) {
+											var model = _v33.a;
+											var _v34 = model.running;
+											if (!_v34.b) {
 												var w = A2(
-													$author$project$Compile$Branch,
-													'while',
+													$author$project$Readfile$Branch,
+													$author$project$Readfile$While,
 													_List_fromArray(
 														[cond, original]));
 												return $author$project$Compile$Ran(
-													{
-														output: model.output,
-														running: A2($elm$core$List$cons, w, rs),
-														state: state,
-														waiting: ws
-													});
+													A2(
+														$author$project$Compile$print,
+														model.output,
+														A2(
+															$author$project$Compile$spawn,
+															_List_fromArray(
+																[w]),
+															m)));
 											} else {
-												var y = _v25.a;
-												var ys = _v25.b;
+												var y = _v34.a;
+												var ys = _v34.b;
 												var aw = A2(
-													$author$project$Compile$Branch,
-													'active_while',
+													$author$project$Readfile$Branch,
+													$author$project$Readfile$ActiveWhile,
 													_List_fromArray(
 														[
 															cond,
 															original,
 															A2(
-															$author$project$Compile$Branch,
-															'par',
-															A2($elm$core$List$cons, y, ys))
+															$author$project$Readfile$Branch,
+															$author$project$Readfile$Par,
+															_List_fromArray(
+																[
+																	A2(
+																	$author$project$Readfile$Branch,
+																	$author$project$Readfile$ProcList,
+																	A2($elm$core$List$cons, y, ys))
+																]))
 														]));
 												return $author$project$Compile$Ran(
-													{
-														output: model.output,
-														running: A2($elm$core$List$cons, aw, rs),
-														state: state,
-														waiting: ws
-													});
+													A2(
+														$author$project$Compile$print,
+														model.output,
+														A2(
+															$author$project$Compile$spawn,
+															_List_fromArray(
+																[aw]),
+															m)));
 											}
 										case 'Blocked':
-											var wc = _v24.a;
+											var wc = _v33.a;
 											var _new = {proc: e, waitingFor: wc};
 											return $author$project$Compile$Ran(
 												A2(
-													$author$project$Compile$addLine,
+													$author$project$Compile$print,
 													'while body blocked',
-													{
-														output: out,
-														running: rs,
-														state: state,
-														waiting: A2($elm$core$List$cons, _new, ws)
-													}));
+													A2(
+														$author$project$Compile$block,
+														_List_fromArray(
+															[_new]),
+														m)));
 										default:
-											var msg = _v24.a;
+											var msg = _v33.a;
 											return $author$project$Compile$RunErr(msg);
 									}
 								} else {
@@ -5925,87 +5969,82 @@ var $author$project$Compile$step = F5(
 								}
 							}
 						} else {
-							switch (e.a) {
-								case 'par':
-									var _v1 = e.b;
-									var x = _v1.a;
-									if ((x.$ === 'Branch') && (x.a === 'proc_list')) {
+							switch (e.a.$) {
+								case 'Par':
+									var _v1 = e.a;
+									var _v2 = e.b;
+									var x = _v2.a;
+									if ((x.$ === 'Branch') && (x.a.$ === 'ProcList')) {
+										var _v4 = x.a;
 										var ys = x.b;
 										return $author$project$Compile$Ran(
-											{
-												output: out,
-												running: _Utils_ap(rs, ys),
-												state: state,
-												waiting: ws
-											});
+											A2($author$project$Compile$spawn, ys, m));
 									} else {
 										return $author$project$Compile$RunErr('PAR rule must be followed by process list only');
 									}
-								case 'seq':
-									var _v3 = e.b;
-									var x = _v3.a;
-									if (((x.$ === 'Branch') && (x.a === 'proc_list')) && x.b.b) {
-										var _v5 = x.b;
-										var y = _v5.a;
-										var ys = _v5.b;
-										var _v6 = A5($author$project$Compile$step, y, out, rs, ws, state);
-										switch (_v6.$) {
+								case 'Seq':
+									var _v5 = e.a;
+									var _v6 = e.b;
+									var x = _v6.a;
+									if (((x.$ === 'Branch') && (x.a.$ === 'ProcList')) && x.b.b) {
+										var _v8 = x.a;
+										var _v9 = x.b;
+										var y = _v9.a;
+										var ys = _v9.b;
+										var _v10 = A2($author$project$Compile$step, y, m);
+										switch (_v10.$) {
 											case 'Ran':
-												var model = _v6.a;
+												var model = _v10.a;
 												return _Utils_eq(ys, _List_Nil) ? $author$project$Compile$Ran(model) : $author$project$Compile$Ran(
-													{
-														output: model.output,
-														running: _Utils_ap(
-															_List_fromArray(
-																[
-																	A2(
-																	$author$project$Compile$Branch,
-																	'seq',
-																	_List_fromArray(
-																		[
-																			A2($author$project$Compile$Branch, 'proc_list', ys)
-																		]))
-																]),
-															model.running),
-														state: model.state,
-														waiting: model.waiting
-													});
+													A2(
+														$author$project$Compile$spawn,
+														_List_fromArray(
+															[
+																A2(
+																$author$project$Readfile$Branch,
+																$author$project$Readfile$Seq,
+																_List_fromArray(
+																	[
+																		A2($author$project$Readfile$Branch, $author$project$Readfile$ProcList, ys)
+																	]))
+															]),
+														model));
 											case 'Blocked':
-												var wc = _v6.a;
+												var wc = _v10.a;
 												var _new = {proc: e, waitingFor: wc};
 												return $author$project$Compile$Ran(
-													{
-														output: out,
-														running: rs,
-														state: state,
-														waiting: A2($elm$core$List$cons, _new, ws)
-													});
+													A2(
+														$author$project$Compile$block,
+														_List_fromArray(
+															[_new]),
+														m));
 											default:
-												var m = _v6.a;
-												return $author$project$Compile$RunErr(m);
+												var msg = _v10.a;
+												return $author$project$Compile$RunErr(msg);
 										}
 									} else {
 										return $author$project$Compile$RunErr('SEQ rule must be followed by process list only');
 									}
-								case 'declare_chan':
+								case 'DeclareChannel':
 									if ((e.b.a.$ === 'Leaf') && (e.b.a.a.$ === 'Ident')) {
-										var _v26 = e.b;
-										var id = _v26.a.a.a;
-										var _v27 = A3(
-											$author$project$Compile$update,
+										var _v35 = e.a;
+										var _v36 = e.b;
+										var id = _v36.a.a.a;
+										var _v37 = A3(
+											$author$project$Compile$assign,
 											state,
-											$author$project$Compile$Leaf(
-												$author$project$Compile$Ident(id)),
+											$author$project$Readfile$Leaf(
+												$author$project$Readfile$Ident(id)),
 											$author$project$Compile$Channel(id));
-										if (_v27.$ === 'Ok') {
-											var state2 = _v27.a;
+										if (_v37.$ === 'Ok') {
+											var state2 = _v37.a;
 											return $author$project$Compile$Ran(
 												A2(
-													$author$project$Compile$addLine,
+													$author$project$Compile$print,
 													'declared ' + id,
-													{output: out, running: rs, state: state2, waiting: ws}));
+													A2($author$project$Compile$update, state2, m)));
 										} else {
-											var msg = _v27.a;
+											var msg = _v37.a;
 											return $author$project$Compile$RunErr(msg);
 										}
 									} else {
@@ -6021,7 +6060,7 @@ var $author$project$Compile$step = F5(
 				}
 			}
 			var s = e.a;
-			return $author$project$Compile$RunErr('Wrong tree structure for ' + s);
+			return $author$project$Compile$RunErr('Wrong tree structure');
 		}
 	});
 var $elm$core$List$takeReverse = F3(
@@ -6163,7 +6202,8 @@ var $author$project$Compile$run = F2(
 				A2($elm$core$List$drop, n, m.running));
 			if (chosen.$ === 'Just') {
 				var t = chosen.a;
-				var _v2 = A5($author$project$Compile$step, t, m.output, notChosen, m.waiting, m.state);
+				var m2 = {output: m.output, running: notChosen, state: m.state, waiting: m.waiting};
+				var _v2 = A2($author$project$Compile$step, t, m2);
 				switch (_v2.$) {
 					case 'Ran':
 						var s = _v2.a;
@@ -6182,6 +6222,92 @@ var $author$project$Compile$run = F2(
 			return $elm$core$Result$Err('program finished');
 		}
 	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Readfile$idDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$author$project$Readfile$Leaf,
+	A2(
+		$elm$json$Json$Decode$map,
+		$author$project$Readfile$Ident,
+		A2($elm$json$Json$Decode$field, 'idleaf', $elm$json$Json$Decode$string)));
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		thunk,
+		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
+};
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $author$project$Readfile$numDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$author$project$Readfile$Leaf,
+	A2(
+		$elm$json$Json$Decode$map,
+		$author$project$Readfile$Num,
+		A2($elm$json$Json$Decode$field, 'numleaf', $elm$json$Json$Decode$int)));
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $author$project$Readfile$AssignExpr = {$: 'AssignExpr'};
+var $author$project$Readfile$AssignProc = {$: 'AssignProc'};
+var $elm$json$Json$Decode$fail = _Json_fail;
+var $author$project$Readfile$ruleFromString = function (str) {
+	switch (str) {
+		case 'proc_list':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$ProcList);
+		case 'par':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Par);
+		case 'seq':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Seq);
+		case 'out':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Out);
+		case 'assign_expr':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignExpr);
+		case 'assign_proc':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignProc);
+		case 'while':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$While);
+		case 'declare_chan':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareChannel);
+		default:
+			return $elm$json$Json$Decode$fail('Invalid grammar rule' + str);
+	}
+};
+var $author$project$Readfile$ruleDecoder = A2($elm$json$Json$Decode$andThen, $author$project$Readfile$ruleFromString, $elm$json$Json$Decode$string);
+function $author$project$Readfile$cyclic$treeDecoder() {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$author$project$Readfile$cyclic$branchDecoder(),
+				$author$project$Readfile$numDecoder,
+				$author$project$Readfile$idDecoder
+			]));
+}
+function $author$project$Readfile$cyclic$branchDecoder() {
+	return A3(
+		$elm$json$Json$Decode$map2,
+		$author$project$Readfile$Branch,
+		A2($elm$json$Json$Decode$field, 'rule', $author$project$Readfile$ruleDecoder),
+		A2(
+			$elm$json$Json$Decode$field,
+			'children',
+			$elm$json$Json$Decode$list(
+				$elm$json$Json$Decode$lazy(
+					function (_v0) {
+						return $author$project$Readfile$cyclic$treeDecoder();
+					}))));
+}
+try {
+	var $author$project$Readfile$treeDecoder = $author$project$Readfile$cyclic$treeDecoder();
+	$author$project$Readfile$cyclic$treeDecoder = function () {
+		return $author$project$Readfile$treeDecoder;
+	};
+	var $author$project$Readfile$branchDecoder = $author$project$Readfile$cyclic$branchDecoder();
+	$author$project$Readfile$cyclic$branchDecoder = function () {
+		return $author$project$Readfile$branchDecoder;
+	};
+} catch ($) {
+	throw 'Some top-level definitions from `Readfile` are causing infinite recursion:\n\n  ┌─────┐\n  │    treeDecoder\n  │     ↓\n  │    branchDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6207,10 +6333,31 @@ var $author$project$Main$update = F2(
 						{output: model.output + (s + '\n'), running: model.running, state: model.state, waiting: model.waiting},
 						$elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'Run':
 				return _Utils_Tuple2(
 					{output: model.output + 'I don\'t know how to run\n', running: model.running, state: model.state, waiting: model.waiting},
 					$elm$core$Platform$Cmd$none);
+			default:
+				var data = msg.a;
+				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
+				if (_v2.$ === 'Ok') {
+					var t = _v2.a;
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Compile$spawn,
+							_List_fromArray(
+								[t]),
+							$author$project$Compile$freshModel),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var e = _v2.a;
+					return _Utils_Tuple2(
+						A2(
+							$author$project$Compile$print,
+							$elm$json$Json$Decode$errorToString(e),
+							$author$project$Compile$freshModel),
+						$elm$core$Platform$Cmd$none);
+				}
 		}
 	});
 var $author$project$Main$Step = {$: 'Step'};
@@ -6255,7 +6402,7 @@ var $elm$core$List$intersperse = F2(
 var $elm$core$String$lines = _String_lines;
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$print = function (s) {
+var $author$project$Main$printout = function (s) {
 	return A2(
 		$elm$core$List$intersperse,
 		A2($elm$html$Html$br, _List_Nil, _List_Nil),
@@ -6282,7 +6429,7 @@ var $author$project$Main$view = function (model) {
 							$elm$html$Html$text('Step')
 						]))
 				]),
-			$author$project$Main$print(model.output)));
+			$author$project$Main$printout(model.output)));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});

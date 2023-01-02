@@ -1,14 +1,16 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Browser
 import Html exposing (Html, button, div, text, br)
 import Html.Events exposing (onClick)
 
-import Readfile exposing (Tree)
-import Compile exposing (Model, Proc, WaitingProc, State)
+import Readfile exposing (Tree, treeDecoder)
+import Compile exposing (Model, Proc, WaitingProc, State, freshModel, spawn, print)
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int)
 import List exposing (length)
+
+import Json.Decode
 
 -- MAIN
 
@@ -26,7 +28,7 @@ init _ =
 -- UPDATE
 
 type Msg
-  = Step | Run | Thread Int
+  = Step | Run | Thread Int | ReceivedDataFromJS Json.Decode.Value
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -45,23 +47,31 @@ update msg model =
                   running = model.running,
                   waiting = model.waiting,
                   state = model.state }, Cmd.none)
+    ReceivedDataFromJS data -> 
+      case (Json.Decode.decodeValue treeDecoder data) of 
+        Ok t -> ((spawn [t] freshModel), Cmd.none)
+        Err e -> ((print (Json.Decode.errorToString e) freshModel), Cmd.none)
+    
+    
+
+port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
 
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-  Sub.none
+subscriptions _ =
+  messageReceiver ReceivedDataFromJS
 
 
 -- VIEW
 
-print s = List.intersperse (br [] []) (List.map text (String.lines s))
+printout s = List.intersperse (br [] []) (List.map text (String.lines s))
 
 view : Model -> Html Msg
 view model =
   div []
     ( 
       [ button [ onClick Step ] [ text "Step" ]] ++
-      (print model.output)
+      (printout model.output)
     )

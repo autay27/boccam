@@ -27,6 +27,13 @@
         var tree = (organise(result));
 
         document.getElementById("jsonTree").innerHTML = JSON.stringify(tree);
+
+        return tree
+    }
+
+    function sendElm () {
+        var json = parse()
+        app.ports.messageReceiver.send(json);
     }
 </script>
 
@@ -42,8 +49,9 @@ SEQ
         WHILE TRUE
             chan ! 1
         </textarea>
-        <button onclick="parse()">parse</button>
+        <button onclick="sendElm()">begin interpreting</button>
 
+        Syntax tree as JSON:
         <div id="jsonTree"></div>
     </div>
 

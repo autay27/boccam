@@ -7,19 +7,35 @@ What should the monad be? atm we have this thing
 
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
 
-for a monad we need M a, $>, and result. Here, it's a bit complicated because... I guess it's the monad for a bunch of processes? 
+for a monad we need M a, $>, and result. Here, it's a bit complicated because... I guess it's the monad for a bunch of processes? what's the value? I guess each process ultimately returns a value. So result v = {no ouput, 1 running proces=v, no waiting, no state} 
 
-Does it even matter as long as we never touch it directly? all we need is stuff like
+$> :: M a -> (a -> M b) -> M b
 
-print m xs = (m with xs concat'd on the output)
+so in this cast (a -> M b) is stuff like the below
 
-update m s = (m with state s)
+    print xs m = (m with xs concat'd on the output)
 
-spawn m xs = (m with xs concat on running states)
+    update s m = (m with state s)
 
-ready m xs = (m with xs concat on waiting states)
+    spawn xs m = (m with xs concat on running states)
 
-we also need stuff like 'processesOf m' because the pattern matching and reconstructing is just a pain right?
+    pause xs m = (m with xs concat on waiting states)
+
+i.e. xm $> (f x) = case xm of {o, r, w, s} -> (f x) o r w s 
+
+even better if eac f can index the arguments and get the relevant ones without touching the rest but that's kind of a headache. 
+
+we also need stuff like 'processesOf m' because the pattern matching and reconstructing is just a pain right? but it's against the monad rule right? that's good
+
+well, there is no way I can define $> (frankly, this is good) so let's just cope and define those things separaetly for now.
+
+---
+
+Should we also have Outcome become a monad? Yes of course. Whenever we have case x' of RunErr x -> (f x), Ran x -> (g x), Blocked x -> (h x), and do stuff, we should instead have 
+
+x |> andThen2 f g h 
+
+But let's leave that and do the m thing for now
 
 ---
 

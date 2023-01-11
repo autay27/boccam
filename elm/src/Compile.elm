@@ -28,7 +28,7 @@ type alias Proc = Tree
 
 type alias WaitingProc = { proc: Proc, waitingFor: WaitCond }
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: Dict Int Bool }
 
 run : Model -> Int -> Result String Model
 run m n =

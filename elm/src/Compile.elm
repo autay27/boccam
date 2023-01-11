@@ -24,7 +24,7 @@ type alias Chan = { inUse: Bool, value: Value, lastUser: Int }
 
 type alias State = Dict String Value
 
-type alias Proc = Tree
+type alias Proc = {code: Tree, id: Int, parentWhileId: Maybe Int}
 
 type alias WaitingProc = { proc: Proc, waitingFor: WaitCond }
 
@@ -40,10 +40,7 @@ run m n =
             in
                 case chosen of 
                     Just t ->
-                        let m2 = {  output = m.output,
-                                    running = notChosen,
-                                    waiting = m.waiting,
-                                    state = m.state }
+                        let m2 = {  m | running = notChosen }
                         in 
                             case step t m2 of
                                 Ran s -> Ok s
@@ -54,7 +51,7 @@ run m n =
 
 step : Proc -> Model -> Outcome String Model WaitCond
 step e m = let state = m.state in
-    case e of
+    case e.code of
 
         Branch Par (x::[]) ->
             case x of
@@ -93,11 +90,6 @@ step e m = let state = m.state in
                         Ok s -> Ran (update s m)
                         Err msg -> RunErr msg
                 Err msg -> RunErr msg
-        
-        Branch AssignProc (id::e1::[]) ->
-            case (assign state id (Process e1)) of
-                Ok s -> Ran (update s m)
-                Err msg -> RunErr msg
 
         Branch While (cond::e1::[]) ->
             case (eval cond state) of
@@ -106,6 +98,7 @@ step e m = let state = m.state in
                         Ran (spawn [aw] m)
                 Ok (Boolval False) -> Ran m
                 _ -> RunErr "Condition must evaluate to boolean value"
+
         --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
         
         Branch ActiveWhile (cond::original::e1::[]) ->
@@ -119,6 +112,7 @@ step e m = let state = m.state in
                 Blocked wc -> let new = {  proc = e, waitingFor = wc } in
                         Ran (print "while body blocked" (block [new] m))
                 RunErr msg -> RunErr msg
+
         --not very space efficient to store two copies of the code
 
         Branch DeclareChannel ((Leaf (Ident id))::[]) -> 
@@ -126,9 +120,7 @@ step e m = let state = m.state in
                 Ok state2 -> Ran ( print ("declared " ++ id) (update state2 m))
                 Err msg -> RunErr msg
 
-        Leaf l -> case eval (Leaf l) state of 
-            Ok (Process proc) -> step proc m
-            _ -> RunErr "Tried to run variable, but it didn't hold a process"
+        Leaf l -> RunErr "Tried to run variable, but it didn't hold a process"
         Branch s _ -> RunErr ("Wrong tree structure")
 
 eval : Tree -> State -> Result String Value
@@ -149,31 +141,42 @@ assign state id v =
         Leaf (Ident str) -> Ok (Dict.insert str v state)
         _ -> Err "tried to assign to a number"
 
+assignIds : List Tree -> Maybe Int -> Dict Int Bool -> (List Proc, Dict Int Bool)
+assignIds trees parent dict = 
+        case trees of 
+            (t::[]) -> 
+                let (i, dict2) = getNext dict in
+                    ([{code = t, id = i, parentWhileId = parent}], dict2)
+            (t::ts) -> 
+                let (xs, d) = assignIds ts parent dict in
+                    let (i, dict2) = getNext d in
+                        ({code = t, id = i, parentWhileId = parent}::xs, dict2)
+
+getNext : Dict Int Bool -> (Int, Dict Int Bool)
+getNext dict = 
+    let 
+        getNext2 d n = if Dict.member n d then getNext2 d (n+1) else (n, d)
+    in
+        getNext2 dict 0
+
 freshModel = { output = "",
                 running = [],
                 waiting = [],
-                state = Dict.empty }
+                state = Dict.empty,
+                ids = Dict.empty }
 
 print : String -> Model -> Model
-print s m = { output = m.output ++ s ++ "\n",
-                running = m.running,
-                waiting = m.waiting,
-                state = m.state }
+print s m = { m | output = m.output ++ s ++ "\n" }
 
 update : State -> Model -> Model 
-update s m = { output = m.output,
-                running = m.running,
-                waiting = m.waiting,
-                state = s }
+update s m = { m | state = s }
 
-spawn : (List Proc) -> Model -> Model 
-spawn xs m = { output = m.output,
-                running = xs ++ m.running,
-                waiting = m.waiting,
-                state = m.state }
+spawn : (List Tree) -> Model -> Model
+spawn xs m = let (ys, d) = assignIds xs Nothing m.ids in 
+    basic_spawn ys { m | ids = d }
+
+basic_spawn : (List Proc) -> Model -> Model 
+basic_spawn xs m = { m | running = xs ++ m.running }
 
 block : (List WaitingProc) -> Model -> Model 
-block xs m = { output = m.output,
-                running = m.running,
-                waiting = xs ++ m.waiting,
-                state = m.state }
+block xs m = { m | waiting = xs ++ m.waiting }

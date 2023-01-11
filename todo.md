@@ -17,6 +17,12 @@ So how to implatmet?
 
 So, should we give WHILE a list of pids it's waiting for *termination* of, then put it in the blocking list and every time a process terminates we go to that list and take it off while's list there. Will there be any funny catches? I don't think so... However, having to go there and *add* to the list whenever we spawn new processes is so annoying. I guess I'll have to cope with that. Tbf I can give each process an 'which while loops are my parent?' list so this happens less often.
 
+I'm gtting sleepy. I have a while that runs once then blocks forever. Now I need to
+- add spawned threads ids to the while's waiting condition ( I guess this can be done within spawn? wherever my id is present, add my kids ids)
+- make it unblock when all termination conditions are met (so, can we split the Ran type into Ran Model and Finished Int Model)
+
+man, I think Id should be a type alias for Int
+
 # goals
 
 - keyboard and screen channels which connect into elm

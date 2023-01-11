@@ -14,21 +14,24 @@ example_tree = Branch Seq [Branch ProcList[
 
 -- simulating program
 
-type WaitCond = PlchldWait
+type WaitCond = Terminated (List Id) | PlchldWait
 
 type Outcome a b c = RunErr a | Ran b | Blocked c
 
 type Value = Number Int | Channel String | Boolval Bool
 
-type alias Chan = { inUse: Bool, value: Value, lastUser: Int }
+type alias Chan = { inUse: Bool, value: Value, lastUser: Id }
 
 type alias State = Dict String Value
 
-type alias Proc = {code: Tree, id: Int, parentWhileId: Maybe Int}
+type alias Id = Int
+type alias IdTracker = Dict Id Bool
+
+type alias Proc = {code: Tree, id: Id, parentWhileId: Maybe Id}
 
 type alias WaitingProc = { proc: Proc, waitingFor: WaitCond }
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: Dict Int Bool }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker }
 
 run : Model -> Int -> Result String Model
 run m n =
@@ -91,7 +94,17 @@ step e m = let state = m.state in
                         Err msg -> RunErr msg
                 Err msg -> RunErr msg
 
-        Branch While (cond::e1::[]) -> RunErr "unimplemented while"
+        Branch While (cond::e1::[]) -> 
+            case (eval cond state) of
+                Ok (Boolval True) -> 
+                    let 
+                        (i, ids2) = getNext m.ids
+                        spawned_proc = { code = e1, id = i, parentWhileId = Just e.id }
+                        waiting_while = { proc = e, waitingFor = Terminated [i] } 
+                    in
+                        Ran (basic_spawn [spawned_proc] (block [waiting_while] m))
+                Ok (Boolval False) -> Ran m
+                _ -> RunErr "Condition must evaluate to boolean value"
 
         --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
         
@@ -107,7 +120,7 @@ step e m = let state = m.state in
         Leaf l -> RunErr "Tried to run variable"
         Branch s _ -> RunErr ("Wrong tree structure")
 
-toProcStep : Tree -> Maybe Int -> Model -> Outcome String Model WaitCond
+toProcStep : Tree -> Maybe Id -> Model -> Outcome String Model WaitCond
 toProcStep t parent m = let (ps, d) = assignIds [t] parent m.ids in 
     case head ps of 
         Just p -> step p { m | ids = d }
@@ -143,14 +156,14 @@ print s m = { m | output = m.output ++ s ++ "\n" }
 update : State -> Model -> Model 
 update s m = { m | state = s }
 
-spawn : (List Tree) -> Maybe Int -> Model -> Model
+spawn : (List Tree) -> Maybe Id -> Model -> Model
 spawn xs parent m = let (ys, d) = assignIds xs parent m.ids in 
     basic_spawn ys { m | ids = d }
 
 basic_spawn : (List Proc) -> Model -> Model 
 basic_spawn xs m = { m | running = xs ++ m.running }
 
-assignIds : List Tree -> Maybe Int -> Dict Int Bool -> (List Proc, Dict Int Bool)
+assignIds : List Tree -> Maybe Id -> IdTracker -> (List Proc, IdTracker)
 assignIds trees parent dict = 
         case trees of 
             [] -> ([], dict)
@@ -159,7 +172,7 @@ assignIds trees parent dict =
                     let (i, dict2) = getNext d in
                         ({code = t, id = i, parentWhileId = parent}::xs, dict2)
 
-getNext : Dict Int Bool -> (Int, Dict Int Bool)
+getNext : IdTracker -> (Id, IdTracker)
 getNext dict = 
     let 
         getNext2 d n = if Dict.member n d then getNext2 d (n+1) else (n, d)

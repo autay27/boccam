@@ -21,7 +21,7 @@ main =
 
 init : () -> (Model, Cmd Msg)
 init _ = 
-  ( print "\n" (spawn [Compile.example_tree] freshModel), Cmd.none)
+  ( print "\n" (spawn [Compile.example_tree] Nothing freshModel), Cmd.none)
 
 -- UPDATE
 
@@ -40,7 +40,7 @@ update msg model =
     Run -> ((print "Running has not been implemented" model), Cmd.none)
     ReceivedDataFromJS data -> 
       case (Json.Decode.decodeValue treeDecoder data) of 
-        Ok t -> ((spawn [t] freshModel), Cmd.none)
+        Ok t -> ((spawn [t] Nothing freshModel), Cmd.none)
         Err e -> ((print (Json.Decode.errorToString e) freshModel), Cmd.none)
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg

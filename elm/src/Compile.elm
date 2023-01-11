@@ -18,7 +18,7 @@ type WaitCond = PlchldWait
 
 type Outcome a b c = RunErr a | Ran b | Blocked c
 
-type Value = Number Int | Channel String | Process Proc | Boolval Bool
+type Value = Number Int | Channel String | Boolval Bool
 
 type alias Chan = { inUse: Bool, value: Value, lastUser: Int }
 
@@ -56,16 +56,16 @@ step e m = let state = m.state in
         Branch Par (x::[]) ->
             case x of
                 Branch ProcList ys -> 
-                    Ran (spawn ys m)
+                    Ran (spawn ys e.parentWhileId m)
                 _ -> RunErr "PAR rule must be followed by process list only"
 
         Branch Seq (x::[]) ->
             case x of 
                 Branch ProcList (y::ys) -> 
-                    case (step y m) of 
+                    case (toProcStep y e.parentWhileId m) of 
                         Ran model -> 
                             if (ys == []) then Ran model
-                            else Ran (spawn [Branch Seq [Branch ProcList ys]] model)
+                            else Ran (spawn [Branch Seq [Branch ProcList ys]] e.parentWhileId model)
 
                         Blocked wc -> let new = {  proc = e, waitingFor = wc } in                        
                             Ran (block [new] m)
@@ -91,27 +91,11 @@ step e m = let state = m.state in
                         Err msg -> RunErr msg
                 Err msg -> RunErr msg
 
-        Branch While (cond::e1::[]) ->
-            case (eval cond state) of
-                Ok (Boolval True) -> 
-                    let aw = Branch ActiveWhile [cond,e1,e1] in
-                        Ran (spawn [aw] m)
-                Ok (Boolval False) -> Ran m
-                _ -> RunErr "Condition must evaluate to boolean value"
+        Branch While (cond::e1::[]) -> RunErr "unimplemented while"
 
         --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
         
-        Branch ActiveWhile (cond::original::e1::[]) ->
-            case (step e1 (update m.state freshModel)) of
-                Ran model -> case model.running of 
-                    [] -> let w = Branch While [cond, original] in
-                        Ran (print model.output (spawn [w] m))
-                    (y::ys) -> let aw = Branch ActiveWhile [cond, original, Branch Par (y::ys)] in
-                        Ran (print model.output (spawn [aw] m))
-                    --broken, but I wanted to change it up anyway!
-                Blocked wc -> let new = {  proc = e, waitingFor = wc } in
-                        Ran (print "while body blocked" (block [new] m))
-                RunErr msg -> RunErr msg
+        Branch ActiveWhile (cond::original::e1::[]) -> RunErr "activewhile needs to be removed"
 
         --not very space efficient to store two copies of the code
 
@@ -120,8 +104,14 @@ step e m = let state = m.state in
                 Ok state2 -> Ran ( print ("declared " ++ id) (update state2 m))
                 Err msg -> RunErr msg
 
-        Leaf l -> RunErr "Tried to run variable, but it didn't hold a process"
+        Leaf l -> RunErr "Tried to run variable"
         Branch s _ -> RunErr ("Wrong tree structure")
+
+toProcStep : Tree -> Maybe Int -> Model -> Outcome String Model WaitCond
+toProcStep t parent m = let (ps, d) = assignIds [t] parent m.ids in 
+    case head ps of 
+        Just p -> step p { m | ids = d }
+        Nothing -> RunErr "failed to convert a tree to a proc in a toProcStep"
 
 eval : Tree -> State -> Result String Value
 eval t state =
@@ -141,24 +131,6 @@ assign state id v =
         Leaf (Ident str) -> Ok (Dict.insert str v state)
         _ -> Err "tried to assign to a number"
 
-assignIds : List Tree -> Maybe Int -> Dict Int Bool -> (List Proc, Dict Int Bool)
-assignIds trees parent dict = 
-        case trees of 
-            (t::[]) -> 
-                let (i, dict2) = getNext dict in
-                    ([{code = t, id = i, parentWhileId = parent}], dict2)
-            (t::ts) -> 
-                let (xs, d) = assignIds ts parent dict in
-                    let (i, dict2) = getNext d in
-                        ({code = t, id = i, parentWhileId = parent}::xs, dict2)
-
-getNext : Dict Int Bool -> (Int, Dict Int Bool)
-getNext dict = 
-    let 
-        getNext2 d n = if Dict.member n d then getNext2 d (n+1) else (n, d)
-    in
-        getNext2 dict 0
-
 freshModel = { output = "",
                 running = [],
                 waiting = [],
@@ -171,12 +143,28 @@ print s m = { m | output = m.output ++ s ++ "\n" }
 update : State -> Model -> Model 
 update s m = { m | state = s }
 
-spawn : (List Tree) -> Model -> Model
-spawn xs m = let (ys, d) = assignIds xs Nothing m.ids in 
+spawn : (List Tree) -> Maybe Int -> Model -> Model
+spawn xs parent m = let (ys, d) = assignIds xs parent m.ids in 
     basic_spawn ys { m | ids = d }
 
 basic_spawn : (List Proc) -> Model -> Model 
 basic_spawn xs m = { m | running = xs ++ m.running }
+
+assignIds : List Tree -> Maybe Int -> Dict Int Bool -> (List Proc, Dict Int Bool)
+assignIds trees parent dict = 
+        case trees of 
+            [] -> ([], dict)
+            (t::ts) -> 
+                let (xs, d) = assignIds ts parent dict in
+                    let (i, dict2) = getNext d in
+                        ({code = t, id = i, parentWhileId = parent}::xs, dict2)
+
+getNext : Dict Int Bool -> (Int, Dict Int Bool)
+getNext dict = 
+    let 
+        getNext2 d n = if Dict.member n d then getNext2 d (n+1) else (n, d)
+    in
+        getNext2 dict 0
 
 block : (List WaitingProc) -> Model -> Model 
 block xs m = { m | waiting = xs ++ m.waiting }

@@ -1,7 +1,7 @@
 module Compile exposing (..)
 
 import Dict exposing (Dict, empty, insert)
-import List exposing (head, take, drop)
+import List exposing (head, take, drop, map, member, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 
 --example_tree = Branch Seq [Branch ProcList [Branch Out [Leaf (Ident "chan"), Leaf (Num 0)], Branch Out [Leaf (Ident "chan"), Leaf (Num 1)]]]
@@ -29,12 +29,15 @@ type alias IdTracker = Dict Id Bool
 
 type alias Proc = {code: Tree, id: Id, parentWhileId: Maybe Id}
 
-type alias WaitingProc = { proc: Proc, waitingFor: WaitCond }
+type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker }
 
 run : Model -> Int -> Result String Model
-run m n =
+run m n = (make_step m n) |> Result.andThen unblock
+
+make_step : Model -> Int -> Result String (Model, Id)
+make_step m n =
     case m.running of
         (x::xs) -> 
             let
@@ -46,11 +49,25 @@ run m n =
                         let m2 = {  m | running = notChosen }
                         in 
                             case step t m2 of
-                                Ran s -> Ok s
+                                Ran s -> Ok (s, t.id)
                                 RunErr e -> Err e
-                                Blocked b -> Err "Blocking reached top level"
+                                Blocked wc -> Err "Blocking reached top level"
                     Nothing -> Err "Failed to choose a thread"
         [] -> Err "program finished"
+
+unblock : (Model, Id) -> Result String Model
+unblock (m, id) = 
+    let
+        updatedAfterTermination = map (\p -> case p.waitCond of
+            Terminated xs -> { p | waitCond = Terminated (filter (\x -> x /= id) xs) }
+            _ -> p
+            ) m.waiting
+        (unblocked, stillWaiting) = List.partition (\p -> p.waitCond == Terminated []) updatedAfterTermination
+        unblockedProcs = map (\p -> p.proc) unblocked
+    in
+        Ok (basic_spawn unblockedProcs { m | waiting = stillWaiting })
+
+-- we can also remove i from m.ids here
 
 step : Proc -> Model -> Outcome String Model WaitCond
 step e m = let state = m.state in
@@ -70,7 +87,7 @@ step e m = let state = m.state in
                             if (ys == []) then Ran model
                             else Ran (spawn [Branch Seq [Branch ProcList ys]] e.parentWhileId model)
 
-                        Blocked wc -> let new = {  proc = e, waitingFor = wc } in                        
+                        Blocked wc -> let new = {  proc = e, waitCond = wc } in                        
                             Ran (block [new] m)
 
                         RunErr msg -> RunErr msg
@@ -100,7 +117,7 @@ step e m = let state = m.state in
                     let 
                         (i, ids2) = getNext m.ids
                         spawned_proc = { code = e1, id = i, parentWhileId = Just e.id }
-                        waiting_while = { proc = e, waitingFor = Terminated [i] } 
+                        waiting_while = { proc = e, waitCond = Terminated [i] } 
                     in
                         Ran (basic_spawn [spawned_proc] (block [waiting_while] m))
                 Ok (Boolval False) -> Ran m
@@ -157,8 +174,19 @@ update : State -> Model -> Model
 update s m = { m | state = s }
 
 spawn : (List Tree) -> Maybe Id -> Model -> Model
-spawn xs parent m = let (ys, d) = assignIds xs parent m.ids in 
-    basic_spawn ys { m | ids = d }
+spawn xs parent m = 
+    let 
+        (newprocs, d) = assignIds xs parent m.ids
+        m2 = basic_spawn newprocs { m | ids = d }
+    in 
+        { m2 | waiting = updateWaitCond parent (map (\p -> p.id) newprocs) m2.waiting }
+
+updateWaitCond : Maybe Id -> List Id -> List WaitingProc -> List WaitingProc
+updateWaitCond parent children ws = case parent of
+    Just i -> map (\p -> case p.waitCond of 
+        Terminated xs -> if List.member i xs then { p | waitCond = Terminated (children ++ xs) } else p
+        _ -> p) ws
+    Nothing -> ws
 
 basic_spawn : (List Proc) -> Model -> Model 
 basic_spawn xs m = { m | running = xs ++ m.running }

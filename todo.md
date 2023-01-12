@@ -19,12 +19,17 @@ So, should we give WHILE a list of pids it's waiting for *termination* of, then 
 
 I'm gtting sleepy. I have a while that runs once then blocks forever. Now I need to
 - add spawned threads ids to the while's waiting condition ( I guess this can be done within spawn? wherever my id is present, add my kids ids)
-- make it unblock when all termination conditions are met (so, can we split the Ran type into Ran Model and Finished Int Model)
+- make it unblock when all termination conditions are met (so, can we split the Ran type into Ran Model and RanTerminated Int Model)
 
-man, I think Id should be a type alias for Int
+Wait, what does it mean for a process to terminate? Just to have Ran? It always spawns a new proces to continue right? Yeah, so we should just add the id of the ran-process to Ran.
+
+I'm looking ahead to channels and it would seem to make sense for any channel action to also be included in Ran. 
+
+we need to take the result of the current run and feed it to unblock, which checks what things happened and updates/moves processes from waiting based on a) if anything terminated b) if anything attempted to send a message on a channel. it can also enqueue messages on a channel I guess. Hmm. Maybe it's better if we do that while running, but unblock would certainly dequeue from the channel.
 
 # goals
 
+- channels
 - keyboard and screen channels which connect into elm
 - start drafting final report - follow the paper on my wall and at least get all the headings going. Do it in epsilon so i can just keysmash into it whenever I do it.
 

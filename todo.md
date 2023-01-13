@@ -4,7 +4,6 @@
 
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
-- probability for a seq is off because it takes a step to unroll it. If I split into "Ran" and "Unrolled" and step again on unrolled this wouldn't be a problem.
 
 ## goals
 
@@ -15,6 +14,7 @@
 
 ## unsure
 
+- changle Unrolled handling to get true uniform dist. between threads
 - andThen for Outcome RunErr/Blocked/Ran - Cleans up the code but it's also kind of creating its own complexity with all the lambdas required
 
 ---

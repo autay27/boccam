@@ -5,7 +5,8 @@ import Html exposing (Html, button, div, text, br)
 import Html.Events exposing (onClick)
 
 import Readfile exposing (Tree, treeDecoder)
-import Compile exposing (Model, Proc, WaitingProc, State, freshModel, spawn, print)
+import Compile exposing (run)
+import Model exposing (Model, Proc, WaitingProc, State, freshModel, spawn, print)
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int)
 import List exposing (length)
@@ -41,7 +42,7 @@ update msg model =
     ReceivedDataFromJS data -> 
       case (Json.Decode.decodeValue treeDecoder data) of 
         Ok t -> ((spawn [t] -1 Nothing freshModel), Cmd.none)
-        Err e -> ((print (Json.Decode.errorToString e) freshModel), Cmd.none)
+        Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel), Cmd.none)
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
 

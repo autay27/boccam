@@ -118,8 +118,6 @@ step e m = let state = m.state in
 
         --not very space efficient to store two copies of the code
 
-        Branch ActiveWhile (cond::original::e1::[]) -> RunErr "activewhile needs to be removed"
-
         Branch DeclareChannel ((Leaf (Ident id))::[]) -> 
             case (assign state (Leaf (Ident id)) (Channel id)) of
                 Ok state2 -> Ran ( print ("declared " ++ id) (update state2 m))

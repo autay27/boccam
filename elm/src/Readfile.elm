@@ -6,7 +6,7 @@ type TreeValue = Num Int | Ident String
 
 type Tree = Leaf TreeValue | Branch Rule (List Tree)
 
-type Rule = ProcList | Par | Seq | Out | AssignExpr | AssignProc | While | ActiveWhile | DeclareChannel
+type Rule = ProcList | Par | Seq | Out | AssignExpr | AssignProc | While | DeclareChannel
 
 -- Decoding
 

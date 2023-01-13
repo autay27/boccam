@@ -21,9 +21,7 @@ main =
 
 init : () -> (Model, Cmd Msg)
 init _ = 
-  ({ output = "\n",  running = [Compile.example_tree], waiting = [], state = Dict.empty }
-  , Cmd.none
-  )
+  ( print "\n" (spawn [Compile.example_tree] -1 Nothing freshModel), Cmd.none)
 
 -- UPDATE
 
@@ -38,31 +36,20 @@ update msg model =
     Thread n ->
       case Compile.run model n of 
         Ok m -> (m, Cmd.none)
-        Err s -> ({ output = model.output ++ s ++ "\n",
-                  running = model.running,
-                  waiting = model.waiting,
-                  state = model.state }, Cmd.none)
-    Run -> 
-                ({ output = model.output ++ "I don't know how to run\n",
-                  running = model.running,
-                  waiting = model.waiting,
-                  state = model.state }, Cmd.none)
+        Err s -> (print s model, Cmd.none)
+    Run -> ((print "Running has not been implemented" model), Cmd.none)
     ReceivedDataFromJS data -> 
       case (Json.Decode.decodeValue treeDecoder data) of 
-        Ok t -> ((spawn [t] freshModel), Cmd.none)
+        Ok t -> ((spawn [t] -1 Nothing freshModel), Cmd.none)
         Err e -> ((print (Json.Decode.errorToString e) freshModel), Cmd.none)
-    
-    
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
 
 -- SUBSCRIPTIONS
 
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
   messageReceiver ReceivedDataFromJS
-
 
 -- VIEW
 

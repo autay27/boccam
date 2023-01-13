@@ -13,6 +13,8 @@ example_tree = Branch Seq [Branch ProcList[
 
 -- simulating program
 
+type Outcome a b c d = RunErr a | Ran b | Unrolled c | Blocked d
+
 run : Model -> Int -> Result String Model
 run m n = (make_step m n) |> Result.andThen unblock
 
@@ -30,6 +32,8 @@ make_step m n =
                         in 
                             case step t m2 of
                                 Ran s -> Ok (s, t.id)
+                                Unrolled s -> unblock (s, t.id) |> Result.andThen (\newm -> make_step newm n) 
+                                -- not exactly uniform prob. anymore but it's better
                                 RunErr e -> Err e
                                 Blocked wc -> Err "Blocking reached top level"
                     Nothing -> Err "Failed to choose a thread"
@@ -49,20 +53,20 @@ unblock (m, id) =
 
 -- we can also remove i from m.ids here
 
-step : Proc -> Model -> Outcome String Model WaitCond
+step : Proc -> Model -> Outcome String Model Model WaitCond
 step e m = let state = m.state in
     case e.code of
 
         Branch Par (x::[]) ->
             case x of
-                Branch ProcList ys -> Ran (spawn ys e.id e.ancestorId m)
+                Branch ProcList ys -> Unrolled (spawn ys e.id e.ancestorId m)
                 _ -> RunErr "PAR rule must be followed by process list only"
 
         Branch Seq (x::[]) ->
             case x of 
                 Branch ProcList [] -> Ran m
                 Branch ProcList (y::ys) -> 
-                    Ran (spawnAndWait y (Branch Seq [Branch ProcList ys]) e.id e.ancestorId m)
+                    Unrolled (spawnAndWait y (Branch Seq [Branch ProcList ys]) e.id e.ancestorId m)
                 _ -> RunErr "SEQ rule must be followed by process list only"
 
         Branch Out (x::y::[]) -> 
@@ -85,7 +89,7 @@ step e m = let state = m.state in
 
         Branch While (cond::body::[]) -> 
             case (eval cond state) of
-                Ok (Boolval True) -> Ran (spawnAndWait body e.code e.id e.ancestorId m)
+                Ok (Boolval True) -> Unrolled (spawnAndWait body e.code e.id e.ancestorId m)
                 Ok (Boolval False) -> Ran m
                 _ -> RunErr "Condition must evaluate to boolean value"
 

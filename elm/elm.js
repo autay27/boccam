@@ -5330,13 +5330,13 @@ var $author$project$Compile$example_tree = A2(
 		]));
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $author$project$Compile$freshModel = {ids: $elm$core$Dict$empty, output: '', running: _List_Nil, state: $elm$core$Dict$empty, waiting: _List_Nil};
+var $author$project$Model$freshModel = {ids: $elm$core$Dict$empty, output: '', running: _List_Nil, state: $elm$core$Dict$empty, waiting: _List_Nil};
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Compile$print = F2(
+var $author$project$Model$print = F2(
 	function (s, m) {
 		return _Utils_update(
 			m,
@@ -5491,7 +5491,7 @@ var $elm$core$Dict$member = F2(
 			return false;
 		}
 	});
-var $author$project$Compile$getNext = function (dict) {
+var $author$project$Model$getNext = function (dict) {
 	var getNext2 = F2(
 		function (d, n) {
 			getNext2:
@@ -5511,17 +5511,17 @@ var $author$project$Compile$getNext = function (dict) {
 		});
 	return A2(getNext2, dict, 0);
 };
-var $author$project$Compile$assignIds = F3(
+var $author$project$Model$assignIds = F3(
 	function (trees, ancestor, dict) {
 		if (!trees.b) {
 			return _Utils_Tuple2(_List_Nil, dict);
 		} else {
 			var t = trees.a;
 			var ts = trees.b;
-			var _v1 = A3($author$project$Compile$assignIds, ts, ancestor, dict);
+			var _v1 = A3($author$project$Model$assignIds, ts, ancestor, dict);
 			var xs = _v1.a;
 			var d = _v1.b;
-			var _v2 = $author$project$Compile$getNext(d);
+			var _v2 = $author$project$Model$getNext(d);
 			var i = _v2.a;
 			var dict2 = _v2.b;
 			return _Utils_Tuple2(
@@ -5532,7 +5532,7 @@ var $author$project$Compile$assignIds = F3(
 				dict2);
 		}
 	});
-var $author$project$Compile$basic_spawn = F2(
+var $author$project$Model$basic_spawn = F2(
 	function (xs, m) {
 		return _Utils_update(
 			m,
@@ -5540,7 +5540,7 @@ var $author$project$Compile$basic_spawn = F2(
 				running: _Utils_ap(xs, m.running)
 			});
 	});
-var $author$project$Compile$Terminated = function (a) {
+var $author$project$Model$Terminated = function (a) {
 	return {$: 'Terminated', a: a};
 };
 var $elm$core$List$any = F2(
@@ -5573,7 +5573,7 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
-var $author$project$Compile$updateWaitCond = F3(
+var $author$project$Model$updateWaitCond = F3(
 	function (parent, children, m) {
 		var updated_waiting = A2(
 			$elm$core$List$map,
@@ -5584,7 +5584,7 @@ var $author$project$Compile$updateWaitCond = F3(
 					return A2($elm$core$List$member, parent, xs) ? _Utils_update(
 						p,
 						{
-							waitCond: $author$project$Compile$Terminated(
+							waitCond: $author$project$Model$Terminated(
 								_Utils_ap(children, xs))
 						}) : p;
 				} else {
@@ -5596,19 +5596,19 @@ var $author$project$Compile$updateWaitCond = F3(
 			m,
 			{waiting: updated_waiting});
 	});
-var $author$project$Compile$spawn = F4(
+var $author$project$Model$spawn = F4(
 	function (xs, parent, ancestor, m) {
-		var _v0 = A3($author$project$Compile$assignIds, xs, ancestor, m.ids);
+		var _v0 = A3($author$project$Model$assignIds, xs, ancestor, m.ids);
 		var newprocs = _v0.a;
 		var d = _v0.b;
 		var m2 = A2(
-			$author$project$Compile$basic_spawn,
+			$author$project$Model$basic_spawn,
 			newprocs,
 			_Utils_update(
 				m,
 				{ids: d}));
 		return A3(
-			$author$project$Compile$updateWaitCond,
+			$author$project$Model$updateWaitCond,
 			parent,
 			A2(
 				$elm$core$List$map,
@@ -5621,15 +5621,15 @@ var $author$project$Compile$spawn = F4(
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		A2(
-			$author$project$Compile$print,
+			$author$project$Model$print,
 			'\n',
 			A4(
-				$author$project$Compile$spawn,
+				$author$project$Model$spawn,
 				_List_fromArray(
 					[$author$project$Compile$example_tree]),
 				-1,
 				$elm$core$Maybe$Nothing,
-				$author$project$Compile$freshModel)),
+				$author$project$Model$freshModel)),
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Main$ReceivedDataFromJS = function (a) {
@@ -5830,7 +5830,7 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Compile$Channel = function (a) {
+var $author$project$Model$Channel = function (a) {
 	return {$: 'Channel', a: a};
 };
 var $author$project$Compile$Ran = function (a) {
@@ -5838,6 +5838,9 @@ var $author$project$Compile$Ran = function (a) {
 };
 var $author$project$Compile$RunErr = function (a) {
 	return {$: 'RunErr', a: a};
+};
+var $author$project$Compile$Unrolled = function (a) {
+	return {$: 'Unrolled', a: a};
 };
 var $author$project$Compile$assign = F3(
 	function (state, id, v) {
@@ -5849,10 +5852,10 @@ var $author$project$Compile$assign = F3(
 			return $elm$core$Result$Err('tried to assign to a number');
 		}
 	});
-var $author$project$Compile$Boolval = function (a) {
+var $author$project$Model$Boolval = function (a) {
 	return {$: 'Boolval', a: a};
 };
-var $author$project$Compile$Number = function (a) {
+var $author$project$Model$Number = function (a) {
 	return {$: 'Number', a: a};
 };
 var $author$project$Compile$eval = F2(
@@ -5861,7 +5864,7 @@ var $author$project$Compile$eval = F2(
 			if (t.a.$ === 'Ident') {
 				if (t.a.a === 'TRUE') {
 					return $elm$core$Result$Ok(
-						$author$project$Compile$Boolval(true));
+						$author$project$Model$Boolval(true));
 				} else {
 					var s = t.a.a;
 					var _v1 = A2($elm$core$Dict$get, s, state);
@@ -5875,7 +5878,7 @@ var $author$project$Compile$eval = F2(
 			} else {
 				var n = t.a.a;
 				return $elm$core$Result$Ok(
-					$author$project$Compile$Number(n));
+					$author$project$Model$Number(n));
 			}
 		} else {
 			var rule = t.a;
@@ -5883,7 +5886,7 @@ var $author$project$Compile$eval = F2(
 			return $elm$core$Result$Err('eval processing a tree');
 		}
 	});
-var $author$project$Compile$block = F2(
+var $author$project$Model$block = F2(
 	function (xs, m) {
 		return _Utils_update(
 			m,
@@ -5891,13 +5894,13 @@ var $author$project$Compile$block = F2(
 				waiting: _Utils_ap(xs, m.waiting)
 			});
 	});
-var $author$project$Compile$spawnAndWait = F5(
+var $author$project$Model$spawnAndWait = F5(
 	function (runner, waiter, parent, ancestor, m) {
-		var _v0 = $author$project$Compile$getNext(m.ids);
+		var _v0 = $author$project$Model$getNext(m.ids);
 		var i = _v0.a;
 		var ids2 = _v0.b;
 		var blocked_proc = {ancestorId: ancestor, code: waiter, id: i};
-		var _v1 = $author$project$Compile$getNext(ids2);
+		var _v1 = $author$project$Model$getNext(ids2);
 		var j = _v1.a;
 		var ids3 = _v1.b;
 		var spawned_proc = {
@@ -5907,20 +5910,20 @@ var $author$project$Compile$spawnAndWait = F5(
 		};
 		var waitingproc = {
 			proc: blocked_proc,
-			waitCond: $author$project$Compile$Terminated(
+			waitCond: $author$project$Model$Terminated(
 				_List_fromArray(
 					[j]))
 		};
 		return A2(
-			$author$project$Compile$basic_spawn,
+			$author$project$Model$basic_spawn,
 			_List_fromArray(
 				[spawned_proc]),
 			A2(
-				$author$project$Compile$block,
+				$author$project$Model$block,
 				_List_fromArray(
 					[waitingproc]),
 				A3(
-					$author$project$Compile$updateWaitCond,
+					$author$project$Model$updateWaitCond,
 					parent,
 					_List_fromArray(
 						[i]),
@@ -5928,7 +5931,7 @@ var $author$project$Compile$spawnAndWait = F5(
 						m,
 						{ids: ids3}))));
 	});
-var $author$project$Compile$update = F2(
+var $author$project$Model$update = F2(
 	function (s, m) {
 		return _Utils_update(
 			m,
@@ -5938,7 +5941,7 @@ var $author$project$Compile$step = F2(
 	function (e, m) {
 		var state = m.state;
 		var _v0 = e.code;
-		_v0$8:
+		_v0$7:
 		while (true) {
 			if (_v0.$ === 'Leaf') {
 				var l = _v0.a;
@@ -5963,7 +5966,7 @@ var $author$project$Compile$step = F2(
 												var n = _v15.a.a;
 												return $author$project$Compile$Ran(
 													A2(
-														$author$project$Compile$print,
+														$author$project$Model$print,
 														c + (' ! ' + $elm$core$String$fromInt(n)),
 														m));
 											} else {
@@ -5989,7 +5992,7 @@ var $author$project$Compile$step = F2(
 										if (_v20.$ === 'Ok') {
 											var s = _v20.a;
 											return $author$project$Compile$Ran(
-												A2($author$project$Compile$update, s, m));
+												A2($author$project$Model$update, s, m));
 										} else {
 											var msg = _v20.a;
 											return $author$project$Compile$RunErr(msg);
@@ -6007,8 +6010,8 @@ var $author$project$Compile$step = F2(
 									var _v24 = A2($author$project$Compile$eval, cond, state);
 									if ((_v24.$ === 'Ok') && (_v24.a.$ === 'Boolval')) {
 										if (_v24.a.a) {
-											return $author$project$Compile$Ran(
-												A5($author$project$Compile$spawnAndWait, body, e.code, e.id, e.ancestorId, m));
+											return $author$project$Compile$Unrolled(
+												A5($author$project$Model$spawnAndWait, body, e.code, e.id, e.ancestorId, m));
 										} else {
 											return $author$project$Compile$Ran(m);
 										}
@@ -6016,21 +6019,10 @@ var $author$project$Compile$step = F2(
 										return $author$project$Compile$RunErr('Condition must evaluate to boolean value');
 									}
 								default:
-									break _v0$8;
+									break _v0$7;
 							}
 						} else {
-							if ((_v0.a.$ === 'ActiveWhile') && (!_v0.b.b.b.b.b)) {
-								var _v25 = _v0.a;
-								var _v26 = _v0.b;
-								var cond = _v26.a;
-								var _v27 = _v26.b;
-								var original = _v27.a;
-								var _v28 = _v27.b;
-								var e1 = _v28.a;
-								return $author$project$Compile$RunErr('activewhile needs to be removed');
-							} else {
-								break _v0$8;
-							}
+							break _v0$7;
 						}
 					} else {
 						switch (_v0.a.$) {
@@ -6041,8 +6033,8 @@ var $author$project$Compile$step = F2(
 								if ((x.$ === 'Branch') && (x.a.$ === 'ProcList')) {
 									var _v4 = x.a;
 									var ys = x.b;
-									return $author$project$Compile$Ran(
-										A4($author$project$Compile$spawn, ys, e.id, e.ancestorId, m));
+									return $author$project$Compile$Unrolled(
+										A4($author$project$Model$spawn, ys, e.id, e.ancestorId, m));
 								} else {
 									return $author$project$Compile$RunErr('PAR rule must be followed by process list only');
 								}
@@ -6059,9 +6051,9 @@ var $author$project$Compile$step = F2(
 										var _v10 = x.b;
 										var y = _v10.a;
 										var ys = _v10.b;
-										return $author$project$Compile$Ran(
+										return $author$project$Compile$Unrolled(
 											A5(
-												$author$project$Compile$spawnAndWait,
+												$author$project$Model$spawnAndWait,
 												y,
 												A2(
 													$author$project$Readfile$Branch,
@@ -6079,35 +6071,35 @@ var $author$project$Compile$step = F2(
 								}
 							case 'DeclareChannel':
 								if ((_v0.b.a.$ === 'Leaf') && (_v0.b.a.a.$ === 'Ident')) {
-									var _v29 = _v0.a;
-									var _v30 = _v0.b;
-									var id = _v30.a.a.a;
-									var _v31 = A3(
+									var _v25 = _v0.a;
+									var _v26 = _v0.b;
+									var id = _v26.a.a.a;
+									var _v27 = A3(
 										$author$project$Compile$assign,
 										state,
 										$author$project$Readfile$Leaf(
 											$author$project$Readfile$Ident(id)),
-										$author$project$Compile$Channel(id));
-									if (_v31.$ === 'Ok') {
-										var state2 = _v31.a;
+										$author$project$Model$Channel(id));
+									if (_v27.$ === 'Ok') {
+										var state2 = _v27.a;
 										return $author$project$Compile$Ran(
 											A2(
-												$author$project$Compile$print,
+												$author$project$Model$print,
 												'declared ' + id,
-												A2($author$project$Compile$update, state2, m)));
+												A2($author$project$Model$update, state2, m)));
 									} else {
-										var msg = _v31.a;
+										var msg = _v27.a;
 										return $author$project$Compile$RunErr(msg);
 									}
 								} else {
-									break _v0$8;
+									break _v0$7;
 								}
 							default:
-								break _v0$8;
+								break _v0$7;
 						}
 					}
 				} else {
-					break _v0$8;
+					break _v0$7;
 				}
 			}
 		}
@@ -6240,42 +6232,6 @@ var $elm$core$List$take = F2(
 	function (n, list) {
 		return A3($elm$core$List$takeFast, 0, n, list);
 	});
-var $author$project$Compile$make_step = F2(
-	function (m, n) {
-		var _v0 = m.running;
-		if (_v0.b) {
-			var x = _v0.a;
-			var xs = _v0.b;
-			var notChosen = _Utils_ap(
-				A2($elm$core$List$take, n, m.running),
-				A2($elm$core$List$drop, n + 1, m.running));
-			var chosen = $elm$core$List$head(
-				A2($elm$core$List$drop, n, m.running));
-			if (chosen.$ === 'Just') {
-				var t = chosen.a;
-				var m2 = _Utils_update(
-					m,
-					{running: notChosen});
-				var _v2 = A2($author$project$Compile$step, t, m2);
-				switch (_v2.$) {
-					case 'Ran':
-						var s = _v2.a;
-						return $elm$core$Result$Ok(
-							_Utils_Tuple2(s, t.id));
-					case 'RunErr':
-						var e = _v2.a;
-						return $elm$core$Result$Err(e);
-					default:
-						var wc = _v2.a;
-						return $elm$core$Result$Err('Blocking reached top level');
-				}
-			} else {
-				return $elm$core$Result$Err('Failed to choose a thread');
-			}
-		} else {
-			return $elm$core$Result$Err('program finished');
-		}
-	});
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -6318,7 +6274,7 @@ var $author$project$Compile$unblock = function (_v0) {
 				return _Utils_update(
 					p,
 					{
-						waitCond: $author$project$Compile$Terminated(
+						waitCond: $author$project$Model$Terminated(
 							A2(
 								$elm$core$List$filter,
 								function (x) {
@@ -6336,7 +6292,7 @@ var $author$project$Compile$unblock = function (_v0) {
 		function (p) {
 			return _Utils_eq(
 				p.waitCond,
-				$author$project$Compile$Terminated(_List_Nil));
+				$author$project$Model$Terminated(_List_Nil));
 		},
 		updatedAfterTermination);
 	var unblocked = _v1.a;
@@ -6349,12 +6305,57 @@ var $author$project$Compile$unblock = function (_v0) {
 		unblocked);
 	return $elm$core$Result$Ok(
 		A2(
-			$author$project$Compile$basic_spawn,
+			$author$project$Model$basic_spawn,
 			unblockedProcs,
 			_Utils_update(
 				m,
 				{waiting: stillWaiting})));
 };
+var $author$project$Compile$make_step = F2(
+	function (m, n) {
+		var _v0 = m.running;
+		if (_v0.b) {
+			var x = _v0.a;
+			var xs = _v0.b;
+			var notChosen = _Utils_ap(
+				A2($elm$core$List$take, n, m.running),
+				A2($elm$core$List$drop, n + 1, m.running));
+			var chosen = $elm$core$List$head(
+				A2($elm$core$List$drop, n, m.running));
+			if (chosen.$ === 'Just') {
+				var t = chosen.a;
+				var m2 = _Utils_update(
+					m,
+					{running: notChosen});
+				var _v2 = A2($author$project$Compile$step, t, m2);
+				switch (_v2.$) {
+					case 'Ran':
+						var s = _v2.a;
+						return $elm$core$Result$Ok(
+							_Utils_Tuple2(s, t.id));
+					case 'Unrolled':
+						var s = _v2.a;
+						return A2(
+							$elm$core$Result$andThen,
+							function (newm) {
+								return A2($author$project$Compile$make_step, newm, n);
+							},
+							$author$project$Compile$unblock(
+								_Utils_Tuple2(s, t.id)));
+					case 'RunErr':
+						var e = _v2.a;
+						return $elm$core$Result$Err(e);
+					default:
+						var wc = _v2.a;
+						return $elm$core$Result$Err('Blocking reached top level');
+				}
+			} else {
+				return $elm$core$Result$Err('Failed to choose a thread');
+			}
+		} else {
+			return $elm$core$Result$Err('program finished');
+		}
+	});
 var $author$project$Compile$run = F2(
 	function (m, n) {
 		return A2(
@@ -6471,12 +6472,12 @@ var $author$project$Main$update = F2(
 				} else {
 					var s = _v1.a;
 					return _Utils_Tuple2(
-						A2($author$project$Compile$print, s, model),
+						A2($author$project$Model$print, s, model),
 						$elm$core$Platform$Cmd$none);
 				}
 			case 'Run':
 				return _Utils_Tuple2(
-					A2($author$project$Compile$print, 'Running has not been implemented', model),
+					A2($author$project$Model$print, 'Running has not been implemented', model),
 					$elm$core$Platform$Cmd$none);
 			default:
 				var data = msg.a;
@@ -6485,20 +6486,20 @@ var $author$project$Main$update = F2(
 					var t = _v2.a;
 					return _Utils_Tuple2(
 						A4(
-							$author$project$Compile$spawn,
+							$author$project$Model$spawn,
 							_List_fromArray(
 								[t]),
 							-1,
 							$elm$core$Maybe$Nothing,
-							$author$project$Compile$freshModel),
+							$author$project$Model$freshModel),
 						$elm$core$Platform$Cmd$none);
 				} else {
 					var e = _v2.a;
 					return _Utils_Tuple2(
 						A2(
-							$author$project$Compile$print,
-							$elm$json$Json$Decode$errorToString(e),
-							$author$project$Compile$freshModel),
+							$author$project$Model$print,
+							'Error: ' + $elm$json$Json$Decode$errorToString(e),
+							$author$project$Model$freshModel),
 						$elm$core$Platform$Cmd$none);
 				}
 		}

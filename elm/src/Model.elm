@@ -6,8 +6,6 @@ import Readfile exposing (Tree(..))
 
 type WaitCond = Terminated (List Id) | PlchldWait
 
-type Outcome a b c = RunErr a | Ran b | Blocked c
-
 type Value = Number Int | Channel String | Boolval Bool
 
 type alias Chan = { inUse: Bool, value: Value, lastUser: Id }

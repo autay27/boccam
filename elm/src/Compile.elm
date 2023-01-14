@@ -82,7 +82,7 @@ step e m = let state = m.state in
         Branch AssignExpr (id::e1::[]) ->
             case (eval e1 state) of
                 Ok v -> 
-                    case (assign state id v) of
+                    case (assignVar state id v) of
                         Ok s -> Ran (update s m)
                         Err msg -> RunErr msg
                 Err msg -> RunErr msg
@@ -98,7 +98,7 @@ step e m = let state = m.state in
         --not very space efficient to store two copies of the code
 
         Branch DeclareChannel ((Leaf (Ident id))::[]) -> 
-            case (assign state (Leaf (Ident id)) (Channel id)) of
+            case (declareChan state (Leaf (Ident id)) (Channel id)) of
                 Ok state2 -> Ran ( print ("declared " ++ id) (update state2 m))
                 Err msg -> RunErr msg
 
@@ -111,14 +111,28 @@ eval t state =
         Leaf (Ident "TRUE") -> Ok (Boolval True)
         --need to put this in an init state
         Leaf (Ident s) -> 
-            case Dict.get s state of
+            case Dict.get s state.vars of
                 Just v -> Ok v
                 Nothing -> Err ("Variable " ++ s ++ " not declared")
         Leaf (Num n) -> Ok (Number n)
         Branch rule children -> Err "eval processing a tree"
 
-assign : State -> Tree -> Value -> Result String State
-assign state id v = 
+assignVar : State -> Tree -> Value -> Result String State
+assignVar state id v = 
     case id of
-        Leaf (Ident str) -> Ok (Dict.insert str v state)
+        Leaf (Ident str) -> 
+            if Dict.member str state.chans then 
+                Err "tried to assign to a channel" 
+            else 
+                Ok {state | vars = (Dict.insert str v state.vars)}
         _ -> Err "tried to assign to a number"
+
+declareChan : State -> Tree -> Value -> Result String State
+declareChan state id v = 
+    case id of
+        Leaf (Ident str) -> 
+            if Dict.member str state.vars then 
+                    Err "tried to declare a channel with a variable's name" 
+                else 
+                    Ok {state | vars = (Dict.insert str v state.vars)}
+        _ -> Err "tried to declare, but name was a number"

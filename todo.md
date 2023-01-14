@@ -9,6 +9,19 @@
 
 - channels - we'll have each channel having its own slot, put in the slot during step and serve to a waiting process during unblock. idk, something like this.
 
+How to Input 
+- if channel !isFull
+    put my value in there
+    block myself until channel !isFull again (someone will come wake me) then I spawn as an Assign process with the gotten value I guess, since I wouldn't evaluate exactly which variable to input to until I'm successful.
+- else 
+    block myself until channel !isFull (someone will come and wake me)
+
+How to Output
+- if channel isFull
+    get my value, empty the channel and update my state; terminate
+- else 
+    block myself until channel isFull (someone will come wake me) hmm, should my value get put in the channel instantly? I don't think so, that doesn't feel right. Looking at the book, it seems that the value of the expression x in chan ! x is not evaluated until the output is already successful.
+
 so, channels can be just variables held in state for now? I think we can, they are kinda in the locl scope. but it would be nice to separate them fr. we can have 'variables' and 'channels' as two fields of state.
 
 channels : Dict Ident Chan

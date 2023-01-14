@@ -4,13 +4,13 @@ import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
 
-type WaitCond = Terminated (List Id) | PlchldWait
+type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 
 type Value = Number Int | Channel String | Boolval Bool
 
-type alias Chan = { inUse: Bool, value: Value, lastUser: Id }
+type alias Chan = { value: Value, isFull: Bool }
 
-type alias State = Dict String Value
+type alias State = { vars: Dict String Value, chans: Dict String Value }
 
 type alias Id = Int
 type alias IdTracker = Dict Id Bool
@@ -21,11 +21,13 @@ type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker }
 
-freshModel = { output = "",
-                running = [],
-                waiting = [],
-                state = Dict.empty,
-                ids = Dict.empty }
+freshModel = let freshState = { vars = Dict.empty, chans = Dict.empty } in
+    { output = "",
+    running = [],
+    waiting = [],
+    state = freshState,
+    ids = Dict.empty }
+
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }

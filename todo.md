@@ -7,7 +7,14 @@
 
 ## goals
 
-- channels - we'll have each channel having its own queue, enqueue during step and dequeue during unblock. idk, something like this.
+- channels - we'll have each channel having its own slot, put in the slot during step and serve to a waiting process during unblock. idk, something like this.
+
+so, channels can be just variables held in state for now? I think we can, they are kinda in the locl scope. but it would be nice to separate them fr. we can have 'variables' and 'channels' as two fields of state.
+
+channels : Dict Ident Chan
+
+damn, in the spec it says channels are single reader single writer
+
 - keyboard and screen channels which connect into elm
 - hook up with codemirror
 - start drafting final report - follow the paper on my wall and at least get all the headings going. Do it in epsilon so i can just keysmash into it whenever I do it.

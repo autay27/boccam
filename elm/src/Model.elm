@@ -6,11 +6,11 @@ import Readfile exposing (Tree(..))
 
 type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 
-type Value = Number Int | Channel String | Boolval Bool
+type Value = Number Int | Channel String | Boolval Bool | Any
 
 type alias Chan = { value: Value, isFull: Bool }
 
-type alias State = { vars: Dict String Value, chans: Dict String Value }
+type alias State = { vars: Dict String Value, chans: Dict String Chan }
 
 type alias Id = Int
 type alias IdTracker = Dict Id Bool
@@ -28,6 +28,7 @@ freshModel = let freshState = { vars = Dict.empty, chans = Dict.empty } in
     state = freshState,
     ids = Dict.empty }
 
+freshChannel = { value = Any, isFull = False }
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }

@@ -7,18 +7,24 @@ import Model exposing (..)
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
-    Branch Seq [Branch ProcList 
-        [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 1)]],
+    Branch Declare [Leaf (Ident "chan")], 
+    Branch Par [Branch ProcList 
+        [Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Num 1)]],
         Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
 
 -- simulating program
 
 type Outcome a b c d = RunErr a | Ran b | Unrolled c | Blocked d
 
-run : Model -> Int -> Result String Model
-run m n = (make_step m n) |> Result.andThen unblock
+run m n = let (outcome, id) = (make_step m n) in
+    case outcome of
+        Ran s -> unblock (s, id)
+        Unrolled s -> unblock (s, id) |> Result.andThen (\newm -> run newm n) 
+        -- not exactly uniform prob. anymore but it's better
+        Blocked s -> Ok (print "something blocked..." s)
+        RunErr e -> Err e
 
-make_step : Model -> Int -> Result String (Model, Id)
+make_step : Model -> Int -> (Outcome String Model Model Model, Id)
 make_step m n =
     case m.running of
         (x::xs) -> 
@@ -30,14 +36,9 @@ make_step m n =
                     Just t ->
                         let m2 = {  m | running = notChosen }
                         in 
-                            case step t m2 of
-                                Ran s -> Ok (s, t.id)
-                                Unrolled s -> unblock (s, t.id) |> Result.andThen (\newm -> make_step newm n) 
-                                -- not exactly uniform prob. anymore but it's better
-                                RunErr e -> Err e
-                                Blocked wc -> Err "Blocking reached top level"
-                    Nothing -> Err "Failed to choose a thread"
-        [] -> Err "program finished"
+                            (step t m2, t.id)
+                    Nothing -> (RunErr "Failed to choose a thread", -1)
+        [] -> (RunErr "program finished", -1)
 
 unblock : (Model, Id) -> Result String Model
 unblock (m, id) = 
@@ -53,7 +54,7 @@ unblock (m, id) =
 
 -- we can also remove i from m.ids here
 
-step : Proc -> Model -> Outcome String Model Model WaitCond
+step : Proc -> Model -> Outcome String Model Model Model
 step e m = let state = m.state in
     case e.code of
 
@@ -69,10 +70,23 @@ step e m = let state = m.state in
                     Unrolled (spawnAndWait y (Branch Seq [Branch ProcList ys]) e.id e.ancestorId m)
                 _ -> RunErr "SEQ rule must be followed by process list only"
 
-        Branch Out (x::y::[]) -> 
-            case (eval x state) of 
+        Branch In (chan::var::[]) ->
+            case getName var of 
+                Ok varname -> case checkFull state chan of
+                        Ok True -> case receiveOnChan chan var m of
+                            Ok model -> Ran model
+                            Err msg -> RunErr ("tried to read input to variable, but " ++ msg)
+                        Ok False -> case getName chan of
+                            Ok name -> Blocked (block [{ proc = e, waitCond = FilledChan name }] m)
+                            Err msg -> RunErr ("tried to get input but " ++ msg)
+                        Err msg -> RunErr ("tried to get input but " ++ msg)
+                Err msg -> RunErr "Invalid variable name for an input"
+            
+
+        Branch Out (chan::expr::[]) -> 
+            case (eval chan state) of 
                 Ok (Channel c) ->
-                    case (eval y state) of
+                    case (eval expr state) of
                         Ok (Number n) ->
                             Ran ( print (c ++ " ! " ++ (String.fromInt n)) m)
                         _ -> RunErr "must output number"
@@ -98,7 +112,7 @@ step e m = let state = m.state in
         --not very space efficient to store two copies of the code
 
         Branch DeclareChannel ((Leaf (Ident id))::[]) -> 
-            case (declareChan state (Leaf (Ident id)) (Channel id)) of
+            case (declareChan state (Leaf (Ident id))) of
                 Ok state2 -> Ran ( print ("declared " ++ id) (update state2 m))
                 Err msg -> RunErr msg
 
@@ -117,6 +131,19 @@ eval t state =
         Leaf (Num n) -> Ok (Number n)
         Branch rule children -> Err "eval processing a tree"
 
+getName : Tree -> Result String String
+getName tree = case tree of
+    Leaf (Ident str) -> Ok str
+    _ -> Err "Invalid name"
+
+checkFull : State -> Tree -> Result String Bool
+checkFull state id = 
+    case id of
+        Leaf (Ident str) -> case Dict.get str state.chans of
+            Just ch ->  Ok ch.isFull
+            Nothing -> Err "channel not declared"
+        _ -> Err "not a channel"
+        
 assignVar : State -> Tree -> Value -> Result String State
 assignVar state id v = 
     case id of
@@ -127,12 +154,32 @@ assignVar state id v =
                 Ok {state | vars = (Dict.insert str v state.vars)}
         _ -> Err "tried to assign to a number"
 
-declareChan : State -> Tree -> Value -> Result String State
-declareChan state id v = 
+declareChan : State -> Tree -> Result String State
+declareChan state id = 
     case id of
         Leaf (Ident str) -> 
             if Dict.member str state.vars then 
                     Err "tried to declare a channel with a variable's name" 
-                else 
-                    Ok {state | vars = (Dict.insert str v state.vars)}
+                else if Dict.member str state.chans then 
+                        Err "channel already declared"
+                    else 
+                        Ok {state | chans = (Dict.insert str freshChannel state.chans)}
         _ -> Err "tried to declare, but name was a number"
+
+receiveOnChan : Tree -> Tree -> Model -> Result String Model
+receiveOnChan chan var m = case chan of 
+    Leaf (Ident str) -> 
+        let 
+            state = m.state
+        in
+            case Dict.get str state.chans of
+                Just channel ->
+                    let
+                        receivedValue = channel.value 
+                        stateEmptiedChannel = { state | chans = (Dict.insert str freshChannel state.chans)}
+                    in 
+                        case (assignVar stateEmptiedChannel var receivedValue) of
+                            Ok state2 -> Ok { m | state = state2 }
+                            Err msg -> Err msg
+                Nothing -> Err "could not find the specified channel"
+    _ -> Err "invalid channel identifier"

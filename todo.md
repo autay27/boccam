@@ -9,14 +9,14 @@
 
 - channels - we'll have each channel having its own slot, put in the slot during step and serve to a waiting process during unblock. idk, something like this.
 
-How to Input 
+How to Input  (Receive)
 - if channel !isFull
-    put my value in there
-    block myself until channel !isFull again (someone will come wake me) then I spawn as an Assign process with the gotten value I guess, since I wouldn't evaluate exactly which variable to input to until I'm successful.
+    block myself until channel isFull (someone will come wake me) 
+    then I spawn as an Assign process with the gotten value I guess, since I wouldn't evaluate exactly which variable to input to until I'm successful.
 - else 
-    block myself until channel !isFull (someone will come and wake me)
-
-How to Output
+    retrive value from the channel, empty it out, and terminate
+    
+How to Output (Send)
 - if channel isFull
     get my value, empty the channel and update my state; terminate
 - else 
@@ -27,6 +27,14 @@ so, channels can be just variables held in state for now? I think we can, they a
 channels : Dict Ident Chan
 
 damn, in the spec it says channels are single reader single writer
+
+Mini Todo
+- add in, var decls to jison
+- add var decls to AST stuff
+- code var decls
+- write example program to test this stuff
+- code output 
+- test it out 
 
 - keyboard and screen channels which connect into elm
 - hook up with codemirror

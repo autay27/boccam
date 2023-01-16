@@ -4,7 +4,7 @@ import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
 
-type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
+type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String | EmptiedChanToFill String
 
 type Value = Number Int | Channel String | Boolval Bool | Any
 

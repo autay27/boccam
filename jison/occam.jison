@@ -15,7 +15,7 @@ process
 
 proc
     : INT ID DECLARED
-        { $$ = ["declare", $2] }
+        { $$ = ["declare_var", $2] }
     | CHAN OF INT ID DECLARED
         { $$ = ["declare_chan", $4] }
     | ID ASSIGN expr

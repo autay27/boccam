@@ -7,9 +7,9 @@ import Model exposing (..)
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
-    Branch Declare [Leaf (Ident "chan")], 
+    Branch DeclareVariable [Leaf (Ident "x")], 
     Branch Par [Branch ProcList 
-        [Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Num 1)]],
+        [Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Ident "x")]],
         Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
 
 -- simulating program
@@ -81,23 +81,38 @@ step e m = let state = m.state in
                             Err msg -> RunErr ("tried to get input but " ++ msg)
                         Err msg -> RunErr ("tried to get input but " ++ msg)
                 Err msg -> RunErr "Invalid variable name for an input"
-            
 
         Branch Out (chan::expr::[]) -> 
-            case (eval chan state) of 
-                Ok (Channel c) ->
-                    case (eval expr state) of
-                        Ok (Number n) ->
-                            Ran ( print (c ++ " ! " ++ (String.fromInt n)) m)
-                        _ -> RunErr "must output number"
-                Err msg -> RunErr ("Tried to output but: " ++ msg)
-                _ -> RunErr "must output to a channel"
+            case getName chan of
+                Ok id -> 
+                    case checkFull state chan of
+                        Ok True -> 
+                            let
+                                waiting = { proc = e, waitCond = EmptiedChanToFill id }
+                            in
+                                Blocked (block [waiting] m)
+                        Ok False -> case eval expr state of
+                            Ok n ->
+                                case sendOnChan chan n m of 
+                                    Ok model -> 
+                                        let
+                                            waiting = { proc = e, waitCond = EmptiedChan id }
+                                        in
+                                            Blocked (block [waiting] model)
+                                    Err msg -> RunErr msg
+                            Err msg -> RunErr ("tried to output a value but " ++ msg)
+                        Err msg -> RunErr ("tried to output to a channel but " ++ msg)
+
+                Err msg -> RunErr ("tried to output to a channel but " ++ msg)
 
         Branch AssignExpr (id::e1::[]) ->
             case (eval e1 state) of
                 Ok v -> 
-                    case (assignVar state id v) of
-                        Ok s -> Ran (update s m)
+                    case getName id of 
+                        Ok name -> 
+                            case (assignVar state name v) of
+                                Ok s -> Ran (update s m)
+                                Err msg -> RunErr msg
                         Err msg -> RunErr msg
                 Err msg -> RunErr msg
 
@@ -111,10 +126,18 @@ step e m = let state = m.state in
 
         --not very space efficient to store two copies of the code
 
+        Branch DeclareVariable ((Leaf (Ident id))::[]) -> 
+            case declareVar state id of
+                Ok state2 -> Ran ( print ("declared variable " ++ id) (update state2 m))
+                Err msg -> RunErr msg
+
         Branch DeclareChannel ((Leaf (Ident id))::[]) -> 
             case (declareChan state (Leaf (Ident id))) of
-                Ok state2 -> Ran ( print ("declared " ++ id) (update state2 m))
+                Ok state2 -> Ran ( print ("declared channel " ++ id) (update state2 m))
                 Err msg -> RunErr msg
+
+        Branch Skip [] ->
+            Ran m
 
         Leaf l -> RunErr "Tried to run variable"
         Branch s _ -> RunErr ("Wrong tree structure")
@@ -134,7 +157,7 @@ eval t state =
 getName : Tree -> Result String String
 getName tree = case tree of
     Leaf (Ident str) -> Ok str
-    _ -> Err "Invalid name"
+    _ -> Err "Invalid name for a variable or channel"
 
 checkFull : State -> Tree -> Result String Bool
 checkFull state id = 
@@ -144,42 +167,62 @@ checkFull state id =
             Nothing -> Err "channel not declared"
         _ -> Err "not a channel"
         
-assignVar : State -> Tree -> Value -> Result String State
+assignVar : State -> String -> Value -> Result String State
 assignVar state id v = 
-    case id of
-        Leaf (Ident str) -> 
-            if Dict.member str state.chans then 
-                Err "tried to assign to a channel" 
-            else 
-                Ok {state | vars = (Dict.insert str v state.vars)}
-        _ -> Err "tried to assign to a number"
+    if Dict.member id state.chans then 
+        Err "tried to assign to a channel" 
+    else 
+        Ok {state | vars = (Dict.insert id v state.vars)}
+
+declareVar : State -> String -> Result String State
+declareVar state id = 
+    if Dict.member id state.vars then 
+        Err "declared a variable that already exists"
+    else
+        assignVar state id Any
 
 declareChan : State -> Tree -> Result String State
-declareChan state id = 
-    case id of
-        Leaf (Ident str) -> 
-            if Dict.member str state.vars then 
+declareChan state t = 
+    case t of
+        Leaf (Ident id) -> 
+            if Dict.member id state.vars then 
                     Err "tried to declare a channel with a variable's name" 
-                else if Dict.member str state.chans then 
+                else if Dict.member id state.chans then 
                         Err "channel already declared"
                     else 
-                        Ok {state | chans = (Dict.insert str freshChannel state.chans)}
+                        Ok {state | chans = (Dict.insert id freshChannel state.chans)}
         _ -> Err "tried to declare, but name was a number"
 
 receiveOnChan : Tree -> Tree -> Model -> Result String Model
 receiveOnChan chan var m = case chan of 
-    Leaf (Ident str) -> 
+    Leaf (Ident chanid) -> 
         let 
             state = m.state
         in
-            case Dict.get str state.chans of
+            case Dict.get chanid state.chans of
                 Just channel ->
                     let
                         receivedValue = channel.value 
-                        stateEmptiedChannel = { state | chans = (Dict.insert str freshChannel state.chans)}
+                        stateEmptiedChannel = { state | chans = (Dict.insert chanid freshChannel state.chans)}
                     in 
-                        case (assignVar stateEmptiedChannel var receivedValue) of
-                            Ok state2 -> Ok { m | state = state2 }
+                        case getName var of 
+                            Ok varid ->
+                                case (assignVar stateEmptiedChannel varid receivedValue) of
+                                    Ok state2 -> Ok { m | state = state2 }
+                                    Err msg -> Err msg
                             Err msg -> Err msg
+                            --yeah, I'll change it to have some Result.andThen stuff later
                 Nothing -> Err "could not find the specified channel"
     _ -> Err "invalid channel identifier"
+
+sendOnChan : Tree -> Value -> Model -> Result String Model
+sendOnChan chan val m = 
+    getName chan |> Result.andThen (\chanid ->
+        let 
+            state = m.state
+            filledchan = { isFull = True, value = val }
+            updatedState = { state | chans = Dict.insert chanid filledchan state.chans }
+        in
+            Ok { m | state = updatedState }
+    )
+-- Requires integer value or Any for now!

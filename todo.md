@@ -4,6 +4,7 @@
 
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
+- We need some refactoring wrt how errors are handled, at the moment there is a lot of converting Err to RunErr etc which could be done automatically.
 
 ## goals
 
@@ -17,10 +18,10 @@ How to Input  (Receive)
     retrive value from the channel, empty it out, and terminate
     
 How to Output (Send)
-- if channel isFull
-    get my value, empty the channel and update my state; terminate
+- if channel !isFull
+    get my value, update the state with my value in the channel; block until channel !isFull (someone will come get me)
 - else 
-    block myself until channel isFull (someone will come wake me) hmm, should my value get put in the channel instantly? I don't think so, that doesn't feel right. Looking at the book, it seems that the value of the expression x in chan ! x is not evaluated until the output is already successful.
+    block myself until channel !isFull (someone will come wake me) hmm, should my value get put in the channel instantly? I don't think so, that doesn't feel right. Looking at the book, it seems that the value of the expression x in chan ! x is not evaluated until the output is already successful.
 
 so, channels can be just variables held in state for now? I think we can, they are kinda in the locl scope. but it would be nice to separate them fr. we can have 'variables' and 'channels' as two fields of state.
 
@@ -29,9 +30,6 @@ channels : Dict Ident Chan
 damn, in the spec it says channels are single reader single writer
 
 Mini Todo
-- add in, var decls to jison
-- add var decls to AST stuff
-- code var decls
 - write example program to test this stuff
 - code output 
 - test it out 

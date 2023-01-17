@@ -23,17 +23,19 @@ How to Output (Send)
 - else 
     block myself until channel !isFull (someone will come wake me) hmm, should my value get put in the channel instantly? I don't think so, that doesn't feel right. Looking at the book, it seems that the value of the expression x in chan ! x is not evaluated until the output is already successful.
 
-so, channels can be just variables held in state for now? I think we can, they are kinda in the locl scope. but it would be nice to separate them fr. we can have 'variables' and 'channels' as two fields of state.
+in the spec it says channels are single reader single writer
 
-channels : Dict Ident Chan
+So, I tried making it unblock by calling an 'unblock relevant stuff' every time I e.g. fill a channel. But now I'm concerned because e.g. in Output we add our proc. to blocking AFTER calling all that shebang. So an instantly-successful output will never get unblocked. Is it as simple as just calling it after adding? 
 
-damn, in the spec it says channels are single reader single writer
+Furthermore, after such an unblock we should call unblock with the unblocked process, or return a Ran of that process.
+
+Big problem atm is that I now realise that more than 1 proc can terminate in 1 step so i want to refactor some things.
 
 Mini Todo
 - write example program to test this stuff
-- code output 
 - test it out 
 
+- factor State out into another file
 - keyboard and screen channels which connect into elm
 - hook up with codemirror
 - start drafting final report - follow the paper on my wall and at least get all the headings going. Do it in epsilon so i can just keysmash into it whenever I do it.

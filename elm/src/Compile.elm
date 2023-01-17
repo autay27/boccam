@@ -52,6 +52,9 @@ unblock (m, id) =
     in
         Ok (basic_spawn unblockedProcs { m | waiting = stillWaiting })
 
+unblockBoth : Model -> Id -> Id -> Result String Model
+unblockBoth m i j = unblock m i |> Result.andThen unblock m j
+
 -- we can also remove i from m.ids here
 
 step : Proc -> Model -> Outcome String Model Model Model
@@ -87,19 +90,13 @@ step e m = let state = m.state in
                 Ok id -> 
                     case checkFull state chan of
                         Ok True -> 
-                            let
-                                waiting = { proc = e, waitCond = EmptiedChanToFill id }
-                            in
-                                Blocked (block [waiting] m)
+                            RunErr "Occam does not allow multiple parallel processes to output to one channel"
                         Ok False -> case eval expr state of
                             Ok n ->
-                                case sendOnChan chan n m of 
-                                    Ok model -> 
-                                        let
-                                            waiting = { proc = e, waitCond = EmptiedChan id }
-                                        in
-                                            Blocked (block [waiting] model)
-                                    Err msg -> RunErr msg
+                                let
+                                    waiting = { proc = e, waitCond = EmptiedChan id }
+                                in
+                                    sendOnChan chan n (block [waiting] model)
                             Err msg -> RunErr ("tried to output a value but " ++ msg)
                         Err msg -> RunErr ("tried to output to a channel but " ++ msg)
 
@@ -216,13 +213,33 @@ receiveOnChan chan var m = case chan of
     _ -> Err "invalid channel identifier"
 
 sendOnChan : Tree -> Value -> Model -> Result String Model
-sendOnChan chan val m = 
-    getName chan |> Result.andThen (\chanid ->
-        let 
-            state = m.state
-            filledchan = { isFull = True, value = val }
-            updatedState = { state | chans = Dict.insert chanid filledchan state.chans }
-        in
-            Ok { m | state = updatedState }
-    )
--- Requires integer value or Any for now!
+sendOnChan chan val m =
+    case val of
+        Number n ->
+            getName chan |> Result.andThen (\chanid ->
+                let 
+                    state = m.state
+                    filledchan = { isFull = True, value = val }
+                    updatedState = { state | chans = Dict.insert chanid filledchan state.chans }
+                in
+                    channelFilled chanid { m | state = updatedState }
+            )
+        _ -> Err "Channels are integer only at the moment"
+
+channelFilled : String -> Model -> Result String Model
+channelFilled chan m =
+    let 
+        (couldUnblock, stillBlocking) = List.partition (\wp ->
+            wp.waitCond == FilledChan chan
+            ) m.waiting
+    in
+        case couldUnblock of 
+            (unblocking::notUnblocking) -> 
+                case unblocking.proc.code of 
+                    Branch In (chan2::var::[]) -> receiveOnChan chan2 var { m | waiting = notUnblocking ++ stillBlocking }
+                    _ -> Err "unexpected process unblocking following a channel being filled"
+            [] -> Ok m
+
+--SUUUUSSSSS (see todo)
+
+--channelEmptied : String -> Model -> Result String Model

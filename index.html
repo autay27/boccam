@@ -6,7 +6,17 @@
 <script>
     function parse () {
         var input = document.getElementById("editor").value.concat(" ")
-        var result = occam.parse(input);
+        
+        try {
+            var result = occam.parse(input);
+            var tree = (organise(result));
+            document.getElementById("jsonTree").innerHTML = "Syntax tree as JSON: " + JSON.stringify(tree);
+            return tree
+
+        } catch (e) {
+            document.getElementById("jsonTree").innerHTML = "Parsing Error!"
+            return false
+        }
 
         function organise (input) {
             if(typeof input == "string"){
@@ -23,17 +33,19 @@
                          children: cs }
             }
         }
-
-        var tree = (organise(result));
-
-        document.getElementById("jsonTree").innerHTML = JSON.stringify(tree);
-
-        return tree
     }
 
     function sendElm () {
+
+        var elm = document.getElementById("elm-app-div");
         var json = parse()
-        app.ports.messageReceiver.send(json);
+
+        if (json){
+            app.ports.messageReceiver.send(json);
+            elm.style.display = "block";
+        } else {
+            elm.style.display = "none";
+        }
     }
 </script>
 
@@ -43,20 +55,23 @@
         <textarea id="editor" style="min-height: 50vh;">
 SEQ 
     CHAN OF INT chan:
+    INT x:
     PAR
         WHILE TRUE
-            chan ! 0
+            SEQ
+                chan ! 0
+                chan ! 11
         WHILE TRUE
-            chan ! 1
+            chan ? x
         </textarea>
         <button onclick="sendElm()">begin interpreting</button>
 
-        Syntax tree as JSON:
         <div id="jsonTree"></div>
     </div>
 
-    <div id="elm-app"></div>
-    
+    <div id="elm-app-div" style="display: none;">
+        <div id="elm-app"></div>
+    </div>
     <script src="elm/elm.js"></script>
     <script>
     var app = Elm.Main.init({

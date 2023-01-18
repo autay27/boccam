@@ -10,30 +10,9 @@
 
 - channels - we'll have each channel having its own slot, put in the slot during step and serve to a waiting process during unblock. idk, something like this.
 
-How to Input  (Receive)
-- if channel !isFull
-    block myself until channel isFull (someone will come wake me) 
-    then I spawn as an Assign process with the gotten value I guess, since I wouldn't evaluate exactly which variable to input to until I'm successful.
-- else 
-    retrive value from the channel, empty it out, and terminate
-    
-How to Output (Send)
-- if channel !isFull
-    get my value, update the state with my value in the channel; block until channel !isFull (someone will come get me)
-- else 
-    block myself until channel !isFull (someone will come wake me) hmm, should my value get put in the channel instantly? I don't think so, that doesn't feel right. Looking at the book, it seems that the value of the expression x in chan ! x is not evaluated until the output is already successful.
+Ok, why do we get these issues of the process running into itself outputting? This should be impossible. Looking at example runs, the issue is not that the channel is not cleared, it's that somehow (only sometimes!) the output process continues to run instead of blocking waiting for someone to receive from it. This is not an issue with the while loop, the actions continue to happen in order.
 
-in the spec it says channels are single reader single writer
-
-So, I tried making it unblock by calling an 'unblock relevant stuff' every time I e.g. fill a channel. But now I'm concerned because e.g. in Output we add our proc. to blocking AFTER calling all that shebang. So an instantly-successful output will never get unblocked. Is it as simple as just calling it after adding? 
-
-Furthermore, after such an unblock we should call unblock with the unblocked process, or return a Ran of that process.
-
-Big problem atm is that I now realise that more than 1 proc can terminate in 1 step so i want to refactor some things.
-
-Mini Todo
-- write example program to test this stuff
-- test it out 
+Seems like we have the same pid duplicated in list of terminated ones in Ran so that's a clue.
 
 - factor State out into another file
 - keyboard and screen channels which connect into elm

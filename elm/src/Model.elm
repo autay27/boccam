@@ -40,14 +40,15 @@ spawnAndWait : Tree -> Tree -> Id -> Maybe Id -> Model -> Model
 spawnAndWait runner waiter parent ancestor m = 
     let
         (i, ids2) = getNext m.ids
-        blocked_proc = { code = waiter, id = i, ancestorId = ancestor }
-
         (j, ids3) = getNext ids2
-        spawned_proc = { code = runner, id = j, ancestorId = Just i }
 
-        waitingproc = { proc = blocked_proc, waitCond = Terminated [j] } 
+        spawned_proc = { code = runner, id = i, ancestorId = Just j }
+
+        blocked_proc = { code = waiter, id = j, ancestorId = ancestor }
+
+        waitingproc = { proc = blocked_proc, waitCond = Terminated [i] } 
     in
-        basic_spawn [spawned_proc] (block [waitingproc] (updateWaitCond parent [i] { m | ids = ids3 }))
+        basic_spawn [spawned_proc] (block [waitingproc] (updateWaitCond parent [j] { m | ids = ids3 }))
 
 spawn : (List Tree) -> Id -> Maybe Id -> Model -> Model
 spawn xs parent ancestor m = 

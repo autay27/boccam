@@ -9,8 +9,9 @@ example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
     Branch DeclareVariable [Leaf (Ident "x")], 
     Branch Par [Branch ProcList 
-        [Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Ident "x")]],
-        Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]]]]]]
+        [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]],
+        Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Ident "x")]]]
+    ]]]
 
 -- simulating program
 
@@ -22,7 +23,7 @@ run m n =
         Ran model ids -> unblock model ids
         Unrolled model id -> unblock model [id] |> Result.andThen (\newm -> run newm n) 
         -- not exactly uniform prob. anymore but it's better
-        Blocked model -> Ok (print "something blocked..." model)
+        Blocked model -> Ok model
         RunErr msg -> Err msg
 
 make_step : Model -> Int -> Outcome
@@ -213,7 +214,9 @@ receiveOnChan chan var pid m = case chan of
                         case getName var of 
                             Ok varid ->
                                 case (assignVar stateEmptiedChannel varid receivedValue) of
-                                    Ok stateEmptiedAssigned -> channelEmptied chanid pid { m | state = stateEmptiedAssigned }
+                                    Ok stateEmptiedAssigned -> case receivedValue of
+                                        Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ varid) { m | state = stateEmptiedAssigned })
+                                        _ -> RunErr "unexpected, input was not a number"
                                     Err msg -> RunErr msg
                             Err msg -> RunErr msg
                 Nothing -> RunErr "could not find the specified channel"
@@ -230,7 +233,7 @@ sendOnChan chan val pid m =
                         filledchan = { isFull = True, value = val }
                         updatedState = { state | chans = Dict.insert chanid filledchan state.chans }
                     in
-                        channelFilled chanid pid { m | state = updatedState }
+                        channelFilled chanid pid (print ("outputted " ++ String.fromInt n ++ " to " ++ chanid) { m | state = updatedState })
                 Err msg -> RunErr "Invalid channel name"
         _ -> RunErr "Channels are integer only at the moment"
 
@@ -246,10 +249,10 @@ channelFilled chan pid m =
                 case unblocking.proc.code of 
                     Branch In (chan2::var::[]) -> 
                         case receiveOnChan chan2 var unblocking.proc.id { m | waiting = notUnblocking ++ stillBlocking } of
-                            Ran model xs -> Ran model (pid::xs)
+                            Ran model xs -> Ran model xs
                             other -> other
                     _ -> RunErr "unexpected process unblocking following a channel being filled"
-            [] -> Ran m [pid]
+            [] -> Blocked m
 
 channelEmptied : String -> Id -> Model -> Outcome
 channelEmptied chan pid m =

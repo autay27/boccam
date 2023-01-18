@@ -4,6 +4,7 @@ import Dict exposing (Dict, insert)
 import List exposing (head, take, drop, map, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 import Model exposing (..)
+import State exposing (..)
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
@@ -115,13 +116,9 @@ step e m =
 
         Branch AssignExpr (id::e1::[]) ->
             case (eval e1 state) of
-                Ok v -> 
-                    case getName id of 
-                        Ok name -> 
-                            case (assignVar state name v) of
-                                Ok s -> ranMe (update s m)
-                                Err msg -> RunErr msg
-                        Err msg -> RunErr msg
+                Ok v -> case (assignVar state id v) of
+                    Ok s -> ranMe (update s m)
+                    Err msg -> RunErr msg
                 Err msg -> RunErr msg
 
         Branch While (cond::body::[]) -> 
@@ -130,18 +127,14 @@ step e m =
                 Ok (Boolval False) -> ranMe m
                 _ -> RunErr "Condition must evaluate to boolean value"
 
-        --in the future, may need to account for if the cond contains an input (check spec for if this is possible)
-
-        --not very space efficient to store two copies of the code
-
-        Branch DeclareVariable ((Leaf (Ident id))::[]) -> 
+        Branch DeclareVariable (id::[]) -> 
             case declareVar state id of
-                Ok state2 -> ranMe ( print ("declared variable " ++ id) (update state2 m))
+                Ok state2 -> ranMe (update state2 m)
                 Err msg -> RunErr msg
 
-        Branch DeclareChannel ((Leaf (Ident id))::[]) -> 
-            case (declareChan state (Leaf (Ident id))) of
-                Ok state2 -> ranMe ( print ("declared channel " ++ id) (update state2 m))
+        Branch DeclareChannel (id::[]) -> 
+            case (declareChan state  id) of
+                Ok state2 -> ranMe (update state2 m)
                 Err msg -> RunErr msg
 
         Branch Skip [] ->
@@ -162,45 +155,6 @@ eval t state =
         Leaf (Num n) -> Ok (Number n)
         Branch rule children -> Err "eval processing a tree"
 
-getName : Tree -> Result String String
-getName tree = case tree of
-    Leaf (Ident str) -> Ok str
-    _ -> Err "Invalid name for a variable or channel"
-
-checkFull : State -> Tree -> Result String Bool
-checkFull state id = 
-    case id of
-        Leaf (Ident str) -> case Dict.get str state.chans of
-            Just ch ->  Ok ch.isFull
-            Nothing -> Err "channel not declared"
-        _ -> Err "not a channel"
-        
-assignVar : State -> String -> Value -> Result String State
-assignVar state id v = 
-    if Dict.member id state.chans then 
-        Err "tried to assign to a channel" 
-    else 
-        Ok {state | vars = (Dict.insert id v state.vars)}
-
-declareVar : State -> String -> Result String State
-declareVar state id = 
-    if Dict.member id state.vars then 
-        Err "declared a variable that already exists"
-    else
-        assignVar state id Any
-
-declareChan : State -> Tree -> Result String State
-declareChan state t = 
-    case t of
-        Leaf (Ident id) -> 
-            if Dict.member id state.vars then 
-                    Err "tried to declare a channel with a variable's name" 
-                else if Dict.member id state.chans then 
-                        Err "channel already declared"
-                    else 
-                        Ok {state | chans = (Dict.insert id freshChannel state.chans)}
-        _ -> Err "tried to declare, but name was a number"
-
 receiveOnChan : Tree -> Tree -> Id -> Model -> Outcome
 receiveOnChan chan var pid m = case chan of 
     Leaf (Ident chanid) -> 
@@ -211,14 +165,16 @@ receiveOnChan chan var pid m = case chan of
                         receivedValue = channel.value 
                         stateEmptiedChannel = { state | chans = (Dict.insert chanid freshChannel state.chans)}
                     in 
-                        case getName var of 
-                            Ok varid ->
-                                case (assignVar stateEmptiedChannel varid receivedValue) of
-                                    Ok stateEmptiedAssigned -> case receivedValue of
-                                        Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ varid) { m | state = stateEmptiedAssigned })
-                                        _ -> RunErr "unexpected, input was not a number"
-                                    Err msg -> RunErr msg
+                        case (assignVar stateEmptiedChannel var receivedValue) of
+
+                            Ok stateEmptiedAssigned -> case receivedValue of
+
+                                Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (getName var))) { m | state = stateEmptiedAssigned })
+
+                                _ -> RunErr "unexpected, input was not a number"
+
                             Err msg -> RunErr msg
+
                 Nothing -> RunErr "could not find the specified channel"
     _ -> RunErr "invalid channel identifier"
 

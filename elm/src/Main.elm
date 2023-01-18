@@ -6,7 +6,8 @@ import Html.Events exposing (onClick)
 
 import Readfile exposing (Tree, treeDecoder)
 import Compile exposing (run)
-import Model exposing (Model, Proc, WaitingProc, State, freshModel, spawn, print)
+import Model exposing (Model, Proc, WaitingProc, spawn, print, freshModel)
+
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int)
 import List exposing (length)

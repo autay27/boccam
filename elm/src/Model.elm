@@ -3,32 +3,23 @@ module Model exposing (..)
 import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
-
-type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
-
-type Value = Number Int | Channel String | Boolval Bool | Any
-
-type alias Chan = { value: Value, isFull: Bool }
-
-type alias State = { vars: Dict String Value, chans: Dict String Chan }
+import State exposing (State, freshState)
 
 type alias Id = Int
 type alias IdTracker = Dict Id Bool
 
 type alias Proc = {code: Tree, id: Id, ancestorId: Maybe Id}
-
+type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker }
 
-freshModel = let freshState = { vars = Dict.empty, chans = Dict.empty } in
+freshModel =
     { output = "",
     running = [],
     waiting = [],
     state = freshState,
     ids = Dict.empty }
-
-freshChannel = { value = Any, isFull = False }
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }

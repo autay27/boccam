@@ -39,25 +39,26 @@ make_step m n =
                     Just t -> let m2 = {  m | running = notChosen } in 
                         step t m2
                     Nothing -> RunErr "Failed to choose a thread"
+
         [] -> RunErr "program finished"
 
 unblock : Model -> List Id -> Result String Model
-unblock m ids = 
-    case ids of
-        [] -> Ok m 
-        (x::xs) -> unblock_once m x |> Result.andThen (\newm -> unblock newm xs)
-
-unblock_once : Model -> Id -> Result String Model
-unblock_once m id = 
-    let
-        updatedAfterTermination = map (\p -> case p.waitCond of
-            Terminated xs -> { p | waitCond = Terminated (filter (\x -> x /= id) xs) }
-            _ -> p
-            ) m.waiting
-        (unblocked, stillWaiting) = List.partition (\p -> p.waitCond == Terminated []) updatedAfterTermination
-        unblockedProcs = map (\p -> p.proc) unblocked
+unblock model ids = 
+    let 
+        unblock_once m id = 
+            let
+                updatedAfterTermination = map (\p -> case p.waitCond of
+                    Terminated xs -> { p | waitCond = Terminated (filter (\x -> x /= id) xs) }
+                    _ -> p
+                    ) m.waiting
+                (unblocked, stillWaiting) = List.partition (\p -> p.waitCond == Terminated []) updatedAfterTermination
+                unblockedProcs = map (\p -> p.proc) unblocked
+            in
+                Ok (basic_spawn unblockedProcs { m | waiting = stillWaiting })
     in
-        Ok (basic_spawn unblockedProcs { m | waiting = stillWaiting })
+        case ids of
+            [] -> Ok model 
+            (x::xs) -> unblock_once model x |> Result.andThen (\newm -> unblock newm xs)
 
 -- we can also remove i from m.ids here
 
@@ -84,14 +85,12 @@ step e m =
                 _ -> RunErr "SEQ rule must be followed by process list only"
 
         Branch In (chan::var::[]) ->
-            case getName var of 
-                Ok varname -> case checkFull state chan of
-                        Ok True -> receiveOnChan chan var pid m
-                        Ok False -> case getName chan of
-                            Ok name -> Blocked (block [{ proc = e, waitCond = FilledChan name }] m)
-                            Err msg -> RunErr ("tried to get input but " ++ msg)
+                case checkFull state chan of
+                    Ok True -> receiveOnChan chan var pid m
+                    Ok False -> case getName chan of
+                        Ok name -> Blocked (block [{ proc = e, waitCond = FilledChan name }] m)
                         Err msg -> RunErr ("tried to get input but " ++ msg)
-                Err msg -> RunErr "Invalid variable name for an input"
+                    Err msg -> RunErr ("tried to get input but " ++ msg)
 
         Branch Out (chan::expr::[]) -> 
             case getName chan of
@@ -148,16 +147,19 @@ eval t state =
     case t of
         Leaf (Ident "TRUE") -> Ok (Boolval True)
         --need to put this in an init state
+
         Leaf (Ident s) -> 
             case Dict.get s state.vars of
                 Just v -> Ok v
                 Nothing -> Err ("Variable " ++ s ++ " not declared")
+
         Leaf (Num n) -> Ok (Number n)
+
         Branch rule children -> Err "eval processing a tree"
 
 receiveOnChan : Tree -> Tree -> Id -> Model -> Outcome
-receiveOnChan chan var pid m = case chan of 
-    Leaf (Ident chanid) -> 
+receiveOnChan chan var pid m = case getName chan of 
+    Ok chanid -> 
         let state = m.state in
             case Dict.get chanid state.chans of
                 Just channel ->
@@ -168,8 +170,8 @@ receiveOnChan chan var pid m = case chan of
                         case (assignVar stateEmptiedChannel var receivedValue) of
 
                             Ok stateEmptiedAssigned -> case receivedValue of
-
-                                Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (getName var))) { m | state = stateEmptiedAssigned })
+                                Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (getName var))) 
+                                    { m | state = stateEmptiedAssigned })
 
                                 _ -> RunErr "unexpected, input was not a number"
 
@@ -189,8 +191,10 @@ sendOnChan chan val pid m =
                         filledchan = { isFull = True, value = val }
                         updatedState = { state | chans = Dict.insert chanid filledchan state.chans }
                     in
-                        channelFilled chanid pid (print ("outputted " ++ String.fromInt n ++ " to " ++ chanid) { m | state = updatedState })
+                        channelFilled chanid pid (print ("outputted " ++ String.fromInt n ++ " to " ++ chanid) (update updatedState m))
+
                 Err msg -> RunErr "Invalid channel name"
+
         _ -> RunErr "Channels are integer only at the moment"
 
 channelFilled : String -> Id -> Model -> Outcome
@@ -207,8 +211,11 @@ channelFilled chan pid m =
                         case receiveOnChan chan2 var unblocking.proc.id { m | waiting = notUnblocking ++ stillBlocking } of
                             Ran model xs -> Ran model xs
                             other -> other
+
                     _ -> RunErr "unexpected process unblocking following a channel being filled"
+
             [] -> Blocked m
+            -- no thread was waiting to receive my value; block
 
 channelEmptied : String -> Id -> Model -> Outcome
 channelEmptied chan pid m =
@@ -222,5 +229,8 @@ channelEmptied chan pid m =
                 case unblocking.proc.code of 
                     Branch Out _ -> 
                         Ran { m | waiting = notUnblocking ++ stillBlocking } [unblocking.proc.id, pid]
+
                     _ -> RunErr "unexpected process unblocking following a channel being emptied"
+
             [] -> Ran m [pid]
+            -- no thread was waiting to give me a value; block

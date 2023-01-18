@@ -5,11 +5,10 @@
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 - We need some refactoring wrt how errors are handled, at the moment there is a lot of converting Err to RunErr etc which could be done automatically.
-- Generally the code is very spaghetti and bad.
+- Generally the code is very messy and things are not cleanly separated out.
 
 ## goals
 
-- factor State out into another file
 - keyboard and screen channels which connect into elm
 - hook up with codemirror
 

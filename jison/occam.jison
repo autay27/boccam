@@ -15,7 +15,7 @@ process
 
 proc
     : INT ID DECLARED
-        { $$ = ["declare", $2] }
+        { $$ = ["declare_var", $2] }
     | CHAN OF INT ID DECLARED
         { $$ = ["declare_chan", $4] }
     | ID ASSIGN expr
@@ -25,7 +25,7 @@ proc
     | ID OUT expr 
         { $$ = ["out", $1, $expr] }
     | ID IN ID 
-        { $$ = ["in", $1, $expr] }
+        { $$ = ["in", $1, $3] }
     | PAR proc_block
         { $$ = ["par", $proc_block] }
     | SEQ proc_block

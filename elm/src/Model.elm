@@ -4,13 +4,13 @@ import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
 
-type WaitCond = Terminated (List Id) | PlchldWait
+type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 
-type Value = Number Int | Channel String | Boolval Bool
+type Value = Number Int | Channel String | Boolval Bool | Any
 
-type alias Chan = { inUse: Bool, value: Value, lastUser: Id }
+type alias Chan = { value: Value, isFull: Bool }
 
-type alias State = Dict String Value
+type alias State = { vars: Dict String Value, chans: Dict String Chan }
 
 type alias Id = Int
 type alias IdTracker = Dict Id Bool
@@ -21,11 +21,14 @@ type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker }
 
-freshModel = { output = "",
-                running = [],
-                waiting = [],
-                state = Dict.empty,
-                ids = Dict.empty }
+freshModel = let freshState = { vars = Dict.empty, chans = Dict.empty } in
+    { output = "",
+    running = [],
+    waiting = [],
+    state = freshState,
+    ids = Dict.empty }
+
+freshChannel = { value = Any, isFull = False }
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }
@@ -37,14 +40,15 @@ spawnAndWait : Tree -> Tree -> Id -> Maybe Id -> Model -> Model
 spawnAndWait runner waiter parent ancestor m = 
     let
         (i, ids2) = getNext m.ids
-        blocked_proc = { code = waiter, id = i, ancestorId = ancestor }
-
         (j, ids3) = getNext ids2
-        spawned_proc = { code = runner, id = j, ancestorId = Just i }
 
-        waitingproc = { proc = blocked_proc, waitCond = Terminated [j] } 
+        spawned_proc = { code = runner, id = i, ancestorId = Just j }
+
+        blocked_proc = { code = waiter, id = j, ancestorId = ancestor }
+
+        waitingproc = { proc = blocked_proc, waitCond = Terminated [i] } 
     in
-        basic_spawn [spawned_proc] (block [waitingproc] (updateWaitCond parent [i] { m | ids = ids3 }))
+        basic_spawn [spawned_proc] (block [waitingproc] (updateWaitCond parent [j] { m | ids = ids3 }))
 
 spawn : (List Tree) -> Id -> Maybe Id -> Model -> Model
 spawn xs parent ancestor m = 

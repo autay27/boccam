@@ -87,7 +87,7 @@ case 1:
  console.log("AST: %j", $$[$0-1]); return $$[$0-1] 
 break;
 case 2:
- this.$ = ["declare", $$[$0-1]] 
+ this.$ = ["declare_var", $$[$0-1]] 
 break;
 case 3:
  this.$ = ["declare_chan", $$[$0-1]] 
@@ -102,7 +102,7 @@ case 6:
  this.$ = ["out", $$[$0-2], $$[$0]] 
 break;
 case 7:
- this.$ = ["in", $$[$0-2], $expr] 
+ this.$ = ["in", $$[$0-2], $$[$0]] 
 break;
 case 8:
  this.$ = ["par", $$[$0]] 

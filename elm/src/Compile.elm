@@ -170,6 +170,7 @@ receiveOnChan chan var pid m = case getName chan of
                         case (assignVar stateEmptiedChannel var receivedValue) of
 
                             Ok stateEmptiedAssigned -> case receivedValue of
+            
                                 Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (getName var))) 
                                     { m | state = stateEmptiedAssigned })
 

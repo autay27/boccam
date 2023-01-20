@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, text, br)
+import Html exposing (Html, button, div, text, br, hr)
 import Html.Events exposing (onClick)
 
 import Readfile exposing (Tree, treeDecoder)
@@ -61,6 +61,6 @@ view : Model -> Html Msg
 view model =
   div []
     ( 
-      [ button [ onClick Step ] [ text "Step" ]] ++
+      [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ]] ++
       (printout model.output)
     )

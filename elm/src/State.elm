@@ -9,7 +9,9 @@ type Value = Number Int | Channel String | Boolval Bool | Any
 
 type alias State = { vars: Dict String Value, chans: Dict String Chan }
 
-freshState = { vars = Dict.empty, chans = (Dict.insert "DISPLAY" freshChannel Dict.empty) }
+displaychanname = "DISPLAY"
+
+freshState = { vars = Dict.empty, chans = (Dict.insert displaychanname freshChannel Dict.empty) }
 
 freshChannel = { value = Any, isFull = False }
 

@@ -61,6 +61,6 @@ view : Model -> Html Msg
 view model =
   div []
     ( 
-      [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ]] ++
+      [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
       (printout model.output)
     )

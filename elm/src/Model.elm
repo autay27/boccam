@@ -12,14 +12,15 @@ type alias Proc = {code: Tree, id: Id, ancestorId: Maybe Id}
 type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, display: String }
 
 freshModel =
     { output = "",
     running = [],
     waiting = [],
     state = freshState,
-    ids = Dict.empty }
+    ids = Dict.empty,
+    display = "" }
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }
@@ -79,3 +80,6 @@ getNext dict =
 
 block : (List WaitingProc) -> Model -> Model
 block xs m = { m | waiting = xs ++ m.waiting }
+
+display : String -> Model -> Model
+display str m = { m | display = str }

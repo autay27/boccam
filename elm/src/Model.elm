@@ -80,3 +80,6 @@ getNext dict =
 
 block : (List WaitingProc) -> Model -> Model
 block xs m = { m | waiting = xs ++ m.waiting }
+
+display : String -> Model -> Model
+display str m = { m | display = str }

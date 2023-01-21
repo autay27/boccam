@@ -21,10 +21,18 @@ type Outcome = RunErr String | Ran Model (List Id) | Unrolled Model Id | Blocked
 run : Model -> Int -> Result String Model
 run m n =
     case make_step m n of
-        Ran model ids -> unblock model ids
+        Ran model ids -> 
+            case updateDisplay model of
+                Ran model2 ids2 -> unblock model2 (ids++ids2)
+                RunErr msg -> Err msg
+                _ -> Err "unexpected result when updating display"
         Unrolled model id -> unblock model [id] |> Result.andThen (\newm -> run newm n) 
         -- not exactly uniform prob. anymore but it's better
-        Blocked model -> Ok model
+        Blocked model -> 
+            case updateDisplay model of
+                Ran model2 ids2 -> unblock model2 ids2
+                RunErr msg -> Err msg
+                _ -> Err "unexpected result when updating display"
         RunErr msg -> Err msg
 
 make_step : Model -> Int -> Outcome
@@ -55,6 +63,7 @@ unblock model ids =
                 unblockedProcs = map (\p -> p.proc) unblocked
             in
                 Ok (basic_spawn unblockedProcs { m | waiting = stillWaiting })
+                --Ok (print ("terminated " ++ String.fromInt id) (basic_spawn unblockedProcs { m | waiting = stillWaiting }))
     in
         case ids of
             [] -> Ok model 
@@ -160,7 +169,7 @@ eval t state =
 
 receiveOnChan : String -> Tree -> Id -> Model -> Outcome
 receiveOnChan chanid var pid m = 
-    case getFromChannel chanid var m.state of
+    case getFromChannel chanid m.state of
 
         Ok (stateChanEmptied, receivedValue) -> case (assignVar stateChanEmptied var receivedValue) of
 
@@ -176,8 +185,8 @@ receiveOnChan chanid var pid m =
         Err msg -> RunErr msg 
 
 
-getFromChannel : String -> Tree -> State -> Result String (State, Value)
-getFromChannel chanid var state =
+getFromChannel : String -> State -> Result String (State, Value)
+getFromChannel chanid state =
     case Dict.get chanid state.chans of
         Just channel ->
             let
@@ -226,10 +235,10 @@ channelFilled chan pid m =
             -- no thread was waiting to receive my value; block
 
 channelEmptied : String -> Id -> Model -> Outcome
-channelEmptied chan pid m =
+channelEmptied chanid pid m =
     let
         (mayUnblock, stillBlocking) = List.partition (\wp ->
-                wp.waitCond == EmptiedChan chan
+                wp.waitCond == EmptiedChan chanid
             ) m.waiting
     in
         case mayUnblock of 
@@ -243,9 +252,16 @@ channelEmptied chan pid m =
             [] -> Ran m [pid]
             -- no thread was waiting to give me a value; block
 
-sendToDisplay : Model -> Result String Model
-sendToDisplay m = 
+updateDisplay : Model -> Outcome
+updateDisplay m = 
     case checkFull m.state (Leaf (Ident displaychanname)) of
-        Ok True -> Ok m
-        Ok False -> Ok m
-        Err msg -> Err ("tried to check for a message to the display, but " ++ msg)
+        Ok True -> 
+            case getFromChannel displaychanname m.state of
+                Ok (newState, value) ->
+                    case value of 
+                        Number n -> channelEmptied displaychanname (-1) (update newState (display (String.fromInt n) m))
+
+                        _ -> RunErr "Invalid output to the display (currently requires a number)"
+                Err msg -> RunErr msg
+        Ok False -> Ran m []
+        Err msg -> RunErr ("tried to check for a message to the display, but " ++ msg)

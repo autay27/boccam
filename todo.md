@@ -11,9 +11,7 @@
 
 - keyboard and screen channels which connect into elm
 
-how to do this? They are not like ordinary channels where both sides are processes. Instead, we need to... I guess have them as channels, sure, but then on the last step of run, have an 'unblock by IO' thing which will unblock them and convert their value to a custom dtatype which will be used to update the IO stuff.... Bah, my model expanded again. And to input, we need to put values in the channel and kinda call 'channelFilled' like normal right. Idk. I guess this will force me to do some better separating out huh.
-
-I think I'll have 'screen' as an extra field in the model.
+Hmm, I have a little questoin now about the behaviour of the keyboard. 
 
 - hook up with codemirror
 - error messages to include line numbers

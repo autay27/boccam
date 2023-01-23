@@ -5,6 +5,7 @@ import List exposing (head, take, drop, map, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 import Model exposing (..)
 import State exposing (..)
+import KeyboardInput exposing (Direction(..))
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
@@ -265,3 +266,16 @@ updateDisplay m =
                 Err msg -> RunErr msg
         Ok False -> Ran m []
         Err msg -> RunErr ("tried to check for a message to the display, but " ++ msg)
+
+runKeyboard : Direction -> Model -> Model
+runKeyboard dir m = 
+    case updateKeyboard dir m of
+        _ -> m
+
+
+updateKeyboard : Direction -> Model -> Model
+updateKeyboard dir m = 
+    case dir of 
+        Left -> print "LEFT" m
+        Right -> print "RIGHT" m
+        _ -> m

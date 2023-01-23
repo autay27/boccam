@@ -6,7 +6,11 @@ type TreeValue = Num Int | Ident String
 
 type Tree = Leaf TreeValue | Branch Rule (List Tree)
 
-type Rule = Skip | ProcList | Par | Seq | In | Out | AssignExpr | AssignProc | While | DeclareChannel | DeclareVariable 
+type Rule = Skip | ProcList | Par | Seq | In | Out | AssignExpr | AssignProc | While | DeclareChannel | DeclareVariable | BOperator Binop | UOperator Uop
+
+type Binop = Plus | Minus | Times | Divide | And | Or
+
+type Uop = Not
 
 -- Decoding
 

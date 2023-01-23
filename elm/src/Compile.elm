@@ -5,6 +5,7 @@ import List exposing (head, take, drop, map, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 import Model exposing (..)
 import State exposing (..)
+import Eval exposing (eval)
 import KeyboardInput exposing (Direction(..))
 
 example_tree = Branch Seq [Branch ProcList[
@@ -153,21 +154,6 @@ step e m =
         Leaf l -> RunErr "Tried to run variable"
         Branch s _ -> RunErr ("Wrong tree structure")
 
-eval : Tree -> State -> Result String Value
-eval t state =
-    case t of
-        Leaf (Ident "TRUE") -> Ok (Boolval True)
-        --need to put this in an init state
-
-        Leaf (Ident s) -> 
-            case Dict.get s state.vars of
-                Just v -> Ok v
-                Nothing -> Err ("Variable " ++ s ++ " not declared")
-
-        Leaf (Num n) -> Ok (Number n)
-
-        Branch rule children -> Err "eval processing a tree"
-
 receiveOnChan : String -> Tree -> Id -> Model -> Outcome
 receiveOnChan chanid var pid m = 
     case getFromChannel chanid m.state of
@@ -267,15 +253,18 @@ updateDisplay m =
         Ok False -> Ran m []
         Err msg -> RunErr ("tried to check for a message to the display, but " ++ msg)
 
-runKeyboard : Direction -> Model -> Model
+runKeyboard : Direction -> Model -> Result String Model
 runKeyboard dir m = 
     case updateKeyboard dir m of
-        _ -> m
+        _ -> Ok m
 
 
-updateKeyboard : Direction -> Model -> Model
+updateKeyboard : Direction -> Model -> Outcome
 updateKeyboard dir m = 
-    case dir of 
-        Left -> print "LEFT" m
-        Right -> print "RIGHT" m
-        _ -> m
+    case checkFull m.state (Leaf (Ident keyboardchanname)) of
+        Ok True -> RunErr "Keyboard channel is full, this should be prevented.."
+        Ok False -> case dir of
+            Left -> 
+            Right -> 
+            _ -> 
+        Err msg -> RunErr ("tried to input on keyboard but" ++ msg)

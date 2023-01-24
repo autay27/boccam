@@ -5453,11 +5453,16 @@ var $elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
+var $author$project$State$keyboardchanname = 'KEYBOARD';
 var $author$project$State$freshState = {
-	chans: A3($elm$core$Dict$insert, $author$project$State$displaychanname, $author$project$State$freshChannel, $elm$core$Dict$empty),
+	chans: A3(
+		$elm$core$Dict$insert,
+		$author$project$State$keyboardchanname,
+		$author$project$State$freshChannel,
+		A3($elm$core$Dict$insert, $author$project$State$displaychanname, $author$project$State$freshChannel, $elm$core$Dict$empty)),
 	vars: $elm$core$Dict$empty
 };
-var $author$project$Model$freshModel = {display: '', ids: $elm$core$Dict$empty, output: '', running: _List_Nil, state: $author$project$State$freshState, waiting: _List_Nil};
+var $author$project$Model$freshModel = {display: '', ids: $elm$core$Dict$empty, keyboardBuffer: _List_Nil, output: '', running: _List_Nil, state: $author$project$State$freshState, waiting: _List_Nil};
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -5981,6 +5986,18 @@ var $author$project$Main$Thread = function (a) {
 	return {$: 'Thread', a: a};
 };
 var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$Model$enqKeypress = F2(
+	function (dir, m) {
+		return A2(
+			$author$project$Model$print,
+			'buflength = ' + $elm$core$String$fromInt(
+				$elm$core$List$length(m.keyboardBuffer) + 1),
+			_Utils_update(
+				m,
+				{
+					keyboardBuffer: A2($elm$core$List$cons, dir, m.keyboardBuffer)
+				}));
+	});
 var $elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
 };
@@ -6137,6 +6154,9 @@ var $elm$core$Result$andThen = F2(
 			return $elm$core$Result$Err(msg);
 		}
 	});
+var $author$project$Compile$Blocked = function (a) {
+	return {$: 'Blocked', a: a};
+};
 var $author$project$Compile$RunErr = function (a) {
 	return {$: 'RunErr', a: a};
 };
@@ -6169,9 +6189,6 @@ var $elm$core$List$head = function (list) {
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
-};
-var $author$project$Compile$Blocked = function (a) {
-	return {$: 'Blocked', a: a};
 };
 var $author$project$Model$EmptiedChan = function (a) {
 	return {$: 'EmptiedChan', a: a};
@@ -6217,6 +6234,16 @@ var $author$project$Model$block = F2(
 			{
 				waiting: _Utils_ap(xs, m.waiting)
 			});
+	});
+var $author$project$State$checkDeclared = F2(
+	function (_var, state) {
+		var _v0 = $author$project$State$getName(_var);
+		if (_v0.$ === 'Ok') {
+			var str = _v0.a;
+			return A2($elm$core$Dict$member, str, state.vars) ? $elm$core$Result$Ok(_Utils_Tuple0) : $elm$core$Result$Err('variable ' + (str + ' not declared'));
+		} else {
+			return $elm$core$Result$Err('invalid variable name');
+		}
 	});
 var $author$project$State$checkFull = F2(
 	function (state, _var) {
@@ -6265,7 +6292,7 @@ var $author$project$State$Boolval = function (a) {
 var $author$project$State$Number = function (a) {
 	return {$: 'Number', a: a};
 };
-var $author$project$Compile$eval = F2(
+var $author$project$Eval$eval = F2(
 	function (t, state) {
 		if (t.$ === 'Leaf') {
 			if (t.a.$ === 'Ident') {
@@ -6290,7 +6317,7 @@ var $author$project$Compile$eval = F2(
 		} else {
 			var rule = t.a;
 			var children = t.b;
-			return $elm$core$Result$Err('eval processing a tree');
+			return $elm$core$Result$Err('not a valid value');
 		}
 	});
 var $elm$core$List$partition = F2(
@@ -6606,7 +6633,7 @@ var $author$project$Compile$step = F2(
 											if (_v20.a) {
 												return $author$project$Compile$RunErr('Occam doesn\'t allow more than one parallel process to output to the same channel');
 											} else {
-												var _v21 = A2($author$project$Compile$eval, expr, state);
+												var _v21 = A2($author$project$Eval$eval, expr, state);
 												if (_v21.$ === 'Ok') {
 													var n = _v21.a;
 													var waiting = {
@@ -6642,31 +6669,37 @@ var $author$project$Compile$step = F2(
 									var id = _v23.a;
 									var _v24 = _v23.b;
 									var e1 = _v24.a;
-									var _v25 = A2($author$project$Compile$eval, e1, state);
+									var _v25 = A2($author$project$State$checkDeclared, id, state);
 									if (_v25.$ === 'Ok') {
-										var v = _v25.a;
-										var _v26 = A3($author$project$State$assignVar, state, id, v);
+										var _v26 = A2($author$project$Eval$eval, e1, state);
 										if (_v26.$ === 'Ok') {
-											var s = _v26.a;
-											return ranMe(
-												A2($author$project$Model$update, s, m));
+											var v = _v26.a;
+											var _v27 = A3($author$project$State$assignVar, state, id, v);
+											if (_v27.$ === 'Ok') {
+												var s = _v27.a;
+												return ranMe(
+													A2($author$project$Model$update, s, m));
+											} else {
+												var msg = _v27.a;
+												return $author$project$Compile$RunErr(msg);
+											}
 										} else {
 											var msg = _v26.a;
 											return $author$project$Compile$RunErr(msg);
 										}
 									} else {
 										var msg = _v25.a;
-										return $author$project$Compile$RunErr(msg);
+										return $author$project$Compile$RunErr('Tried to assign to variable, but ' + msg);
 									}
 								case 'While':
-									var _v27 = _v0.a;
-									var _v28 = _v0.b;
-									var cond = _v28.a;
-									var _v29 = _v28.b;
-									var body = _v29.a;
-									var _v30 = A2($author$project$Compile$eval, cond, state);
-									if ((_v30.$ === 'Ok') && (_v30.a.$ === 'Boolval')) {
-										if (_v30.a.a) {
+									var _v28 = _v0.a;
+									var _v29 = _v0.b;
+									var cond = _v29.a;
+									var _v30 = _v29.b;
+									var body = _v30.a;
+									var _v31 = A2($author$project$Eval$eval, cond, state);
+									if ((_v31.$ === 'Ok') && (_v31.a.$ === 'Boolval')) {
+										if (_v31.a.a) {
 											return unrolledMe(
 												A5($author$project$Model$spawnAndWait, body, e.code, pid, aid, m));
 										} else {
@@ -6727,29 +6760,29 @@ var $author$project$Compile$step = F2(
 									return $author$project$Compile$RunErr('SEQ rule must be followed by process list only');
 								}
 							case 'DeclareVariable':
-								var _v31 = _v0.a;
-								var _v32 = _v0.b;
-								var id = _v32.a;
-								var _v33 = A2($author$project$State$declareVar, state, id);
-								if (_v33.$ === 'Ok') {
-									var state2 = _v33.a;
+								var _v32 = _v0.a;
+								var _v33 = _v0.b;
+								var id = _v33.a;
+								var _v34 = A2($author$project$State$declareVar, state, id);
+								if (_v34.$ === 'Ok') {
+									var state2 = _v34.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v33.a;
+									var msg = _v34.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							case 'DeclareChannel':
-								var _v34 = _v0.a;
-								var _v35 = _v0.b;
-								var id = _v35.a;
-								var _v36 = A2($author$project$State$declareChan, state, id);
-								if (_v36.$ === 'Ok') {
-									var state2 = _v36.a;
+								var _v35 = _v0.a;
+								var _v36 = _v0.b;
+								var id = _v36.a;
+								var _v37 = A2($author$project$State$declareChan, state, id);
+								if (_v37.$ === 'Ok') {
+									var state2 = _v37.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v36.a;
+									var msg = _v37.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							default:
@@ -6758,7 +6791,7 @@ var $author$project$Compile$step = F2(
 					}
 				} else {
 					if (_v0.a.$ === 'Skip') {
-						var _v37 = _v0.a;
+						var _v38 = _v0.a;
 						return ranMe(m);
 					} else {
 						break _v0$10;
@@ -6916,7 +6949,8 @@ var $author$project$Compile$make_step = F2(
 				return $author$project$Compile$RunErr('Failed to choose a thread');
 			}
 		} else {
-			return $author$project$Compile$RunErr('program finished');
+			return $author$project$Compile$Blocked(
+				A2($author$project$Model$print, 'blocking...', m));
 		}
 	});
 var $elm$core$List$filter = F2(
@@ -6994,6 +7028,57 @@ var $author$project$Compile$unblock = F2(
 				A2(unblock_once, model, x));
 		}
 	});
+var $author$project$Compile$chainRun = F3(
+	function (model, f, g) {
+		var _v0 = f(model);
+		switch (_v0.$) {
+			case 'Ran':
+				var m = _v0.a;
+				var xs = _v0.b;
+				var _v1 = g(m);
+				switch (_v1.$) {
+					case 'Ran':
+						var m2 = _v1.a;
+						var ys = _v1.b;
+						return A2(
+							$author$project$Compile$Ran,
+							m2,
+							_Utils_ap(xs, ys));
+					case 'Blocked':
+						var m2 = _v1.a;
+						return A2($author$project$Compile$Ran, m2, xs);
+					case 'RunErr':
+						var msg = _v1.a;
+						return $author$project$Compile$RunErr(msg);
+					default:
+						return $author$project$Compile$RunErr('unexpected chainrun');
+				}
+			case 'Blocked':
+				var m = _v0.a;
+				var _v2 = g(m);
+				switch (_v2.$) {
+					case 'Ran':
+						var m2 = _v2.a;
+						var ys = _v2.b;
+						return A2($author$project$Compile$Ran, m2, ys);
+					case 'Blocked':
+						var m2 = _v2.a;
+						return $author$project$Compile$Blocked(m2);
+					case 'RunErr':
+						var msg = _v2.a;
+						return $author$project$Compile$RunErr(msg);
+					default:
+						return $author$project$Compile$RunErr('unexpected chainrun');
+				}
+			case 'Unrolled':
+				var m = _v0.a;
+				var id = _v0.b;
+				return $author$project$Compile$RunErr('unexpected chainrun');
+			default:
+				var msg = _v0.a;
+				return $author$project$Compile$RunErr(msg);
+		}
+	});
 var $author$project$Model$display = F2(
 	function (str, m) {
 		return _Utils_update(
@@ -7041,6 +7126,75 @@ var $author$project$Compile$updateDisplay = function (m) {
 		return $author$project$Compile$RunErr('tried to check for a message to the display, but ' + msg);
 	}
 };
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Model$deqKeypress = function (m) {
+	var len = $elm$core$List$length(m.keyboardBuffer);
+	return A2(
+		$elm$core$Maybe$andThen,
+		function (dir) {
+			return $elm$core$Maybe$Just(
+				_Utils_Tuple2(
+					dir,
+					_Utils_update(
+						m,
+						{
+							keyboardBuffer: A2($elm$core$List$take, len - 1, m.keyboardBuffer)
+						})));
+		},
+		$elm$core$List$head(
+			A2($elm$core$List$drop, len - 1, m.keyboardBuffer)));
+};
+var $author$project$Compile$dirToValue = function (dir) {
+	switch (dir.$) {
+		case 'Left':
+			return $author$project$State$Number(0);
+		case 'Right':
+			return $author$project$State$Number(1);
+		default:
+			return $author$project$State$Number(2);
+	}
+};
+var $author$project$Compile$updateKeyboard = function (m) {
+	var _v0 = $author$project$Model$deqKeypress(m);
+	if (_v0.$ === 'Just') {
+		var _v1 = _v0.a;
+		var dir = _v1.a;
+		var m2 = _v1.b;
+		var _v2 = A2(
+			$author$project$State$checkFull,
+			m2.state,
+			$author$project$Readfile$Leaf(
+				$author$project$Readfile$Ident($author$project$State$keyboardchanname)));
+		if (_v2.$ === 'Ok') {
+			if (_v2.a) {
+				return A2($author$project$Compile$Ran, m, _List_Nil);
+			} else {
+				return A4(
+					$author$project$Compile$sendOnChan,
+					$author$project$State$keyboardchanname,
+					$author$project$Compile$dirToValue(dir),
+					-2,
+					m2);
+			}
+		} else {
+			var msg = _v2.a;
+			return $author$project$Compile$RunErr('tried to update keyboard, but ' + msg);
+		}
+	} else {
+		return A2($author$project$Compile$Ran, m, _List_Nil);
+	}
+};
+var $author$project$Compile$updateIO = function (model) {
+	return A3($author$project$Compile$chainRun, model, $author$project$Compile$updateDisplay, $author$project$Compile$updateKeyboard);
+};
 var $author$project$Compile$run = F2(
 	function (m, n) {
 		var _v0 = A2($author$project$Compile$make_step, m, n);
@@ -7048,7 +7202,7 @@ var $author$project$Compile$run = F2(
 			case 'Ran':
 				var model = _v0.a;
 				var ids = _v0.b;
-				var _v1 = $author$project$Compile$updateDisplay(model);
+				var _v1 = $author$project$Compile$updateIO(model);
 				switch (_v1.$) {
 					case 'Ran':
 						var model2 = _v1.a;
@@ -7061,7 +7215,7 @@ var $author$project$Compile$run = F2(
 						var msg = _v1.a;
 						return $elm$core$Result$Err(msg);
 					default:
-						return $elm$core$Result$Err('unexpected result when updating display');
+						return $elm$core$Result$Err('unexpected result from IO');
 				}
 			case 'Unrolled':
 				var model = _v0.a;
@@ -7078,7 +7232,7 @@ var $author$project$Compile$run = F2(
 							[id])));
 			case 'Blocked':
 				var model = _v0.a;
-				var _v2 = $author$project$Compile$updateDisplay(model);
+				var _v2 = $author$project$Compile$updateIO(model);
 				switch (_v2.$) {
 					case 'Ran':
 						var model2 = _v2.a;
@@ -7088,7 +7242,7 @@ var $author$project$Compile$run = F2(
 						var msg = _v2.a;
 						return $elm$core$Result$Err(msg);
 					default:
-						return $elm$core$Result$Err('unexpected result when updating display');
+						return $elm$core$Result$Err('unexpected result from IO');
 				}
 			default:
 				var msg = _v0.a;
@@ -7183,17 +7337,6 @@ try {
 	};
 } catch ($) {
 	throw 'Some top-level definitions from `Readfile` are causing infinite recursion:\n\n  ┌─────┐\n  │    treeDecoder\n  │     ↓\n  │    branchDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
-var $author$project$Compile$updateKeyboard = F2(
-	function (dir, m) {
-		switch (dir.$) {
-			case 'Left':
-				return A2($author$project$Model$print, 'LEFT', m);
-			case 'Right':
-				return A2($author$project$Model$print, 'RIGHT', m);
-			default:
-				return m;
-		}
-	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -7249,7 +7392,7 @@ var $author$project$Main$update = F2(
 			default:
 				var dir = msg.a;
 				return _Utils_Tuple2(
-					A2($author$project$Compile$updateKeyboard, dir, model),
+					A2($author$project$Model$enqKeypress, dir, model),
 					$elm$core$Platform$Cmd$none);
 		}
 	});

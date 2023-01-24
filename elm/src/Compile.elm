@@ -24,17 +24,17 @@ run : Model -> Int -> Result String Model
 run m n =
     case make_step m n of
         Ran model ids -> 
-            case updateDisplay model of
+            case updateIO model of
                 Ran model2 ids2 -> unblock model2 (ids++ids2)
                 RunErr msg -> Err msg
-                _ -> Err "unexpected result when updating display"
+                _ -> Err "unexpected result from IO"
         Unrolled model id -> unblock model [id] |> Result.andThen (\newm -> run newm n) 
         -- not exactly uniform prob. anymore but it's better
         Blocked model -> 
-            case updateDisplay model of
+            case updateIO model of
                 Ran model2 ids2 -> unblock model2 ids2
                 RunErr msg -> Err msg
-                _ -> Err "unexpected result when updating display"
+                _ -> Err "unexpected result from IO"
         RunErr msg -> Err msg
 
 make_step : Model -> Int -> Outcome
@@ -50,7 +50,7 @@ make_step m n =
                         step t m2
                     Nothing -> RunErr "Failed to choose a thread"
 
-        [] -> RunErr "program finished"
+        [] -> Blocked (print "blocking..." m)
 
 unblock : Model -> List Id -> Result String Model
 unblock model ids = 
@@ -155,7 +155,7 @@ step e m =
             ranMe m
 
         Leaf l -> RunErr "Tried to run variable"
-        Branch s _ -> RunErr ("Wrong tree structure")
+        Branch s _ -> RunErr "Wrong tree structure"
 
 receiveOnChan : String -> Tree -> Id -> Model -> Outcome
 receiveOnChan chanid var pid m = 
@@ -242,6 +242,26 @@ channelEmptied chanid pid m =
             [] -> Ran m [pid]
             -- no thread was waiting to give me a value; block
 
+updateIO : Model -> Outcome
+updateIO model = chainRun model updateDisplay updateKeyboard
+
+chainRun : Model -> (Model -> Outcome) -> (Model -> Outcome) -> Outcome
+chainRun model f g =
+    case f model of 
+        Ran m xs -> case g m of
+            Ran m2 ys -> Ran m2 (xs++ys)
+            Blocked m2 -> Ran m2 xs
+            RunErr msg -> RunErr msg
+            _ -> RunErr "unexpected chainrun"
+        Blocked m -> case g m of
+            Ran m2 ys -> Ran m2 (ys)
+            Blocked m2 -> Blocked m2
+            RunErr msg -> RunErr msg
+            _ -> RunErr "unexpected chainrun"
+        Unrolled m id -> RunErr "unexpected chainrun"--??
+        RunErr msg -> RunErr msg
+
+
 updateDisplay : Model -> Outcome
 updateDisplay m = 
     case checkFull m.state (Leaf (Ident displaychanname)) of
@@ -256,18 +276,18 @@ updateDisplay m =
         Ok False -> Ran m []
         Err msg -> RunErr ("tried to check for a message to the display, but " ++ msg)
 
-runKeyboard : Direction -> Model -> Result String Model
-runKeyboard dir m = 
-    case updateKeyboard dir m of
-        _ -> Ok m
+updateKeyboard : Model -> Outcome
+updateKeyboard m = 
+    case deqKeypress m of
+        Just (dir, m2) -> case checkFull m2.state (Leaf (Ident keyboardchanname)) of 
+            Ok True -> Ran m []
+            Ok False -> sendOnChan keyboardchanname (dirToValue dir) (-2) m2
+            Err msg -> RunErr ("tried to update keyboard, but " ++ msg)
+        Nothing -> Ran m []
 
-
-updateKeyboard : Direction -> Model -> Outcome
-updateKeyboard dir m = 
-    case checkFull m.state (Leaf (Ident keyboardchanname)) of
-        Ok True -> RunErr "Keyboard channel is full, this should be prevented.."
-        Ok False -> case dir of
-            Left -> 
-            Right -> 
-            _ -> 
-        Err msg -> RunErr ("tried to input on keyboard but" ++ msg)
+dirToValue : Direction -> Value
+dirToValue dir =
+    case dir of
+        Left -> Number 0
+        Right -> Number 1
+        Other -> Number 2

@@ -1,6 +1,8 @@
 module Eval exposing (..)
-import Readfile exposing (Tree(..), Rule(..))
 
+import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
+import State exposing (State, Value(..))
+import Dict
 
 eval : Tree -> State -> Result String Value
 eval t state =

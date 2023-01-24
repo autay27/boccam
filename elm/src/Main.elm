@@ -4,17 +4,17 @@ import Browser
 import Browser.Events exposing (onKeyDown)
 import Html exposing (Html, button, div, text, br, hr)
 import Html.Events exposing (onClick)
+import Json.Decode
 
 import Readfile exposing (Tree, treeDecoder)
 import Compile exposing (run)
-import Model exposing (Model, Proc, WaitingProc, spawn, print, freshModel)
+import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, freshModel)
 import KeyboardInput exposing (keyDecoder, Direction)
 
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int)
 import List exposing (length)
 
-import Json.Decode
 
 -- MAIN
 
@@ -46,7 +46,7 @@ update msg model =
       case (Json.Decode.decodeValue treeDecoder data) of 
         Ok t -> ((spawn [t] -1 Nothing freshModel), Cmd.none)
         Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel), Cmd.none)
-    ReceivedKeyboardInput dir -> (Compile.updateKeyboard dir model, Cmd.none)
+    ReceivedKeyboardInput dir -> (enqKeypress dir model, Cmd.none)
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
 

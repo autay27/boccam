@@ -87,7 +87,7 @@ display : String -> Model -> Model
 display str m = { m | display = str }
 
 enqKeypress : Direction -> Model -> Model
-enqKeypress dir m  = print ("buflength = " ++ (String.fromInt ((List.length m.keyboardBuffer) + 1))) { m | keyboardBuffer = dir::m.keyboardBuffer }
+enqKeypress dir m  = { m | keyboardBuffer = dir::m.keyboardBuffer }
 
 deqKeypress : Model -> Maybe (Direction, Model)
 deqKeypress m =

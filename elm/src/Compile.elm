@@ -258,7 +258,7 @@ chainRun model f g =
             Blocked m2 -> Blocked m2
             RunErr msg -> RunErr msg
             _ -> RunErr "unexpected chainrun"
-        Unrolled m id -> RunErr "unexpected chainrun"--??
+        Unrolled m id -> RunErr "unexpected chainrun"--?? I think this shows a fundamental issue with Outcome but I'm not touching it rn
         RunErr msg -> RunErr msg
 
 

@@ -4,6 +4,7 @@ import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
 import State exposing (State, freshState)
+import KeyboardInput exposing (Direction(..))
 
 type alias Id = Int
 type alias IdTracker = Dict Id Bool
@@ -12,7 +13,7 @@ type alias Proc = {code: Tree, id: Id, ancestorId: Maybe Id}
 type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, display: String }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, display: String, keyboardBuffer: (List Direction) }
 
 freshModel =
     { output = "",
@@ -20,7 +21,8 @@ freshModel =
     waiting = [],
     state = freshState,
     ids = Dict.empty,
-    display = "" }
+    display = "",
+    keyboardBuffer = [] }
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }
@@ -83,3 +85,15 @@ block xs m = { m | waiting = xs ++ m.waiting }
 
 display : String -> Model -> Model
 display str m = { m | display = str }
+
+enqKeypress : Direction -> Model -> Model
+enqKeypress dir m  = print ("buflength = " ++ (String.fromInt ((List.length m.keyboardBuffer) + 1))) { m | keyboardBuffer = dir::m.keyboardBuffer }
+
+deqKeypress : Model -> Maybe (Direction, Model)
+deqKeypress m =
+    let 
+        len = List.length (m.keyboardBuffer)
+    in    
+        List.head (drop (len-1) m.keyboardBuffer) |> Maybe.andThen (\dir ->     
+            Just (dir, { m | keyboardBuffer = take (len-1) m.keyboardBuffer })
+        )

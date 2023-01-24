@@ -1,18 +1,20 @@
 port module Main exposing (..)
 
 import Browser
+import Browser.Events exposing (onKeyDown)
 import Html exposing (Html, button, div, text, br, hr)
 import Html.Events exposing (onClick)
+import Json.Decode
 
 import Readfile exposing (Tree, treeDecoder)
 import Compile exposing (run)
-import Model exposing (Model, Proc, WaitingProc, spawn, print, freshModel)
+import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, freshModel)
+import KeyboardInput exposing (keyDecoder, Direction)
 
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int)
 import List exposing (length)
 
-import Json.Decode
 
 -- MAIN
 
@@ -28,7 +30,7 @@ init _ =
 -- UPDATE
 
 type Msg
-  = Step | Run | Thread Int | ReceivedDataFromJS Json.Decode.Value
+  = Step | Run | Thread Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -44,6 +46,7 @@ update msg model =
       case (Json.Decode.decodeValue treeDecoder data) of 
         Ok t -> ((spawn [t] -1 Nothing freshModel), Cmd.none)
         Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel), Cmd.none)
+    ReceivedKeyboardInput dir -> (enqKeypress dir model, Cmd.none)
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
 
@@ -51,7 +54,7 @@ port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-  messageReceiver ReceivedDataFromJS
+  Sub.batch [ messageReceiver ReceivedDataFromJS, Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder) ]
 
 -- VIEW
 
@@ -61,6 +64,6 @@ view : Model -> Html Msg
 view model =
   div []
     ( 
-      [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ]] ++
+      [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
       (printout model.output)
     )

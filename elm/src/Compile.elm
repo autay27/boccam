@@ -5,6 +5,8 @@ import List exposing (head, take, drop, map, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 import Model exposing (..)
 import State exposing (..)
+import Eval exposing (eval)
+import KeyboardInput exposing (Direction(..))
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
@@ -22,17 +24,17 @@ run : Model -> Int -> Result String Model
 run m n =
     case make_step m n of
         Ran model ids -> 
-            case updateDisplay model of
+            case updateIO model of
                 Ran model2 ids2 -> unblock model2 (ids++ids2)
                 RunErr msg -> Err msg
-                _ -> Err "unexpected result when updating display"
+                _ -> Err "unexpected result from IO"
         Unrolled model id -> unblock model [id] |> Result.andThen (\newm -> run newm n) 
         -- not exactly uniform prob. anymore but it's better
         Blocked model -> 
-            case updateDisplay model of
+            case updateIO model of
                 Ran model2 ids2 -> unblock model2 ids2
                 RunErr msg -> Err msg
-                _ -> Err "unexpected result when updating display"
+                _ -> Err "unexpected result from IO"
         RunErr msg -> Err msg
 
 make_step : Model -> Int -> Outcome
@@ -48,7 +50,7 @@ make_step m n =
                         step t m2
                     Nothing -> RunErr "Failed to choose a thread"
 
-        [] -> RunErr "program finished"
+        [] -> Blocked (print "blocking..." m)
 
 unblock : Model -> List Id -> Result String Model
 unblock model ids = 
@@ -124,11 +126,14 @@ step e m =
                 Err msg -> RunErr ("invalid channel name")
 
         Branch AssignExpr (id::e1::[]) ->
-            case (eval e1 state) of
-                Ok v -> case (assignVar state id v) of
-                    Ok s -> ranMe (update s m)
-                    Err msg -> RunErr msg
-                Err msg -> RunErr msg
+            case checkDeclared id state of
+                Ok () ->
+                    case (eval e1 state) of
+                        Ok v -> case (assignVar state id v) of
+                            Ok s -> ranMe (update s m)
+                            Err msg -> RunErr msg
+                        Err msg -> RunErr msg
+                Err msg -> RunErr ("Tried to assign to variable, but " ++ msg)
 
         Branch While (cond::body::[]) -> 
             case (eval cond state) of
@@ -150,22 +155,7 @@ step e m =
             ranMe m
 
         Leaf l -> RunErr "Tried to run variable"
-        Branch s _ -> RunErr ("Wrong tree structure")
-
-eval : Tree -> State -> Result String Value
-eval t state =
-    case t of
-        Leaf (Ident "TRUE") -> Ok (Boolval True)
-        --need to put this in an init state
-
-        Leaf (Ident s) -> 
-            case Dict.get s state.vars of
-                Just v -> Ok v
-                Nothing -> Err ("Variable " ++ s ++ " not declared")
-
-        Leaf (Num n) -> Ok (Number n)
-
-        Branch rule children -> Err "eval processing a tree"
+        Branch s _ -> RunErr "Wrong tree structure"
 
 receiveOnChan : String -> Tree -> Id -> Model -> Outcome
 receiveOnChan chanid var pid m = 
@@ -252,6 +242,26 @@ channelEmptied chanid pid m =
             [] -> Ran m [pid]
             -- no thread was waiting to give me a value; block
 
+updateIO : Model -> Outcome
+updateIO model = chainRun model updateDisplay updateKeyboard
+
+chainRun : Model -> (Model -> Outcome) -> (Model -> Outcome) -> Outcome
+chainRun model f g =
+    case f model of 
+        Ran m xs -> case g m of
+            Ran m2 ys -> Ran m2 (xs++ys)
+            Blocked m2 -> Ran m2 xs
+            RunErr msg -> RunErr msg
+            _ -> RunErr "unexpected chainrun"
+        Blocked m -> case g m of
+            Ran m2 ys -> Ran m2 (ys)
+            Blocked m2 -> Blocked m2
+            RunErr msg -> RunErr msg
+            _ -> RunErr "unexpected chainrun"
+        Unrolled m id -> RunErr "unexpected chainrun"--??
+        RunErr msg -> RunErr msg
+
+
 updateDisplay : Model -> Outcome
 updateDisplay m = 
     case checkFull m.state (Leaf (Ident displaychanname)) of
@@ -265,3 +275,19 @@ updateDisplay m =
                 Err msg -> RunErr msg
         Ok False -> Ran m []
         Err msg -> RunErr ("tried to check for a message to the display, but " ++ msg)
+
+updateKeyboard : Model -> Outcome
+updateKeyboard m = 
+    case deqKeypress m of
+        Just (dir, m2) -> case checkFull m2.state (Leaf (Ident keyboardchanname)) of 
+            Ok True -> Ran m []
+            Ok False -> sendOnChan keyboardchanname (dirToValue dir) (-2) m2
+            Err msg -> RunErr ("tried to update keyboard, but " ++ msg)
+        Nothing -> Ran m []
+
+dirToValue : Direction -> Value
+dirToValue dir =
+    case dir of
+        Left -> Number 0
+        Right -> Number 1
+        Other -> Number 2

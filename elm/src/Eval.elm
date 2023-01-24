@@ -15,5 +15,5 @@ eval t state =
 
         Leaf (Num n) -> Ok (Number n)
 
-        Branch rule children -> Err "eval processing a tree"
+        Branch rule children -> Err "not a valid value"
 

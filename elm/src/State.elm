@@ -63,6 +63,13 @@ declareChan state var =
                         Ok {state | chans = (Dict.insert str freshChannel state.chans)}
         _ -> Err "tried to declare, but name was a number"
 
+checkDeclared : Tree -> State -> Result String ()
+checkDeclared var state =
+    case getName var of 
+        Ok str ->
+            if Dict.member str state.vars then Ok () else Err ("variable " ++ str ++ " not declared")
+        _ -> Err "invalid variable name"
+
 toJson : State -> String
 toJson state = encode 2 (dict identity jsonValues state.vars)
 

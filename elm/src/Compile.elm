@@ -126,11 +126,14 @@ step e m =
                 Err msg -> RunErr ("invalid channel name")
 
         Branch AssignExpr (id::e1::[]) ->
-            case (eval e1 state) of
-                Ok v -> case (assignVar state id v) of
-                    Ok s -> ranMe (update s m)
-                    Err msg -> RunErr msg
-                Err msg -> RunErr msg
+            case checkDeclared id state of
+                Ok () ->
+                    case (eval e1 state) of
+                        Ok v -> case (assignVar state id v) of
+                            Ok s -> ranMe (update s m)
+                            Err msg -> RunErr msg
+                        Err msg -> RunErr msg
+                Err msg -> RunErr ("Tried to assign to variable, but " ++ msg)
 
         Branch While (cond::body::[]) -> 
             case (eval cond state) of

@@ -5242,6 +5242,10 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Readfile$ABinop = function (a) {
+	return {$: 'ABinop', a: a};
+};
+var $author$project$Readfile$AssignExpr = {$: 'AssignExpr'};
 var $author$project$Readfile$Branch = F2(
 	function (a, b) {
 		return {$: 'Branch', a: a, b: b};
@@ -5260,6 +5264,7 @@ var $author$project$Readfile$Num = function (a) {
 };
 var $author$project$Readfile$Out = {$: 'Out'};
 var $author$project$Readfile$Par = {$: 'Par'};
+var $author$project$Readfile$Plus = {$: 'Plus'};
 var $author$project$Readfile$ProcList = {$: 'ProcList'};
 var $author$project$Readfile$Seq = {$: 'Seq'};
 var $author$project$Readfile$While = {$: 'While'};
@@ -5291,6 +5296,16 @@ var $author$project$Compile$example_tree = A2(
 						])),
 					A2(
 					$author$project$Readfile$Branch,
+					$author$project$Readfile$AssignExpr,
+					_List_fromArray(
+						[
+							$author$project$Readfile$Leaf(
+							$author$project$Readfile$Ident('x')),
+							$author$project$Readfile$Leaf(
+							$author$project$Readfile$Num(0))
+						])),
+					A2(
+					$author$project$Readfile$Branch,
 					$author$project$Readfile$Par,
 					_List_fromArray(
 						[
@@ -5313,8 +5328,16 @@ var $author$project$Compile$example_tree = A2(
 												[
 													$author$project$Readfile$Leaf(
 													$author$project$Readfile$Ident('chan')),
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Num(0))
+													A2(
+													$author$project$Readfile$Branch,
+													$author$project$Readfile$ABinop($author$project$Readfile$Plus),
+													_List_fromArray(
+														[
+															$author$project$Readfile$Leaf(
+															$author$project$Readfile$Ident('x')),
+															$author$project$Readfile$Leaf(
+															$author$project$Readfile$Num(1))
+														]))
 												]))
 										])),
 									A2(
@@ -5988,15 +6011,11 @@ var $author$project$Main$Thread = function (a) {
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$Model$enqKeypress = F2(
 	function (dir, m) {
-		return A2(
-			$author$project$Model$print,
-			'buflength = ' + $elm$core$String$fromInt(
-				$elm$core$List$length(m.keyboardBuffer) + 1),
-			_Utils_update(
-				m,
-				{
-					keyboardBuffer: A2($elm$core$List$cons, dir, m.keyboardBuffer)
-				}));
+		return _Utils_update(
+			m,
+			{
+				keyboardBuffer: A2($elm$core$List$cons, dir, m.keyboardBuffer)
+			});
 	});
 var $elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
@@ -6292,33 +6311,119 @@ var $author$project$State$Boolval = function (a) {
 var $author$project$State$Number = function (a) {
 	return {$: 'Number', a: a};
 };
+var $author$project$Eval$arithEval = F4(
+	function (op, x, y, state) {
+		return A2(
+			$elm$core$Result$andThen,
+			function (v1) {
+				return A2(
+					$elm$core$Result$andThen,
+					function (v2) {
+						var _v8 = _Utils_Tuple2(v1, v2);
+						if ((_v8.a.$ === 'Number') && (_v8.b.$ === 'Number')) {
+							var n1 = _v8.a.a;
+							var n2 = _v8.b.a;
+							switch (op.$) {
+								case 'Plus':
+									return $elm$core$Result$Ok(
+										$author$project$State$Number(n1 + n2));
+								case 'Minus':
+									return $elm$core$Result$Ok(
+										$author$project$State$Number(n1 - n2));
+								case 'Times':
+									return $elm$core$Result$Ok(
+										$author$project$State$Number(n1 * n2));
+								default:
+									return $elm$core$Result$Ok(
+										$author$project$State$Number((n1 / n2) | 0));
+							}
+						} else {
+							return $elm$core$Result$Err('Invalid arguments for this operator');
+						}
+					},
+					A2($author$project$Eval$eval, y, state));
+			},
+			A2($author$project$Eval$eval, x, state));
+	});
 var $author$project$Eval$eval = F2(
 	function (t, state) {
-		if (t.$ === 'Leaf') {
-			if (t.a.$ === 'Ident') {
-				if (t.a.a === 'TRUE') {
-					return $elm$core$Result$Ok(
-						$author$project$State$Boolval(true));
-				} else {
-					var s = t.a.a;
-					var _v1 = A2($elm$core$Dict$get, s, state.vars);
-					if (_v1.$ === 'Just') {
-						var v = _v1.a;
-						return $elm$core$Result$Ok(v);
+		_v2$5:
+		while (true) {
+			if (t.$ === 'Leaf') {
+				if (t.a.$ === 'Ident') {
+					if (t.a.a === 'TRUE') {
+						return $elm$core$Result$Ok(
+							$author$project$State$Boolval(true));
 					} else {
-						return $elm$core$Result$Err('Variable ' + (s + ' not declared'));
+						var s = t.a.a;
+						var _v3 = A2($elm$core$Dict$get, s, state.vars);
+						if (_v3.$ === 'Just') {
+							var v = _v3.a;
+							return $elm$core$Result$Ok(v);
+						} else {
+							return $elm$core$Result$Err('Variable ' + (s + ' not declared'));
+						}
 					}
+				} else {
+					var n = t.a.a;
+					return $elm$core$Result$Ok(
+						$author$project$State$Number(n));
 				}
 			} else {
-				var n = t.a.a;
-				return $elm$core$Result$Ok(
-					$author$project$State$Number(n));
+				if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
+					switch (t.a.$) {
+						case 'ABinop':
+							var b = t.a.a;
+							var _v4 = t.b;
+							var x = _v4.a;
+							var _v5 = _v4.b;
+							var y = _v5.a;
+							return A4($author$project$Eval$arithEval, b, x, y, state);
+						case 'LBinop':
+							var b = t.a.a;
+							var _v6 = t.b;
+							var x = _v6.a;
+							var _v7 = _v6.b;
+							var y = _v7.a;
+							return A4($author$project$Eval$logicEval, b, x, y, state);
+						default:
+							break _v2$5;
+					}
+				} else {
+					break _v2$5;
+				}
 			}
-		} else {
-			var rule = t.a;
-			var children = t.b;
-			return $elm$core$Result$Err('not a valid value');
 		}
+		var rule = t.a;
+		var children = t.b;
+		return $elm$core$Result$Err('not a valid value');
+	});
+var $author$project$Eval$logicEval = F4(
+	function (op, x, y, state) {
+		return A2(
+			$elm$core$Result$andThen,
+			function (v1) {
+				return A2(
+					$elm$core$Result$andThen,
+					function (v2) {
+						var _v0 = _Utils_Tuple2(v1, v2);
+						if ((_v0.a.$ === 'Boolval') && (_v0.b.$ === 'Boolval')) {
+							var b1 = _v0.a.a;
+							var b2 = _v0.b.a;
+							if (op.$ === 'And') {
+								return $elm$core$Result$Ok(
+									$author$project$State$Boolval(b1 && b2));
+							} else {
+								return $elm$core$Result$Ok(
+									$author$project$State$Boolval(b1 || b2));
+							}
+						} else {
+							return $elm$core$Result$Err('Invalid arguments for this operator');
+						}
+					},
+					A2($author$project$Eval$eval, y, state));
+			},
+			A2($author$project$Eval$eval, x, state));
 	});
 var $elm$core$List$partition = F2(
 	function (pred, list) {
@@ -7273,8 +7378,15 @@ var $author$project$Readfile$numDecoder = A2(
 		$author$project$Readfile$Num,
 		A2($elm$json$Json$Decode$field, 'numleaf', $elm$json$Json$Decode$int)));
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-var $author$project$Readfile$AssignExpr = {$: 'AssignExpr'};
+var $author$project$Readfile$And = {$: 'And'};
 var $author$project$Readfile$AssignProc = {$: 'AssignProc'};
+var $author$project$Readfile$Div = {$: 'Div'};
+var $author$project$Readfile$LBinop = function (a) {
+	return {$: 'LBinop', a: a};
+};
+var $author$project$Readfile$Minus = {$: 'Minus'};
+var $author$project$Readfile$Or = {$: 'Or'};
+var $author$project$Readfile$Times = {$: 'Times'};
 var $elm$json$Json$Decode$fail = _Json_fail;
 var $author$project$Readfile$ruleFromString = function (str) {
 	switch (str) {
@@ -7298,6 +7410,24 @@ var $author$project$Readfile$ruleFromString = function (str) {
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareVariable);
 		case 'declare_chan':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareChannel);
+		case 'AND':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$LBinop($author$project$Readfile$And));
+		case 'OR':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$LBinop($author$project$Readfile$Or));
+		case 'PLUS':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Plus));
+		case 'MINUS':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Minus));
+		case 'TIMES':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Times));
+		case 'DIV':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Div));
 		default:
 			return $elm$json$Json$Decode$fail('Invalid grammar rule' + str);
 	}

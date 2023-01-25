@@ -48,7 +48,7 @@ proc_list
 
 expr
     : operand 
-        { $$ = [$simple] }
+        { $$ = [$operand] }
     | expr binop operand
         { $$ = [$binop, $1, $3] }
     ;

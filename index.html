@@ -10,11 +10,11 @@
         try {
             var result = occam.parse(input);
             var tree = (organise(result));
-            document.getElementById("jsonTree").innerHTML = "Syntax tree as JSON: " + JSON.stringify(tree);
+            document.getElementById("jsonTree").innerHTML = "Syntax tree as JSON: " + JSON.stringify(tree, null, 2);
             return tree
 
         } catch (e) {
-            document.getElementById("jsonTree").innerHTML = "Parsing Error!"
+            document.getElementById("jsonTree").innerHTML = "Parsing Error: " + e.toString();
             return false
         }
 
@@ -66,7 +66,7 @@ SEQ
         </textarea>
         <button onclick="sendElm()">begin interpreting</button>
 
-        <div id="jsonTree"></div>
+        <pre id="jsonTree"></pre>
     </div>
 
     <div id="elm-app-div" style="display: none;">

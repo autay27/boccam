@@ -123,7 +123,7 @@ case 13:
  $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
 break;
 case 14:
- this.$ = [$simple] 
+ this.$ = [$$[$0]] 
 break;
 case 15:
  this.$ = [$$[$0-1], $$[$0-2], $$[$0]] 

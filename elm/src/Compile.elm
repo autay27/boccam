@@ -2,7 +2,7 @@ module Compile exposing (..)
 
 import Dict exposing (Dict, insert)
 import List exposing (head, take, drop, map, filter)
-import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
+import Readfile exposing (Tree(..), TreeValue(..), Rule(..), ABop(..))
 import Model exposing (..)
 import State exposing (..)
 import Eval exposing (eval)
@@ -11,8 +11,9 @@ import KeyboardInput exposing (Direction(..))
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
     Branch DeclareVariable [Leaf (Ident "x")], 
+    Branch AssignExpr [Leaf (Ident "x"), Leaf (Num 0)],
     Branch Par [Branch ProcList 
-        [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]],
+        [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Branch (ABinop Plus) [Leaf (Ident "x"), Leaf (Num 1)]]],
         Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Ident "x")]]]
     ]]]
 

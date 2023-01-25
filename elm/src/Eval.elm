@@ -23,6 +23,7 @@ eval t state =
 
         Branch rule children -> Err "not a valid value"
 
+arithEval: ABop -> Tree -> Tree -> State -> Result String Value
 arithEval op x y state =
     eval x state |> Result.andThen (\v1 -> eval y state |> Result.andThen(\v2 -> 
         case (v1, v2) of 
@@ -31,11 +32,12 @@ arithEval op x y state =
                     Plus -> Ok (Number (n1 + n2))
                     Minus -> Ok (Number (n1 - n2))
                     Times -> Ok (Number (n1 * n2))
-                    Divide -> Ok (Number (n1 // n2))
+                    Div -> Ok (Number (n1 // n2))
                     --placeholder, don't know if this is in occam
             _ -> Err "Invalid arguments for this operator"
     ))
 
+logicEval: LBop -> Tree -> Tree -> State -> Result String Value
 logicEval op x y state =
     eval x state |> Result.andThen (\v1 -> eval y state |> Result.andThen(\v2 -> 
         case (v1, v2) of 

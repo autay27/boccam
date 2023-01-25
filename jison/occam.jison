@@ -47,8 +47,32 @@ proc_list
     ;
 
 expr
+    : operand 
+        { $$ = [$simple] }
+    | expr binop operand
+        { $$ = [$binop, $1, $3] }
+    ;
+
+operand
     : INTEGER
         { $$ = Number(yytext);}
     | ID
+        { $$ = yytext }
+    | LPAR expr RPAR
+        { $$ = [$2] }
+    ;
+
+binop
+    : PLUS
+        { $$ = yytext }
+    | MINUS
+        { $$ = yytext }
+    | TIMES
+        { $$ = yytext }
+    | DIV
+        { $$ = yytext }
+    | AND
+        { $$ = yytext }
+    | OR
         { $$ = yytext }
     ;

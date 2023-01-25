@@ -8,7 +8,7 @@ type Tree = Leaf TreeValue | Branch Rule (List Tree)
 
 type Rule = Skip | ProcList | Par | Seq | In | Out | AssignExpr | AssignProc | While | DeclareChannel | DeclareVariable | ABinop ABop | LBinop LBop 
 
-type ABop = Plus | Minus | Times | Divide 
+type ABop = Plus | Minus | Times | Div
 type LBop = And | Or
 
 
@@ -39,6 +39,12 @@ ruleFromString str =
         "while" -> succeed While
         "declare_var" -> succeed DeclareVariable
         "declare_chan" -> succeed DeclareChannel
+        "AND" -> succeed (LBinop And)
+        "OR" -> succeed (LBinop Or)
+        "PLUS" -> succeed (ABinop Plus)
+        "MINUS" -> succeed (ABinop Minus)
+        "TIMES" -> succeed (ABinop Times)
+        "DIV" -> succeed (ABinop Div)
         _ -> fail ("Invalid grammar rule" ++ str)
 
 numDecoder : Decoder Tree

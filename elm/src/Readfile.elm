@@ -1,12 +1,12 @@
 module Readfile exposing (..)
 
-import Json.Decode exposing (Decoder, field, int, string, list, map, map2, oneOf, lazy, decodeString, andThen, succeed, fail)
+import Json.Decode exposing (Decoder, field, int, string, list, map, map2, oneOf, lazy, andThen, succeed, fail)
 
 type TreeValue = Num Int | Ident String 
 
 type Tree = Leaf TreeValue | Branch Rule (List Tree)
 
-type Rule = Skip | ProcList | Par | Seq | In | Out | AssignExpr | AssignProc | While | DeclareChannel | DeclareVariable | ABinop ABop | LBinop LBop 
+type Rule = Skip | ProcList | Par | Seq | Alt | AltList | Alternative | Guard | In | Out | AssignExpr | AssignProc | While | DeclareChannel | DeclareVariable | ABinop ABop | LBinop LBop 
 
 type ABop = Plus | Minus | Times | Div
 type LBop = And | Or
@@ -29,9 +29,13 @@ ruleDecoder = string |> andThen ruleFromString
 ruleFromString : String -> Decoder Rule
 ruleFromString str =
     case str of
-        "proc_list" -> succeed ProcList
         "par" -> succeed Par
         "seq" -> succeed Seq
+        "proc_list" -> succeed ProcList
+        "alt" -> succeed Alt
+        "alt_list" -> succeed AltList
+        "alternative" -> succeed Alternative
+        "guard" -> succeed Guard
         "in" -> succeed In
         "out" -> succeed Out
         "assign_expr" -> succeed AssignExpr

@@ -24,12 +24,14 @@ proc
         { $$ = ["assign_proc", $1, $proc] }
     | ID OUT expr 
         { $$ = ["out", $1, $expr] }
-    | ID IN ID 
-        { $$ = ["in", $1, $3] }
+    | input
+        { $$ = $input }
     | PAR proc_block
         { $$ = ["par", $proc_block] }
     | SEQ proc_block
         { $$ = ["seq", $proc_block] }
+    | alternation
+        { $$ = $alternation }
     | WHILE expr INDENT proc DEDENT
         { $$ = ["while", $expr, $proc] }
     ;
@@ -44,6 +46,39 @@ proc_list
         { $$ = ["proc_list", $proc ] }
     | proc_list proc
         { $proc_list.push($proc); $$ = $proc_list; }
+    ;
+
+alternation
+    : ALT INDENT alt_list DEDENT
+        { $$ = ["alt", $alt_list] }
+    ;
+
+alt_list
+    : alternative
+        { $$ = ["alt_list", $alternative ] }
+    | alt_list alternative
+        { $alt_list.push($alternative); $$ = $alt_list; }
+    ;
+
+alternative
+    :   guard INDENT proc DEDENT
+        { $$ = ["alternative", $guard, $proc] }
+    | alternation
+        { $$ = $alternation }
+    ;
+
+guard
+    : input
+        { $$ = ["guard", "TRUE", $input] }
+    | expr AMPERSAND input
+        { $$ = ["guard", $expr, $input] }
+    | expr AMPERSAND SKIP
+        { $$ = ["guard", $expr, "SKIP"] }
+    ;
+
+input
+    : ID IN ID 
+        { $$ = ["in", $1, $3] }
     ;
 
 expr

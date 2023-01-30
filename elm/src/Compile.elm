@@ -1,6 +1,6 @@
 module Compile exposing (..)
 
-import Dict exposing (Dict, insert)
+import Dict exposing (Dict)
 import List exposing (head, take, drop, map, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..), ABop(..))
 import Model exposing (..)

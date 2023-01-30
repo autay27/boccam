@@ -3,12 +3,13 @@
 ## issues
 
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such.
-- Should have initially defined things like TRUE, FALSE, which are protected values. This is also causing parsing error rn(?).
+- Should have initially defined things like TRUE, FALSE, which are protected values.
 - We need some refactoring wrt how errors are handled, at the moment there is a lot of converting Err to RunErr etc which could be done automatically.
 - Generally the code is messy and things are not cleanly separated out.
 
 ## goals - code
 
+- Implement ALT
 - Implementing all the parallel parts of occam 1
 - hook up with codemirror
 - Errors per line number - Give each token a line number, have a syntax analyser step at the start to catch things like multiple output per channel

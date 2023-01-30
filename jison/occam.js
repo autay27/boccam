@@ -113,7 +113,7 @@ break;
 case 10:
  this.$ = ["while", $$[$0-3], $$[$0-1]] 
 break;
-case 11:
+case 11: case 18:
  this.$ = $$[$0-1] 
 break;
 case 12:
@@ -123,7 +123,7 @@ case 13:
  $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
 break;
 case 14:
- this.$ = [$$[$0]] 
+ this.$ = $$[$0] 
 break;
 case 15:
  this.$ = [$$[$0-1], $$[$0-2], $$[$0]] 
@@ -131,11 +131,26 @@ break;
 case 16:
  this.$ = Number(yytext);
 break;
-case 17: case 19: case 20: case 21: case 22: case 23: case 24:
+case 17:
  this.$ = yytext 
 break;
-case 18:
- this.$ = [$$[$0-1]] 
+case 19:
+ this.$ = "PLUS" 
+break;
+case 20:
+ this.$ = "MINUS" 
+break;
+case 21:
+ this.$ = "TIMES" 
+break;
+case 22:
+ this.$ = "DIV" 
+break;
+case 23:
+ this.$ = "AND" 
+break;
+case 24:
+ this.$ = "OR" 
 break;
 }
 },
@@ -642,21 +657,21 @@ case 8:return 10
 break;
 case 9:return 8;
 break;
-case 10:return 'LPAR;'
+case 10:return 25;
 break;
-case 11:return 'RPAR;'
+case 11:return 26;
 break;
-case 12:return 'PLUS;'
+case 12:return 27;
 break;
-case 13:return 'MINUS;'
+case 13:return 28;
 break;
-case 14:return 'TIMES;'
+case 14:return 29;
 break;
-case 15:return 'DIV;'
+case 15:return 30;
 break;
-case 16:return 'AND;'
+case 16:return 31;
 break;
-case 17:return 'OR;'
+case 17:return 32;
 break;
 case 18:return 7;
 break;

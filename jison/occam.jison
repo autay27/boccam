@@ -48,7 +48,7 @@ proc_list
 
 expr
     : operand 
-        { $$ = [$operand] }
+        { $$ = $operand }
     | expr binop operand
         { $$ = [$binop, $1, $3] }
     ;
@@ -59,20 +59,20 @@ operand
     | ID
         { $$ = yytext }
     | LPAR expr RPAR
-        { $$ = [$2] }
+        { $$ = $2 }
     ;
 
 binop
     : PLUS
-        { $$ = yytext }
+        { $$ = "PLUS" }
     | MINUS
-        { $$ = yytext }
+        { $$ = "MINUS" }
     | TIMES
-        { $$ = yytext }
+        { $$ = "TIMES" }
     | DIV
-        { $$ = yytext }
+        { $$ = "DIV" }
     | AND
-        { $$ = yytext }
+        { $$ = "AND" }
     | OR
-        { $$ = yytext }
+        { $$ = "OR" }
     ;

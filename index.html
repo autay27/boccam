@@ -14,7 +14,11 @@
             return tree
 
         } catch (e) {
-            document.getElementById("jsonTree").innerHTML = "Parsing Error: " + e.toString();
+                try {
+                    document.getElementById("jsonTree").innerHTML = "Parsing Error: " + e.toString();
+                } catch (e2) {
+                    throw e
+                }
             return false
         }
 
@@ -24,6 +28,7 @@
             }else if (typeof input == "number"){
                 return {numleaf: input}
             } else {
+                console.log(input)
                 var cs = []
                 for (let i = 1; i < input.length; i++){
                     cs.push(organise(input[i]))
@@ -56,13 +61,17 @@
 SEQ 
     CHAN OF INT chan:
     INT x:
+    INT y:
+    x := 0
     PAR
         WHILE TRUE
             SEQ
-                chan ! 0
-                chan ! 11
+                chan ! x
+                x := (x+1)
         WHILE TRUE
-            chan ? x
+            SEQ
+                chan ? y
+                DISPLAY ! y
         </textarea>
         <button onclick="sendElm()">begin interpreting</button>
 

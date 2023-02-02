@@ -30,7 +30,7 @@ init _ =
 -- UPDATE
 
 type Msg
-  = Step | Run | Thread Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
+  = Step | Run | Thread Int | Fulfilment Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -39,8 +39,12 @@ update msg model =
       (model, Random.generate Thread (Random.int 0 (length model.running - 1)))
     Thread n ->
       case Compile.run model n of 
-        Ok m -> (m, Cmd.none)
+        Ok m -> 
+          case m.randomGenerator.request of
+              Just n -> (m, Random.generate (Fulfilment n) (Random.int 0 n))
+              Nothing -> (m, Cmd.none)
         Err s -> (print s model, Cmd.none)
+    Fulfilment n f -> (fulfilRandom f model, Thread n)
     Run -> ((print "Running has not been implemented" model), Cmd.none)
     ReceivedDataFromJS data -> 
       case (Json.Decode.decodeValue treeDecoder data) of 

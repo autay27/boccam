@@ -73,7 +73,7 @@ guard
     | expr AMPERSAND input
         { $$ = ["guard", $expr, $input] }
     | expr AMPERSAND SKIP
-        { $$ = ["guard", $expr, "SKIP"] }
+        { $$ = ["guard", $expr, ["SKIP"]] }
     ;
 
 input

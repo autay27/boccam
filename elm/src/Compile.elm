@@ -7,6 +7,7 @@ import Model exposing (..)
 import State exposing (..)
 import Eval exposing (eval)
 import KeyboardInput exposing (Direction(..))
+import Html exposing (b)
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
@@ -19,7 +20,7 @@ example_tree = Branch Seq [Branch ProcList[
 
 -- simulating program
 
-type Outcome = RunErr String | Ran Model (List Id) | Unrolled Model Id | Blocked Model
+type Outcome = RunErr String | Ran Model (List Id) | Unrolled Model Id | Blocked Model | Requesting Model
 
 run : Model -> Int -> Result String Model
 run m n =
@@ -36,6 +37,7 @@ run m n =
                 Ran model2 ids2 -> unblock model2 ids2
                 RunErr msg -> Err msg
                 _ -> Err "unexpected result from IO"
+        Requesting model -> Ok model
         RunErr msg -> Err msg
 
 make_step : Model -> Int -> Outcome
@@ -126,6 +128,37 @@ step e m =
 
                 Err msg -> RunErr ("invalid channel name")
 
+        Branch Alt (x::[]) ->
+            case x of
+                Branch AltList xs ->
+                    let
+                        flattenAlt ys = case ys of 
+                            [] -> []
+                            (z::zs) -> case z of 
+                                Branch Guard _ -> z::(flattenAlt zs)
+                                Branch Alt [Branch AltList qs] -> (flattenAlt qs) ++ (flattenAlt zs)
+                        guardTrue a = case a of
+                            Branch Alternative [Branch Guard (bool::input::[]), proc] ->
+                                case eval bool state of 
+                                    Ok (Boolval b) -> case input of 
+                                        Branch In (chan::var::[]) ->
+                                            case checkFull state chan of
+                                                Ok True -> True
+                                                _ -> False
+                                        _ -> False
+                                    _ -> False
+                        enactAlternative a = case a of 
+                            Branch Alternative [Branch Guard (bool::input::[]), proc] -> Ran m [-1
+                            _ -> RunErr "Oh no, the alt picked a not alternative?"
+                    in 
+                        case List.head (List.drop pretend_im_random (filter guardTrue (flattenAlt xs))) of
+                            Just a -> enactAlternative a
+                            _ -> RunErr "Agh, the alt"
+                    
+                --flatten the alts out first, then filter by guard, then choose one and enact it
+                
+                _ -> RunErr "ALT must be followed by a list of alternatives"
+        
         Branch AssignExpr (id::e1::[]) ->
             case checkDeclared id state of
                 Ok () ->
@@ -292,3 +325,6 @@ dirToValue dir =
         Left -> Number 0
         Right -> Number 1
         Other -> Number 2
+
+pretend_im_random : Int
+pretend_im_random = 0

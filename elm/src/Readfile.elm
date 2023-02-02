@@ -43,6 +43,7 @@ ruleFromString str =
         "while" -> succeed While
         "declare_var" -> succeed DeclareVariable
         "declare_chan" -> succeed DeclareChannel
+        "SKIP" -> succeed Skip
         "AND" -> succeed (LBinop And)
         "OR" -> succeed (LBinop Or)
         "PLUS" -> succeed (ABinop Plus)

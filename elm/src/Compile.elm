@@ -132,28 +132,21 @@ step e m =
             case x of
                 Branch AltList xs ->
                     let
-                        flattenAlt ys = case ys of 
-                            [] -> []
-                            (z::zs) -> case z of 
-                                Branch Guard _ -> z::(flattenAlt zs)
-                                Branch Alt [Branch AltList qs] -> (flattenAlt qs) ++ (flattenAlt zs)
-                        guardTrue a = case a of
-                            Branch Alternative [Branch Guard (bool::input::[]), proc] ->
-                                case eval bool state of 
-                                    Ok (Boolval b) -> case input of 
-                                        Branch In (chan::var::[]) ->
-                                            case checkFull state chan of
-                                                Ok True -> True
-                                                _ -> False
-                                        _ -> False
-                                    _ -> False
                         enactAlternative a = case a of 
-                            Branch Alternative [Branch Guard (bool::input::[]), proc] -> Ran m [-1
-                            _ -> RunErr "Oh no, the alt picked a not alternative?"
-                    in 
-                        case List.head (List.drop pretend_im_random (filter guardTrue (flattenAlt xs))) of
-                            Just a -> enactAlternative a
-                            _ -> RunErr "Agh, the alt"
+                            Branch Alternative [Branch Guard (bool::(Branch In (chan::var::[]))::[]), proc] ->
+                                case getName chan of 
+                                    Ok chanid -> receiveOnChan chanid var pid (spawn [proc] pid aid m)
+                                    _ -> RunErr "Invalid channel name in alt branch"
+                            _ -> RunErr "Invalid alt branch"
+                    in
+                        case pickValidBranches xs state of
+                            Ok [] -> ranMe m
+                            Ok ys -> case m.randomGenerator.fulfilment of
+                                Nothing -> Requesting (requestRandomUpTo (List.length ys) m)
+                                Just rand -> case (head (drop rand ys)) of 
+                                    Just a -> enactAlternative a 
+                                    Nothing -> RunErr "randomly picking alt branch failed!"
+                            Err msg -> RunErr msg
                     
                 --flatten the alts out first, then filter by guard, then choose one and enact it
                 
@@ -190,6 +183,43 @@ step e m =
 
         Leaf l -> RunErr "Tried to run variable"
         Branch s _ -> RunErr "Wrong tree structure"
+
+pickValidBranches : List Tree -> State -> Result String (List Tree)
+pickValidBranches alts state = 
+    let 
+        flattenAlt ys = case ys of 
+            [] -> Ok []
+            (z::zs) -> case z of 
+                Branch Guard _ -> 
+                    flattenAlt zs |> Result.andThen (\therest -> 
+                        Ok (z::therest)
+                    )
+                Branch Alt [Branch AltList qs] -> 
+                    flattenAlt qs |> Result.andThen (\flattened -> 
+                        flattenAlt zs |> Result.andThen (\therest -> 
+                            Ok (flattened ++ therest)
+                        ))
+                _ -> Err "Invalid ALT branch"
+        filterByGuard ys = case ys of
+            [] -> Ok []
+            (x::xs) -> filterByGuard xs |> Result.andThen (\therest ->
+                case x of 
+                    Branch Alternative [Branch Guard (bool::input::[]), proc] ->
+                        case eval bool state of 
+                            Ok (Boolval True) -> case input of         
+                                Branch In (chan::var::[]) ->
+                                    checkFull state chan |> Result.andThen (\f -> 
+                                        if f then Ok (x::therest) else Ok therest
+                                    )
+                                _ -> Err "unexpected channel in alternative branch"
+                            Ok (Boolval False) -> Ok therest
+                            Ok _ -> Err "Expression in front of a guard on an alt branch must be boolean"
+                            Err msg -> Err msg
+                    _ -> Err "Unexpected branch in alternative"
+                )
+    in
+        flattenAlt alts |> Result.andThen filterByGuard
+
 
 receiveOnChan : String -> Tree -> Id -> Model -> Outcome
 receiveOnChan chanid var pid m = 
@@ -292,9 +322,8 @@ chainRun model f g =
             Blocked m2 -> Blocked m2
             RunErr msg -> RunErr msg
             _ -> RunErr "unexpected chainrun"
-        Unrolled m id -> RunErr "unexpected chainrun"--?? I think this shows a fundamental issue with Outcome but I'm not touching it rn
         RunErr msg -> RunErr msg
-
+        _ -> RunErr "unexpected chainrun"--?? I think this shows a fundamental issue with Outcome but I'm not touching it rn
 
 updateDisplay : Model -> Outcome
 updateDisplay m = 

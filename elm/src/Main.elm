@@ -8,7 +8,7 @@ import Json.Decode
 
 import Readfile exposing (Tree, treeDecoder)
 import Compile exposing (run)
-import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, freshModel)
+import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, freshModel)
 import KeyboardInput exposing (keyDecoder, Direction)
 
 import Dict exposing (Dict, empty)
@@ -30,7 +30,7 @@ init _ =
 -- UPDATE
 
 type Msg
-  = Step | Run | Thread Int | Fulfilment Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
+  = Step | Run | Thread Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -41,10 +41,10 @@ update msg model =
       case Compile.run model n of 
         Ok m -> 
           case m.randomGenerator.request of
-              Just n -> (m, Random.generate (Fulfilment n) (Random.int 0 n))
+              Just k -> (model, Random.generate (Fulfilment (Thread n)) (Random.int 0 (k-1)))
               Nothing -> (m, Cmd.none)
         Err s -> (print s model, Cmd.none)
-    Fulfilment n f -> (fulfilRandom f model, Thread n)
+    Fulfilment t f -> update t (fulfilRandom f model)
     Run -> ((print "Running has not been implemented" model), Cmd.none)
     ReceivedDataFromJS data -> 
       case (Json.Decode.decodeValue treeDecoder data) of 

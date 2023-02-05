@@ -132,20 +132,24 @@ step e m =
             case x of
                 Branch AltList xs ->
                     let
-                        enactAlternative a = case a of 
-                            Branch Alternative [Branch Guard (bool::(Branch In (chan::var::[]))::[]), proc] ->
-                                case getName chan of 
-                                    Ok chanid -> receiveOnChan chanid var pid (spawn [proc] pid aid m)
-                                    _ -> RunErr "Invalid channel name in alt branch"
+                        enactAlternative a model = case a of 
+                            Branch Alternative [Branch Guard (bool::action::[]), proc] ->
+                                case action of
+                                    Branch In (chan::var::[]) ->
+                                        case getName chan of 
+                                            Ok chanid -> receiveOnChan chanid var pid (spawn [proc] pid aid model)
+                                            _ -> RunErr "Invalid channel name in alt branch"
+                                    Branch Skip _ -> ranMe (spawn [proc] pid aid model)
+                                    _ -> RunErr "Invalid alt guard"
                             _ -> RunErr "Invalid alt branch"
                     in
                         case pickValidBranches xs state of
                             Ok [] -> ranMe m
-                            Ok ys -> case m.randomGenerator.fulfilment of
-                                Nothing -> Requesting (requestRandomUpTo (List.length ys) m)
-                                Just rand -> case (head (drop rand ys)) of 
-                                    Just a -> enactAlternative a 
-                                    Nothing -> RunErr "randomly picking alt branch failed!"
+                            Ok ys -> case takeFulfilled m of
+                                (model, Nothing) -> Requesting (requestRandomUpTo (List.length ys) (print ("Requesting random one of "++ (String.fromInt (List.length ys))) model))
+                                (model, Just rand) -> case (head (drop rand ys)) of 
+                                    Just a -> enactAlternative a model
+                                    Nothing -> RunErr ( "randomly picking alt branch failed! I think there are " ++ (String.fromInt (List.length ys)) ++" branches but I got the number " ++ (String.fromInt rand))
                             Err msg -> RunErr msg
                     
                 --flatten the alts out first, then filter by guard, then choose one and enact it
@@ -211,6 +215,7 @@ pickValidBranches alts state =
                                     checkFull state chan |> Result.andThen (\f -> 
                                         if f then Ok (x::therest) else Ok therest
                                     )
+                                Branch Skip _ -> Ok (x::therest)
                                 _ -> Err "unexpected channel in alternative branch"
                             Ok (Boolval False) -> Ok therest
                             Ok _ -> Err "Expression in front of a guard on an alt branch must be boolean"
@@ -354,6 +359,3 @@ dirToValue dir =
         Left -> Number 0
         Right -> Number 1
         Other -> Number 2
-
-pretend_im_random : Int
-pretend_im_random = 0

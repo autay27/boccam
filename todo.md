@@ -6,26 +6,8 @@
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 - We need some refactoring wrt how errors are handled, at the moment there is a lot of converting Err to RunErr etc which could be done automatically.
 - Generally the code is messy and things are not cleanly separated out.
-- PRoblematic error handling in alt guard evaluation.
 
 ## goals - code
-
-- Implement ALT
-
-    Firstly, the fact that the choice between true guards is nondet is so annoying. But let's leave that aside for now. 
-
-    I need to make a list of all the guards which evaluate to true within the alt and also recursing on any alts within the alt. So it's basically an elaborate fold of
-        case xs of 
-            y::ys ->
-                case y of 
-                    Guard (b::p) -> if (guardeval b) then Guard (b::p)
-                    Alt [AltList zs] -> recurse on zs
-
-    Ummm so basically I just need to flatten it first then can filter it that'l be nicer?
-    
-    Then, I need to pick one. After that running it should not be a problem.
-
-    Hmm, for some reason it's all turning out very cursedly. Will go back with a paper and pen tomorrow.
 
 - Implementing all the parallel parts of occam 1
 - hook up with codemirror

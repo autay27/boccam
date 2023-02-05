@@ -138,7 +138,7 @@ case 21:
  this.$ = ["guard", $$[$0-2], $$[$0]] 
 break;
 case 22:
- this.$ = ["guard", $$[$0-2], "SKIP"] 
+ this.$ = ["guard", $$[$0-2], ["SKIP"]] 
 break;
 case 23:
  this.$ = ["in", $$[$0-2], $$[$0]] 

@@ -99,8 +99,11 @@ deqKeypress m =
             Just (dir, { m | keyboardBuffer = take (len-1) m.keyboardBuffer })
         )
 
-requestRandomUpTo: Int -> Model -> Model
+requestRandomUpTo : Int -> Model -> Model
 requestRandomUpTo n m = { m | randomGenerator = { request = Just n, fulfilment = Nothing } }
 
-fulfilRandom: Int -> Model -> Model
+fulfilRandom : Int -> Model -> Model
 fulfilRandom n m = { m | randomGenerator = {request = Nothing, fulfilment = Just n } }
+
+takeFulfilled : Model -> (Model, Maybe Int)
+takeFulfilled m = ({ m | randomGenerator = {request = Nothing, fulfilment = Nothing } }, m.randomGenerator.fulfilment)

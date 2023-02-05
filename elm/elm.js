@@ -6537,22 +6537,39 @@ var $author$project$Compile$pickValidBranches = F2(
 							if (_v24.$ === 'Ok') {
 								if (_v24.a.$ === 'Boolval') {
 									if (_v24.a.a) {
-										if (((((input.$ === 'Branch') && (input.a.$ === 'In')) && input.b.b) && input.b.b.b) && (!input.b.b.b.b)) {
-											var _v26 = input.a;
-											var _v27 = input.b;
-											var chan = _v27.a;
-											var _v28 = _v27.b;
-											var _var = _v28.a;
-											return A2(
-												$elm$core$Result$andThen,
-												function (f) {
-													return f ? $elm$core$Result$Ok(
-														A2($elm$core$List$cons, x, therest)) : $elm$core$Result$Ok(therest);
-												},
-												A2($author$project$State$checkFull, state, chan));
-										} else {
-											return $elm$core$Result$Err('unexpected channel in alternative branch');
+										_v25$2:
+										while (true) {
+											if (input.$ === 'Branch') {
+												switch (input.a.$) {
+													case 'In':
+														if ((input.b.b && input.b.b.b) && (!input.b.b.b.b)) {
+															var _v26 = input.a;
+															var _v27 = input.b;
+															var chan = _v27.a;
+															var _v28 = _v27.b;
+															var _var = _v28.a;
+															return A2(
+																$elm$core$Result$andThen,
+																function (f) {
+																	return f ? $elm$core$Result$Ok(
+																		A2($elm$core$List$cons, x, therest)) : $elm$core$Result$Ok(therest);
+																},
+																A2($author$project$State$checkFull, state, chan));
+														} else {
+															break _v25$2;
+														}
+													case 'Skip':
+														var _v29 = input.a;
+														return $elm$core$Result$Ok(
+															A2($elm$core$List$cons, x, therest));
+													default:
+														break _v25$2;
+												}
+											} else {
+												break _v25$2;
+											}
 										}
+										return $elm$core$Result$Err('unexpected channel in alternative branch');
 									} else {
 										return $elm$core$Result$Ok(therest);
 									}
@@ -6825,6 +6842,15 @@ var $author$project$Model$spawnAndWait = F5(
 						m,
 						{ids: ids3}))));
 	});
+var $author$project$Model$takeFulfilled = function (m) {
+	return _Utils_Tuple2(
+		_Utils_update(
+			m,
+			{
+				randomGenerator: {fulfilment: $elm$core$Maybe$Nothing, request: $elm$core$Maybe$Nothing}
+			}),
+		m.randomGenerator.fulfilment);
+};
 var $author$project$Compile$step = F2(
 	function (e, m) {
 		var state = m.state;
@@ -6930,42 +6956,42 @@ var $author$project$Compile$step = F2(
 										return $author$project$Compile$RunErr('invalid channel name');
 									}
 								case 'AssignExpr':
-									var _v42 = _v0.a;
-									var _v43 = _v0.b;
-									var id = _v43.a;
-									var _v44 = _v43.b;
-									var e1 = _v44.a;
-									var _v45 = A2($author$project$State$checkDeclared, id, state);
-									if (_v45.$ === 'Ok') {
-										var _v46 = A2($author$project$Eval$eval, e1, state);
-										if (_v46.$ === 'Ok') {
-											var v = _v46.a;
-											var _v47 = A3($author$project$State$assignVar, state, id, v);
-											if (_v47.$ === 'Ok') {
-												var s = _v47.a;
+									var _v44 = _v0.a;
+									var _v45 = _v0.b;
+									var id = _v45.a;
+									var _v46 = _v45.b;
+									var e1 = _v46.a;
+									var _v47 = A2($author$project$State$checkDeclared, id, state);
+									if (_v47.$ === 'Ok') {
+										var _v48 = A2($author$project$Eval$eval, e1, state);
+										if (_v48.$ === 'Ok') {
+											var v = _v48.a;
+											var _v49 = A3($author$project$State$assignVar, state, id, v);
+											if (_v49.$ === 'Ok') {
+												var s = _v49.a;
 												return ranMe(
 													A2($author$project$Model$update, s, m));
 											} else {
-												var msg = _v47.a;
+												var msg = _v49.a;
 												return $author$project$Compile$RunErr(msg);
 											}
 										} else {
-											var msg = _v46.a;
+											var msg = _v48.a;
 											return $author$project$Compile$RunErr(msg);
 										}
 									} else {
-										var msg = _v45.a;
+										var msg = _v47.a;
 										return $author$project$Compile$RunErr('Tried to assign to variable, but ' + msg);
 									}
 								case 'While':
-									var _v48 = _v0.a;
-									var _v49 = _v0.b;
-									var cond = _v49.a;
-									var _v50 = _v49.b;
-									var body = _v50.a;
-									var _v51 = A2($author$project$Eval$eval, cond, state);
-									if ((_v51.$ === 'Ok') && (_v51.a.$ === 'Boolval')) {
-										if (_v51.a.a) {
+									var _v50 = _v0.a;
+									var _v51 = _v0.b;
+									var cond = _v51.a;
+									var _v52 = _v51.b;
+									var body = _v52.a;
+									var _v53 = A2($author$project$Eval$eval, cond, state);
+									if ((_v53.$ === 'Ok') && (_v53.a.$ === 'Boolval')) {
+										if (_v53.a.a) {
 											return unrolledMe(
 												A5($author$project$Model$spawnAndWait, body, e.code, pid, aid, m));
 										} else {
@@ -7032,67 +7058,104 @@ var $author$project$Compile$step = F2(
 								if ((x.$ === 'Branch') && (x.a.$ === 'AltList')) {
 									var _v25 = x.a;
 									var xs = x.b;
-									var enactAlternative = function (a) {
-										if (((((((((((((((a.$ === 'Branch') && (a.a.$ === 'Alternative')) && a.b.b) && (a.b.a.$ === 'Branch')) && (a.b.a.a.$ === 'Guard')) && a.b.a.b.b) && a.b.a.b.b.b) && (a.b.a.b.b.a.$ === 'Branch')) && (a.b.a.b.b.a.a.$ === 'In')) && a.b.a.b.b.a.b.b) && a.b.a.b.b.a.b.b.b) && (!a.b.a.b.b.a.b.b.b.b)) && (!a.b.a.b.b.b.b)) && a.b.b.b) && (!a.b.b.b.b)) {
-											var _v30 = a.a;
-											var _v31 = a.b;
-											var _v32 = _v31.a;
-											var _v33 = _v32.a;
-											var _v34 = _v32.b;
-											var bool = _v34.a;
-											var _v35 = _v34.b;
-											var _v36 = _v35.a;
-											var _v37 = _v36.a;
-											var _v38 = _v36.b;
-											var chan = _v38.a;
-											var _v39 = _v38.b;
-											var _var = _v39.a;
-											var _v40 = _v31.b;
-											var proc = _v40.a;
-											var _v41 = $author$project$State$getName(chan);
-											if (_v41.$ === 'Ok') {
-												var chanid = _v41.a;
-												return A4(
-													$author$project$Compile$receiveOnChan,
-													chanid,
-													_var,
-													pid,
-													A4(
-														$author$project$Model$spawn,
-														_List_fromArray(
-															[proc]),
-														pid,
-														aid,
-														m));
+									var enactAlternative = F2(
+										function (a, model) {
+											if ((((((((((a.$ === 'Branch') && (a.a.$ === 'Alternative')) && a.b.b) && (a.b.a.$ === 'Branch')) && (a.b.a.a.$ === 'Guard')) && a.b.a.b.b) && a.b.a.b.b.b) && (!a.b.a.b.b.b.b)) && a.b.b.b) && (!a.b.b.b.b)) {
+												var _v31 = a.a;
+												var _v32 = a.b;
+												var _v33 = _v32.a;
+												var _v34 = _v33.a;
+												var _v35 = _v33.b;
+												var bool = _v35.a;
+												var _v36 = _v35.b;
+												var action = _v36.a;
+												var _v37 = _v32.b;
+												var proc = _v37.a;
+												_v38$2:
+												while (true) {
+													if (action.$ === 'Branch') {
+														switch (action.a.$) {
+															case 'In':
+																if ((action.b.b && action.b.b.b) && (!action.b.b.b.b)) {
+																	var _v39 = action.a;
+																	var _v40 = action.b;
+																	var chan = _v40.a;
+																	var _v41 = _v40.b;
+																	var _var = _v41.a;
+																	var _v42 = $author$project$State$getName(chan);
+																	if (_v42.$ === 'Ok') {
+																		var chanid = _v42.a;
+																		return A4(
+																			$author$project$Compile$receiveOnChan,
+																			chanid,
+																			_var,
+																			pid,
+																			A4(
+																				$author$project$Model$spawn,
+																				_List_fromArray(
+																					[proc]),
+																				pid,
+																				aid,
+																				model));
+																	} else {
+																		return $author$project$Compile$RunErr('Invalid channel name in alt branch');
+																	}
+																} else {
+																	break _v38$2;
+																}
+															case 'Skip':
+																var _v43 = action.a;
+																return ranMe(
+																	A4(
+																		$author$project$Model$spawn,
+																		_List_fromArray(
+																			[proc]),
+																		pid,
+																		aid,
+																		model));
+															default:
+																break _v38$2;
+														}
+													} else {
+														break _v38$2;
+													}
+												}
+												return $author$project$Compile$RunErr('Invalid alt guard');
 											} else {
-												return $author$project$Compile$RunErr('Invalid channel name in alt branch');
+												return $author$project$Compile$RunErr('Invalid alt branch');
 											}
-										} else {
-											return $author$project$Compile$RunErr('Invalid alt branch');
-										}
-									};
+										});
 									var _v26 = A2($author$project$Compile$pickValidBranches, xs, state);
 									if (_v26.$ === 'Ok') {
 										if (!_v26.a.b) {
 											return ranMe(m);
 										} else {
 											var ys = _v26.a;
-											var _v27 = m.randomGenerator.fulfilment;
-											if (_v27.$ === 'Nothing') {
+											var _v27 = $author$project$Model$takeFulfilled(m);
+											if (_v27.b.$ === 'Nothing') {
+												var model = _v27.a;
+												var _v28 = _v27.b;
 												return $author$project$Compile$Requesting(
 													A2(
 														$author$project$Model$requestRandomUpTo,
 														$elm$core$List$length(ys),
-														m));
+														A2(
+															$author$project$Model$print,
+															'Requesting random one of ' + $elm$core$String$fromInt(
+																$elm$core$List$length(ys)),
+															model)));
 											} else {
-												var rand = _v27.a;
-												var _v28 = $elm$core$List$head(
+												var model = _v27.a;
+												var rand = _v27.b.a;
+												var _v29 = $elm$core$List$head(
 													A2($elm$core$List$drop, rand, ys));
-												if (_v28.$ === 'Just') {
-													var a = _v28.a;
-													return enactAlternative(a);
+												if (_v29.$ === 'Just') {
+													var a = _v29.a;
+													return A2(enactAlternative, a, model);
 												} else {
-													return $author$project$Compile$RunErr('randomly picking alt branch failed!');
+													return $author$project$Compile$RunErr(
+														'randomly picking alt branch failed! I think there are ' + ($elm$core$String$fromInt(
+															$elm$core$List$length(ys)) + (' branches but I got the number ' + $elm$core$String$fromInt(rand))));
 												}
 											}
 										}
@@ -7104,29 +7167,29 @@ var $author$project$Compile$step = F2(
 									return $author$project$Compile$RunErr('ALT must be followed by a list of alternatives');
 								}
 							case 'DeclareVariable':
-								var _v52 = _v0.a;
-								var _v53 = _v0.b;
-								var id = _v53.a;
-								var _v54 = A2($author$project$State$declareVar, state, id);
-								if (_v54.$ === 'Ok') {
-									var state2 = _v54.a;
+								var _v54 = _v0.a;
+								var _v55 = _v0.b;
+								var id = _v55.a;
+								var _v56 = A2($author$project$State$declareVar, state, id);
+								if (_v56.$ === 'Ok') {
+									var state2 = _v56.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v54.a;
+									var msg = _v56.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							case 'DeclareChannel':
-								var _v55 = _v0.a;
-								var _v56 = _v0.b;
-								var id = _v56.a;
-								var _v57 = A2($author$project$State$declareChan, state, id);
-								if (_v57.$ === 'Ok') {
-									var state2 = _v57.a;
+								var _v57 = _v0.a;
+								var _v58 = _v0.b;
+								var id = _v58.a;
+								var _v59 = A2($author$project$State$declareChan, state, id);
+								if (_v59.$ === 'Ok') {
+									var state2 = _v59.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v57.a;
+									var msg = _v59.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							default:
@@ -7135,7 +7198,7 @@ var $author$project$Compile$step = F2(
 					}
 				} else {
 					if (_v0.a.$ === 'Skip') {
-						var _v58 = _v0.a;
+						var _v60 = _v0.a;
 						return ranMe(m);
 					} else {
 						break _v0$11;

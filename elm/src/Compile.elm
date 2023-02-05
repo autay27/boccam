@@ -190,11 +190,11 @@ pickValidBranches alts state =
         flattenAlt ys = case ys of 
             [] -> Ok []
             (z::zs) -> case z of 
-                Branch Guard _ -> 
+                Branch Alternative [Branch Guard _, _] -> 
                     flattenAlt zs |> Result.andThen (\therest -> 
                         Ok (z::therest)
                     )
-                Branch Alt [Branch AltList qs] -> 
+                Branch Alternative [Branch Alt [Branch AltList qs], _] -> 
                     flattenAlt qs |> Result.andThen (\flattened -> 
                         flattenAlt zs |> Result.andThen (\therest -> 
                             Ok (flattened ++ therest)

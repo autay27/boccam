@@ -5485,7 +5485,16 @@ var $author$project$State$freshState = {
 		A3($elm$core$Dict$insert, $author$project$State$displaychanname, $author$project$State$freshChannel, $elm$core$Dict$empty)),
 	vars: $elm$core$Dict$empty
 };
-var $author$project$Model$freshModel = {display: '', ids: $elm$core$Dict$empty, keyboardBuffer: _List_Nil, output: '', running: _List_Nil, state: $author$project$State$freshState, waiting: _List_Nil};
+var $author$project$Model$freshModel = {
+	display: '',
+	ids: $elm$core$Dict$empty,
+	keyboardBuffer: _List_Nil,
+	output: '',
+	randomGenerator: {fulfilment: $elm$core$Maybe$Nothing, request: $elm$core$Maybe$Nothing},
+	running: _List_Nil,
+	state: $author$project$State$freshState,
+	waiting: _List_Nil
+};
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -6005,6 +6014,10 @@ var $author$project$Main$subscriptions = function (_v0) {
 				A2($elm$json$Json$Decode$map, $author$project$Main$ReceivedKeyboardInput, $author$project$KeyboardInput$keyDecoder))
 			]));
 };
+var $author$project$Main$Fulfilment = F2(
+	function (a, b) {
+		return {$: 'Fulfilment', a: a, b: b};
+	});
 var $author$project$Main$Thread = function (a) {
 	return {$: 'Thread', a: a};
 };
@@ -6015,6 +6028,17 @@ var $author$project$Model$enqKeypress = F2(
 			m,
 			{
 				keyboardBuffer: A2($elm$core$List$cons, dir, m.keyboardBuffer)
+			});
+	});
+var $author$project$Model$fulfilRandom = F2(
+	function (n, m) {
+		return _Utils_update(
+			m,
+			{
+				randomGenerator: {
+					fulfilment: $elm$core$Maybe$Just(n),
+					request: $elm$core$Maybe$Nothing
+				}
 			});
 	});
 var $elm$random$Random$Generate = function (a) {
@@ -6219,6 +6243,9 @@ var $author$project$Compile$Ran = F2(
 	function (a, b) {
 		return {$: 'Ran', a: a, b: b};
 	});
+var $author$project$Compile$Requesting = function (a) {
+	return {$: 'Requesting', a: a};
+};
 var $author$project$Compile$Unrolled = F2(
 	function (a, b) {
 		return {$: 'Unrolled', a: a, b: b};
@@ -6425,6 +6452,129 @@ var $author$project$Eval$logicEval = F4(
 			},
 			A2($author$project$Eval$eval, x, state));
 	});
+var $author$project$Compile$pickValidBranches = F2(
+	function (alts, state) {
+		var flattenAlt = function (ys) {
+			if (!ys.b) {
+				return $elm$core$Result$Ok(_List_Nil);
+			} else {
+				var z = ys.a;
+				var zs = ys.b;
+				_v1$2:
+				while (true) {
+					if ((((((z.$ === 'Branch') && (z.a.$ === 'Alternative')) && z.b.b) && (z.b.a.$ === 'Branch')) && z.b.b.b) && (!z.b.b.b.b)) {
+						switch (z.b.a.a.$) {
+							case 'Guard':
+								var _v2 = z.a;
+								var _v3 = z.b;
+								var _v4 = _v3.a;
+								var _v5 = _v4.a;
+								var _v6 = _v3.b;
+								return A2(
+									$elm$core$Result$andThen,
+									function (therest) {
+										return $elm$core$Result$Ok(
+											A2($elm$core$List$cons, z, therest));
+									},
+									flattenAlt(zs));
+							case 'Alt':
+								if (((z.b.a.b.b && (z.b.a.b.a.$ === 'Branch')) && (z.b.a.b.a.a.$ === 'AltList')) && (!z.b.a.b.b.b)) {
+									var _v7 = z.a;
+									var _v8 = z.b;
+									var _v9 = _v8.a;
+									var _v10 = _v9.a;
+									var _v11 = _v9.b;
+									var _v12 = _v11.a;
+									var _v13 = _v12.a;
+									var qs = _v12.b;
+									var _v14 = _v8.b;
+									return A2(
+										$elm$core$Result$andThen,
+										function (flattened) {
+											return A2(
+												$elm$core$Result$andThen,
+												function (therest) {
+													return $elm$core$Result$Ok(
+														_Utils_ap(flattened, therest));
+												},
+												flattenAlt(zs));
+										},
+										flattenAlt(qs));
+								} else {
+									break _v1$2;
+								}
+							default:
+								break _v1$2;
+						}
+					} else {
+						break _v1$2;
+					}
+				}
+				return $elm$core$Result$Err('Invalid ALT branch');
+			}
+		};
+		var filterByGuard = function (ys) {
+			if (!ys.b) {
+				return $elm$core$Result$Ok(_List_Nil);
+			} else {
+				var x = ys.a;
+				var xs = ys.b;
+				return A2(
+					$elm$core$Result$andThen,
+					function (therest) {
+						if ((((((((((x.$ === 'Branch') && (x.a.$ === 'Alternative')) && x.b.b) && (x.b.a.$ === 'Branch')) && (x.b.a.a.$ === 'Guard')) && x.b.a.b.b) && x.b.a.b.b.b) && (!x.b.a.b.b.b.b)) && x.b.b.b) && (!x.b.b.b.b)) {
+							var _v17 = x.a;
+							var _v18 = x.b;
+							var _v19 = _v18.a;
+							var _v20 = _v19.a;
+							var _v21 = _v19.b;
+							var bool = _v21.a;
+							var _v22 = _v21.b;
+							var input = _v22.a;
+							var _v23 = _v18.b;
+							var proc = _v23.a;
+							var _v24 = A2($author$project$Eval$eval, bool, state);
+							if (_v24.$ === 'Ok') {
+								if (_v24.a.$ === 'Boolval') {
+									if (_v24.a.a) {
+										if (((((input.$ === 'Branch') && (input.a.$ === 'In')) && input.b.b) && input.b.b.b) && (!input.b.b.b.b)) {
+											var _v26 = input.a;
+											var _v27 = input.b;
+											var chan = _v27.a;
+											var _v28 = _v27.b;
+											var _var = _v28.a;
+											return A2(
+												$elm$core$Result$andThen,
+												function (f) {
+													return f ? $elm$core$Result$Ok(
+														A2($elm$core$List$cons, x, therest)) : $elm$core$Result$Ok(therest);
+												},
+												A2($author$project$State$checkFull, state, chan));
+										} else {
+											return $elm$core$Result$Err('unexpected channel in alternative branch');
+										}
+									} else {
+										return $elm$core$Result$Ok(therest);
+									}
+								} else {
+									return $elm$core$Result$Err('Expression in front of a guard on an alt branch must be boolean');
+								}
+							} else {
+								var msg = _v24.a;
+								return $elm$core$Result$Err(msg);
+							}
+						} else {
+							return $elm$core$Result$Err('Unexpected branch in alternative');
+						}
+					},
+					filterByGuard(xs));
+			}
+		};
+		return A2(
+			$elm$core$Result$andThen,
+			filterByGuard,
+			flattenAlt(alts));
+	});
 var $elm$core$List$partition = F2(
 	function (pred, list) {
 		var step = F2(
@@ -6543,6 +6693,17 @@ var $author$project$Compile$receiveOnChan = F4(
 			var msg = _v0.a;
 			return $author$project$Compile$RunErr(msg);
 		}
+	});
+var $author$project$Model$requestRandomUpTo = F2(
+	function (n, m) {
+		return _Utils_update(
+			m,
+			{
+				randomGenerator: {
+					fulfilment: $elm$core$Maybe$Nothing,
+					request: $elm$core$Maybe$Just(n)
+				}
+			});
 	});
 var $author$project$Compile$channelFilled = F3(
 	function (chan, pid, m) {
@@ -6680,7 +6841,7 @@ var $author$project$Compile$step = F2(
 		};
 		var aid = e.ancestorId;
 		var _v0 = e.code;
-		_v0$10:
+		_v0$11:
 		while (true) {
 			if (_v0.$ === 'Leaf') {
 				var l = _v0.a;
@@ -6769,42 +6930,42 @@ var $author$project$Compile$step = F2(
 										return $author$project$Compile$RunErr('invalid channel name');
 									}
 								case 'AssignExpr':
-									var _v22 = _v0.a;
-									var _v23 = _v0.b;
-									var id = _v23.a;
-									var _v24 = _v23.b;
-									var e1 = _v24.a;
-									var _v25 = A2($author$project$State$checkDeclared, id, state);
-									if (_v25.$ === 'Ok') {
-										var _v26 = A2($author$project$Eval$eval, e1, state);
-										if (_v26.$ === 'Ok') {
-											var v = _v26.a;
-											var _v27 = A3($author$project$State$assignVar, state, id, v);
-											if (_v27.$ === 'Ok') {
-												var s = _v27.a;
+									var _v42 = _v0.a;
+									var _v43 = _v0.b;
+									var id = _v43.a;
+									var _v44 = _v43.b;
+									var e1 = _v44.a;
+									var _v45 = A2($author$project$State$checkDeclared, id, state);
+									if (_v45.$ === 'Ok') {
+										var _v46 = A2($author$project$Eval$eval, e1, state);
+										if (_v46.$ === 'Ok') {
+											var v = _v46.a;
+											var _v47 = A3($author$project$State$assignVar, state, id, v);
+											if (_v47.$ === 'Ok') {
+												var s = _v47.a;
 												return ranMe(
 													A2($author$project$Model$update, s, m));
 											} else {
-												var msg = _v27.a;
+												var msg = _v47.a;
 												return $author$project$Compile$RunErr(msg);
 											}
 										} else {
-											var msg = _v26.a;
+											var msg = _v46.a;
 											return $author$project$Compile$RunErr(msg);
 										}
 									} else {
-										var msg = _v25.a;
+										var msg = _v45.a;
 										return $author$project$Compile$RunErr('Tried to assign to variable, but ' + msg);
 									}
 								case 'While':
-									var _v28 = _v0.a;
-									var _v29 = _v0.b;
-									var cond = _v29.a;
-									var _v30 = _v29.b;
-									var body = _v30.a;
-									var _v31 = A2($author$project$Eval$eval, cond, state);
-									if ((_v31.$ === 'Ok') && (_v31.a.$ === 'Boolval')) {
-										if (_v31.a.a) {
+									var _v48 = _v0.a;
+									var _v49 = _v0.b;
+									var cond = _v49.a;
+									var _v50 = _v49.b;
+									var body = _v50.a;
+									var _v51 = A2($author$project$Eval$eval, cond, state);
+									if ((_v51.$ === 'Ok') && (_v51.a.$ === 'Boolval')) {
+										if (_v51.a.a) {
 											return unrolledMe(
 												A5($author$project$Model$spawnAndWait, body, e.code, pid, aid, m));
 										} else {
@@ -6814,10 +6975,10 @@ var $author$project$Compile$step = F2(
 										return $author$project$Compile$RunErr('Condition must evaluate to boolean value');
 									}
 								default:
-									break _v0$10;
+									break _v0$11;
 							}
 						} else {
-							break _v0$10;
+							break _v0$11;
 						}
 					} else {
 						switch (_v0.a.$) {
@@ -6864,42 +7025,120 @@ var $author$project$Compile$step = F2(
 								} else {
 									return $author$project$Compile$RunErr('SEQ rule must be followed by process list only');
 								}
+							case 'Alt':
+								var _v22 = _v0.a;
+								var _v23 = _v0.b;
+								var x = _v23.a;
+								if ((x.$ === 'Branch') && (x.a.$ === 'AltList')) {
+									var _v25 = x.a;
+									var xs = x.b;
+									var enactAlternative = function (a) {
+										if (((((((((((((((a.$ === 'Branch') && (a.a.$ === 'Alternative')) && a.b.b) && (a.b.a.$ === 'Branch')) && (a.b.a.a.$ === 'Guard')) && a.b.a.b.b) && a.b.a.b.b.b) && (a.b.a.b.b.a.$ === 'Branch')) && (a.b.a.b.b.a.a.$ === 'In')) && a.b.a.b.b.a.b.b) && a.b.a.b.b.a.b.b.b) && (!a.b.a.b.b.a.b.b.b.b)) && (!a.b.a.b.b.b.b)) && a.b.b.b) && (!a.b.b.b.b)) {
+											var _v30 = a.a;
+											var _v31 = a.b;
+											var _v32 = _v31.a;
+											var _v33 = _v32.a;
+											var _v34 = _v32.b;
+											var bool = _v34.a;
+											var _v35 = _v34.b;
+											var _v36 = _v35.a;
+											var _v37 = _v36.a;
+											var _v38 = _v36.b;
+											var chan = _v38.a;
+											var _v39 = _v38.b;
+											var _var = _v39.a;
+											var _v40 = _v31.b;
+											var proc = _v40.a;
+											var _v41 = $author$project$State$getName(chan);
+											if (_v41.$ === 'Ok') {
+												var chanid = _v41.a;
+												return A4(
+													$author$project$Compile$receiveOnChan,
+													chanid,
+													_var,
+													pid,
+													A4(
+														$author$project$Model$spawn,
+														_List_fromArray(
+															[proc]),
+														pid,
+														aid,
+														m));
+											} else {
+												return $author$project$Compile$RunErr('Invalid channel name in alt branch');
+											}
+										} else {
+											return $author$project$Compile$RunErr('Invalid alt branch');
+										}
+									};
+									var _v26 = A2($author$project$Compile$pickValidBranches, xs, state);
+									if (_v26.$ === 'Ok') {
+										if (!_v26.a.b) {
+											return ranMe(m);
+										} else {
+											var ys = _v26.a;
+											var _v27 = m.randomGenerator.fulfilment;
+											if (_v27.$ === 'Nothing') {
+												return $author$project$Compile$Requesting(
+													A2(
+														$author$project$Model$requestRandomUpTo,
+														$elm$core$List$length(ys),
+														m));
+											} else {
+												var rand = _v27.a;
+												var _v28 = $elm$core$List$head(
+													A2($elm$core$List$drop, rand, ys));
+												if (_v28.$ === 'Just') {
+													var a = _v28.a;
+													return enactAlternative(a);
+												} else {
+													return $author$project$Compile$RunErr('randomly picking alt branch failed!');
+												}
+											}
+										}
+									} else {
+										var msg = _v26.a;
+										return $author$project$Compile$RunErr(msg);
+									}
+								} else {
+									return $author$project$Compile$RunErr('ALT must be followed by a list of alternatives');
+								}
 							case 'DeclareVariable':
-								var _v32 = _v0.a;
-								var _v33 = _v0.b;
-								var id = _v33.a;
-								var _v34 = A2($author$project$State$declareVar, state, id);
-								if (_v34.$ === 'Ok') {
-									var state2 = _v34.a;
+								var _v52 = _v0.a;
+								var _v53 = _v0.b;
+								var id = _v53.a;
+								var _v54 = A2($author$project$State$declareVar, state, id);
+								if (_v54.$ === 'Ok') {
+									var state2 = _v54.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v34.a;
+									var msg = _v54.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							case 'DeclareChannel':
-								var _v35 = _v0.a;
-								var _v36 = _v0.b;
-								var id = _v36.a;
-								var _v37 = A2($author$project$State$declareChan, state, id);
-								if (_v37.$ === 'Ok') {
-									var state2 = _v37.a;
+								var _v55 = _v0.a;
+								var _v56 = _v0.b;
+								var id = _v56.a;
+								var _v57 = A2($author$project$State$declareChan, state, id);
+								if (_v57.$ === 'Ok') {
+									var state2 = _v57.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v37.a;
+									var msg = _v57.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							default:
-								break _v0$10;
+								break _v0$11;
 						}
 					}
 				} else {
 					if (_v0.a.$ === 'Skip') {
-						var _v38 = _v0.a;
+						var _v58 = _v0.a;
 						return ranMe(m);
 					} else {
-						break _v0$10;
+						break _v0$11;
 					}
 				}
 			}
@@ -7175,13 +7414,11 @@ var $author$project$Compile$chainRun = F3(
 					default:
 						return $author$project$Compile$RunErr('unexpected chainrun');
 				}
-			case 'Unrolled':
-				var m = _v0.a;
-				var id = _v0.b;
-				return $author$project$Compile$RunErr('unexpected chainrun');
-			default:
+			case 'RunErr':
 				var msg = _v0.a;
 				return $author$project$Compile$RunErr(msg);
+			default:
+				return $author$project$Compile$RunErr('unexpected chainrun');
 		}
 	});
 var $author$project$Model$display = F2(
@@ -7349,6 +7586,9 @@ var $author$project$Compile$run = F2(
 					default:
 						return $elm$core$Result$Err('unexpected result from IO');
 				}
+			case 'Requesting':
+				var model = _v0.a;
+				return $elm$core$Result$Ok(model);
 			default:
 				var msg = _v0.a;
 				return $elm$core$Result$Err(msg);
@@ -7378,24 +7618,37 @@ var $author$project$Readfile$numDecoder = A2(
 		$author$project$Readfile$Num,
 		A2($elm$json$Json$Decode$field, 'numleaf', $elm$json$Json$Decode$int)));
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $author$project$Readfile$Alt = {$: 'Alt'};
+var $author$project$Readfile$AltList = {$: 'AltList'};
+var $author$project$Readfile$Alternative = {$: 'Alternative'};
 var $author$project$Readfile$And = {$: 'And'};
 var $author$project$Readfile$AssignProc = {$: 'AssignProc'};
 var $author$project$Readfile$Div = {$: 'Div'};
+var $author$project$Readfile$Guard = {$: 'Guard'};
 var $author$project$Readfile$LBinop = function (a) {
 	return {$: 'LBinop', a: a};
 };
 var $author$project$Readfile$Minus = {$: 'Minus'};
 var $author$project$Readfile$Or = {$: 'Or'};
+var $author$project$Readfile$Skip = {$: 'Skip'};
 var $author$project$Readfile$Times = {$: 'Times'};
 var $elm$json$Json$Decode$fail = _Json_fail;
 var $author$project$Readfile$ruleFromString = function (str) {
 	switch (str) {
-		case 'proc_list':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$ProcList);
 		case 'par':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$Par);
 		case 'seq':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$Seq);
+		case 'proc_list':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$ProcList);
+		case 'alt':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Alt);
+		case 'alt_list':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$AltList);
+		case 'alternative':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Alternative);
+		case 'guard':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Guard);
 		case 'in':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$In);
 		case 'out':
@@ -7410,6 +7663,8 @@ var $author$project$Readfile$ruleFromString = function (str) {
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareVariable);
 		case 'declare_chan':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareChannel);
+		case 'SKIP':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Skip);
 		case 'AND':
 			return $elm$json$Json$Decode$succeed(
 				$author$project$Readfile$LBinop($author$project$Readfile$And));
@@ -7469,61 +7724,84 @@ try {
 	throw 'Some top-level definitions from `Readfile` are causing infinite recursion:\n\n  ┌─────┐\n  │    treeDecoder\n  │     ↓\n  │    branchDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		switch (msg.$) {
-			case 'Step':
-				return _Utils_Tuple2(
-					model,
-					A2(
-						$elm$random$Random$generate,
-						$author$project$Main$Thread,
+		update:
+		while (true) {
+			switch (msg.$) {
+				case 'Step':
+					return _Utils_Tuple2(
+						model,
 						A2(
-							$elm$random$Random$int,
-							0,
-							$elm$core$List$length(model.running) - 1)));
-			case 'Thread':
-				var n = msg.a;
-				var _v1 = A2($author$project$Compile$run, model, n);
-				if (_v1.$ === 'Ok') {
-					var m = _v1.a;
-					return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
-				} else {
-					var s = _v1.a;
+							$elm$random$Random$generate,
+							$author$project$Main$Thread,
+							A2(
+								$elm$random$Random$int,
+								0,
+								$elm$core$List$length(model.running) - 1)));
+				case 'Thread':
+					var n = msg.a;
+					var _v1 = A2($author$project$Compile$run, model, n);
+					if (_v1.$ === 'Ok') {
+						var m = _v1.a;
+						var _v2 = m.randomGenerator.request;
+						if (_v2.$ === 'Just') {
+							var k = _v2.a;
+							return _Utils_Tuple2(
+								model,
+								A2(
+									$elm$random$Random$generate,
+									$author$project$Main$Fulfilment(
+										$author$project$Main$Thread(n)),
+									A2($elm$random$Random$int, 0, k - 1)));
+						} else {
+							return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
+						}
+					} else {
+						var s = _v1.a;
+						return _Utils_Tuple2(
+							A2($author$project$Model$print, s, model),
+							$elm$core$Platform$Cmd$none);
+					}
+				case 'Fulfilment':
+					var t = msg.a;
+					var f = msg.b;
+					var $temp$msg = t,
+						$temp$model = A2($author$project$Model$fulfilRandom, f, model);
+					msg = $temp$msg;
+					model = $temp$model;
+					continue update;
+				case 'Run':
 					return _Utils_Tuple2(
-						A2($author$project$Model$print, s, model),
+						A2($author$project$Model$print, 'Running has not been implemented', model),
 						$elm$core$Platform$Cmd$none);
-				}
-			case 'Run':
-				return _Utils_Tuple2(
-					A2($author$project$Model$print, 'Running has not been implemented', model),
-					$elm$core$Platform$Cmd$none);
-			case 'ReceivedDataFromJS':
-				var data = msg.a;
-				var _v2 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
-				if (_v2.$ === 'Ok') {
-					var t = _v2.a;
+				case 'ReceivedDataFromJS':
+					var data = msg.a;
+					var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
+					if (_v3.$ === 'Ok') {
+						var t = _v3.a;
+						return _Utils_Tuple2(
+							A4(
+								$author$project$Model$spawn,
+								_List_fromArray(
+									[t]),
+								-1,
+								$elm$core$Maybe$Nothing,
+								$author$project$Model$freshModel),
+							$elm$core$Platform$Cmd$none);
+					} else {
+						var e = _v3.a;
+						return _Utils_Tuple2(
+							A2(
+								$author$project$Model$print,
+								'Error: ' + $elm$json$Json$Decode$errorToString(e),
+								$author$project$Model$freshModel),
+							$elm$core$Platform$Cmd$none);
+					}
+				default:
+					var dir = msg.a;
 					return _Utils_Tuple2(
-						A4(
-							$author$project$Model$spawn,
-							_List_fromArray(
-								[t]),
-							-1,
-							$elm$core$Maybe$Nothing,
-							$author$project$Model$freshModel),
+						A2($author$project$Model$enqKeypress, dir, model),
 						$elm$core$Platform$Cmd$none);
-				} else {
-					var e = _v2.a;
-					return _Utils_Tuple2(
-						A2(
-							$author$project$Model$print,
-							'Error: ' + $elm$json$Json$Decode$errorToString(e),
-							$author$project$Model$freshModel),
-						$elm$core$Platform$Cmd$none);
-				}
-			default:
-				var dir = msg.a;
-				return _Utils_Tuple2(
-					A2($author$project$Model$enqKeypress, dir, model),
-					$elm$core$Platform$Cmd$none);
+			}
 		}
 	});
 var $author$project$Main$Step = {$: 'Step'};

@@ -10,6 +10,10 @@
 ## goals - code
 
 - Implementing all the parallel parts of occam 1
+
+What I don't have (overview): WAIT, SKIP, IF, FOR, DEF, Named processes, a lot of operators/initial constants, PRI ALT, PRI PAR, Replicators
+For details, I've made a new checklist file...
+
 - hook up with codemirror
 - Errors per line number - Give each token a line number, have a syntax analyser step at the start to catch things like multiple output per channel
 

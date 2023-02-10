@@ -8,7 +8,7 @@ import Json.Decode
 
 import Readfile exposing (Tree, treeDecoder)
 import Compile exposing (run)
-import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, freshModel)
+import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, isBlocked, freshModel)
 import KeyboardInput exposing (keyDecoder, Direction)
 
 import Dict exposing (Dict, empty)
@@ -57,7 +57,14 @@ update msg pair =
 
         Fulfilment t f -> update t (fulfilRandom f model, seed)
 
-        Run -> ((print "Running has not been implemented" model, seed), Cmd.none)
+        Run -> 
+          let 
+            whileNotNone somecmd p = 
+              let (p2, somecmd2) = update somecmd p in
+                if somecmd2 == Cmd.none then p2 else whileNotNone somecmd2 p2
+            pair2 = whileNotNone Step pair
+          in
+            if isBlocked (Tuple.first pair2) then (pair2, Cmd.none) else update Run pair2
 
         ReceivedDataFromJS data -> 
           case (Json.Decode.decodeValue treeDecoder data) of 

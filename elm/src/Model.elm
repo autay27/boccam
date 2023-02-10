@@ -107,3 +107,6 @@ fulfilRandom n m = { m | randomGenerator = {request = Nothing, fulfilment = Just
 
 takeFulfilled : Model -> (Model, Maybe Int)
 takeFulfilled m = ({ m | randomGenerator = {request = Nothing, fulfilment = Nothing } }, m.randomGenerator.fulfilment)
+
+isBlocked : Model -> Bool
+isBlocked m = List.isEmpty m.running

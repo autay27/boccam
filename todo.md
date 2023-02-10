@@ -20,7 +20,7 @@ For details, I've made a new checklist file...
 ## goals - report
 
 - Testing
-    - Set the random seed / have a different random generator
+    - Implement "Run"
     - Parser - 10 code snippets with/without erros etc.
     - Interpreter - tast first n things coming out of display(?) / Could even dump the state and somehow check against it . (would also be good to printout the state for teaching purpose....)
 - Evaluation - Do what you would do at a bigger scale  for ~2 people - i.e. get test subjects, ask thm to do a task, Designing INteractive Systems, Benyon Turner Turner - Evaluation chapter

@@ -1,0 +1,24 @@
+
+SEQ 
+    CHAN OF INT left:
+    CHAN OF INT right:
+    INT x:
+    INT y:
+    INT z:
+    x := 0
+    y := 0
+    PAR
+        WHILE TRUE
+            SEQ
+                right ! x
+                x := (x+1)
+        WHILE TRUE
+            SEQ
+                left ! y
+                y := (y-1)
+        WHILE TRUE
+            ALT
+                TRUE & left ? z
+                    DISPLAY ! z
+                right ? z
+                    DISPLAY ! z

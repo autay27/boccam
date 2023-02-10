@@ -27,6 +27,7 @@ For details, I've made a new checklist file...
 
 ## unsure
 
+- to implement the type system from occam 2.1 so that users can easily work with strings and chars. > Enough to be able to draw primitves to the screen (maybe even have sounds) so users can make graphics easily 
 - changle Unrolled handling to get true uniform dist. between threads
 - andThen for Outcome - Cleans up the code but it's also kind of creating its own complexity with all the lambdas required
 
@@ -34,8 +35,5 @@ For details, I've made a new checklist file...
 
 ## discussion
 
-Thinking about whether to implement the type system from occam 2.1 so that users can easily work with strings and chars. > Enough to be able to draw primitves to the screen (maybe even have sounds) so users can make graphics easily 
-
-Codemirror can allow some services like automatic indentation help.
 
 

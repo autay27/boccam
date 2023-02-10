@@ -15,6 +15,7 @@ example_tree = Branch Seq [Branch ProcList[
     Branch AssignExpr [Leaf (Ident "x"), Leaf (Num 0)],
     Branch Par [Branch ProcList 
         [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Branch (ABinop Plus) [Leaf (Ident "x"), Leaf (Num 1)]]],
+        Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 0)]],
         Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Ident "x")]]]
     ]]]
 

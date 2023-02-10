@@ -12,7 +12,7 @@ import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulf
 import KeyboardInput exposing (keyDecoder, Direction)
 
 import Dict exposing (Dict, empty)
-import Random exposing (generate, int)
+import Random exposing (generate, int, Seed, step)
 import List exposing (length)
 
 
@@ -23,40 +23,61 @@ main =
 
 -- MODEL
 
-init : () -> (Model, Cmd Msg)
+seed0 : Maybe Seed
+seed0 = Just (Random.initialSeed 2001)
+
+init : () -> ((Model, Maybe Seed), Cmd Msg)
 init _ = 
-  ( print "\n" (spawn [Compile.example_tree] -1 Nothing freshModel), Cmd.none)
+  ( ((print "\n" (spawn [Compile.example_tree] -1 Nothing freshModel)), seed0), Cmd.none)
 
 -- UPDATE
 
 type Msg
   = Step | Run | Thread Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
-  case msg of
-    Step ->
-      (model, Random.generate Thread (Random.int 0 (length model.running - 1)))
-    Thread n ->
-      case Compile.run model n of 
-        Ok m -> 
-          case m.randomGenerator.request of
-              Just k -> (model, Random.generate (Fulfilment (Thread n)) (Random.int 0 (k-1)))
-              Nothing -> (m, Cmd.none)
-        Err s -> (print s model, Cmd.none)
-    Fulfilment t f -> update t (fulfilRandom f model)
-    Run -> ((print "Running has not been implemented" model), Cmd.none)
-    ReceivedDataFromJS data -> 
-      case (Json.Decode.decodeValue treeDecoder data) of 
-        Ok t -> ((spawn [t] -1 Nothing freshModel), Cmd.none)
-        Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel), Cmd.none)
-    ReceivedKeyboardInput dir -> (enqKeypress dir model, Cmd.none)
+update : Msg -> (Model, Maybe Seed) -> ((Model, Maybe Seed), Cmd Msg)
+update msg pair =
+  case pair of 
+    (model, seed) ->
+      case msg of
+
+        Step ->
+          let (cmdmsg, seed2) = randomBelow seed Thread (length model.running) in
+            ((model, seed2), cmdmsg)
+            
+        Thread n ->
+          case Compile.run model n of 
+            Ok m -> 
+              case m.randomGenerator.request of
+                Just k -> 
+                  let (cmdmsg, seed2) = randomBelow seed (Fulfilment (Thread n)) k in
+                    ((model, seed2), cmdmsg)
+                Nothing -> ((m, seed), Cmd.none)
+            Err s -> ((print s model, seed), Cmd.none)
+
+        Fulfilment t f -> update t (fulfilRandom f model, seed)
+
+        Run -> ((print "Running has not been implemented" model, seed), Cmd.none)
+
+        ReceivedDataFromJS data -> 
+          case (Json.Decode.decodeValue treeDecoder data) of 
+            Ok t -> ((spawn [t] -1 Nothing freshModel, seed), Cmd.none)
+            Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel, seed), Cmd.none)
+
+        ReceivedKeyboardInput dir -> ((enqKeypress dir model, seed), Cmd.none)
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
-
+ 
+randomBelow : (Maybe Seed) -> (Int -> Msg) -> Int -> (Cmd Msg, Maybe Seed)
+randomBelow seed msgmaker n =
+  case seed of 
+    Nothing -> (Random.generate msgmaker (Random.int 0 (n - 1)), Nothing)
+    Just s -> case Random.step (Random.int 0 (n - 1)) s of 
+      (m, newseed) -> (Random.generate msgmaker (Random.constant m), Just newseed)
+ 
 -- SUBSCRIPTIONS
 
-subscriptions : Model -> Sub Msg
+subscriptions : (Model, Maybe Seed) -> Sub Msg
 subscriptions _ =
   Sub.batch [ messageReceiver ReceivedDataFromJS, Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder) ]
 
@@ -64,10 +85,11 @@ subscriptions _ =
 
 printout s = List.intersperse (br [] []) (List.map text (String.lines s))
 
-view : Model -> Html Msg
-view model =
-  div []
-    ( 
-      [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
-      (printout model.output)
-    )
+view : (Model, Maybe Seed) -> Html Msg
+view pair =
+  let (model, _) = pair in
+    div []
+      ( 
+        [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
+        (printout model.output)
+      )

@@ -14,6 +14,7 @@ import KeyboardInput exposing (keyDecoder, Direction)
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int, Seed, step)
 import List exposing (length)
+import Readfile exposing (Rule(..))
 
 
 -- MAIN
@@ -33,7 +34,7 @@ init _ =
 -- UPDATE
 
 type Msg
-  = Step | Run | Thread Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
+  = Step | Thread Int | Run | RunThread Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
 update : Msg -> (Model, Maybe Seed) -> ((Model, Maybe Seed), Cmd Msg)
 update msg pair =
@@ -58,13 +59,21 @@ update msg pair =
         Fulfilment t f -> update t (fulfilRandom f model, seed)
 
         Run -> 
-          let 
-            whileNotNone somecmd p = 
-              let (p2, somecmd2) = update somecmd p in
-                if somecmd2 == Cmd.none then p2 else whileNotNone somecmd2 p2
-            pair2 = whileNotNone Step pair
-          in
-            if isBlocked (Tuple.first pair2) then (pair2, Cmd.none) else update Run pair2
+          if isBlocked model then
+            ((print "Terminated" model, seed), Cmd.none)
+          else
+            let (cmdmsg, seed2) = randomBelow seed RunThread (length model.running) in
+              ((model, seed2), cmdmsg)
+
+        RunThread n ->
+          case Compile.run model n of 
+            Ok m -> 
+              case m.randomGenerator.request of
+                Just k -> 
+                  let (cmdmsg, seed2) = randomBelow seed (Fulfilment (RunThread n)) k in
+                    ((model, seed2), cmdmsg)
+                Nothing -> update Run (m, seed)
+            Err s -> update Run (print s model, seed)        
 
         ReceivedDataFromJS data -> 
           case (Json.Decode.decodeValue treeDecoder data) of 
@@ -86,7 +95,8 @@ randomBelow seed msgmaker n =
 
 subscriptions : (Model, Maybe Seed) -> Sub Msg
 subscriptions _ =
-  Sub.batch [ messageReceiver ReceivedDataFromJS, Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder) ]
+  Sub.batch [ messageReceiver ReceivedDataFromJS, 
+              Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder)]
 
 -- VIEW
 

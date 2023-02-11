@@ -5242,9 +5242,6 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Readfile$ABinop = function (a) {
-	return {$: 'ABinop', a: a};
-};
 var $author$project$Readfile$AssignExpr = {$: 'AssignExpr'};
 var $author$project$Readfile$Branch = F2(
 	function (a, b) {
@@ -5264,7 +5261,6 @@ var $author$project$Readfile$Num = function (a) {
 };
 var $author$project$Readfile$Out = {$: 'Out'};
 var $author$project$Readfile$Par = {$: 'Par'};
-var $author$project$Readfile$Plus = {$: 'Plus'};
 var $author$project$Readfile$ProcList = {$: 'ProcList'};
 var $author$project$Readfile$Seq = {$: 'Seq'};
 var $author$project$Readfile$While = {$: 'While'};
@@ -5285,6 +5281,14 @@ var $author$project$Compile$example_tree = A2(
 						[
 							$author$project$Readfile$Leaf(
 							$author$project$Readfile$Ident('chan'))
+						])),
+					A2(
+					$author$project$Readfile$Branch,
+					$author$project$Readfile$DeclareChannel,
+					_List_fromArray(
+						[
+							$author$project$Readfile$Leaf(
+							$author$project$Readfile$Ident('chan2'))
 						])),
 					A2(
 					$author$project$Readfile$Branch,
@@ -5328,16 +5332,44 @@ var $author$project$Compile$example_tree = A2(
 												[
 													$author$project$Readfile$Leaf(
 													$author$project$Readfile$Ident('chan')),
-													A2(
-													$author$project$Readfile$Branch,
-													$author$project$Readfile$ABinop($author$project$Readfile$Plus),
-													_List_fromArray(
-														[
-															$author$project$Readfile$Leaf(
-															$author$project$Readfile$Ident('x')),
-															$author$project$Readfile$Leaf(
-															$author$project$Readfile$Num(1))
-														]))
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Num(99))
+												]))
+										])),
+									A2(
+									$author$project$Readfile$Branch,
+									$author$project$Readfile$While,
+									_List_fromArray(
+										[
+											$author$project$Readfile$Leaf(
+											$author$project$Readfile$Ident('TRUE')),
+											A2(
+											$author$project$Readfile$Branch,
+											$author$project$Readfile$Out,
+											_List_fromArray(
+												[
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Ident('chan2')),
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Num(1))
+												]))
+										])),
+									A2(
+									$author$project$Readfile$Branch,
+									$author$project$Readfile$While,
+									_List_fromArray(
+										[
+											$author$project$Readfile$Leaf(
+											$author$project$Readfile$Ident('TRUE')),
+											A2(
+											$author$project$Readfile$Branch,
+											$author$project$Readfile$In,
+											_List_fromArray(
+												[
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Ident('chan2')),
+													$author$project$Readfile$Leaf(
+													$author$project$Readfile$Ident('x'))
 												]))
 										])),
 									A2(
@@ -5506,6 +5538,27 @@ var $author$project$Model$print = F2(
 			m,
 			{output: m.output + (s + '\n')});
 	});
+var $elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 'Seed', a: a, b: b};
+	});
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$random$Random$next = function (_v0) {
+	var state0 = _v0.a;
+	var incr = _v0.b;
+	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
+};
+var $author$project$Main$seed0 = $elm$core$Maybe$Just(
+	$elm$random$Random$initialSeed(2001));
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -5675,16 +5728,18 @@ var $author$project$Model$spawn = F4(
 	});
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		A2(
-			$author$project$Model$print,
-			'\n',
-			A4(
-				$author$project$Model$spawn,
-				_List_fromArray(
-					[$author$project$Compile$example_tree]),
-				-1,
-				$elm$core$Maybe$Nothing,
-				$author$project$Model$freshModel)),
+		_Utils_Tuple2(
+			A2(
+				$author$project$Model$print,
+				'\n',
+				A4(
+					$author$project$Model$spawn,
+					_List_fromArray(
+						[$author$project$Compile$example_tree]),
+					-1,
+					$elm$core$Maybe$Nothing,
+					$author$project$Model$freshModel)),
+			$author$project$Main$seed0),
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Main$ReceivedDataFromJS = function (a) {
@@ -6018,6 +6073,10 @@ var $author$project$Main$Fulfilment = F2(
 	function (a, b) {
 		return {$: 'Fulfilment', a: a, b: b};
 	});
+var $author$project$Main$Run = {$: 'Run'};
+var $author$project$Main$RunThread = function (a) {
+	return {$: 'RunThread', a: a};
+};
 var $author$project$Main$Thread = function (a) {
 	return {$: 'Thread', a: a};
 };
@@ -6041,27 +6100,27 @@ var $author$project$Model$fulfilRandom = F2(
 				}
 			});
 	});
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $author$project$Model$isBlocked = function (m) {
+	return $elm$core$List$isEmpty(m.running);
+};
+var $elm$random$Random$Generator = function (a) {
+	return {$: 'Generator', a: a};
+};
+var $elm$random$Random$constant = function (value) {
+	return $elm$random$Random$Generator(
+		function (seed) {
+			return _Utils_Tuple2(value, seed);
+		});
+};
 var $elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
-};
-var $elm$random$Random$Seed = F2(
-	function (a, b) {
-		return {$: 'Seed', a: a, b: b};
-	});
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$random$Random$next = function (_v0) {
-	var state0 = _v0.a;
-	var incr = _v0.b;
-	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
-};
-var $elm$random$Random$initialSeed = function (x) {
-	var _v0 = $elm$random$Random$next(
-		A2($elm$random$Random$Seed, 0, 1013904223));
-	var state1 = _v0.a;
-	var incr = _v0.b;
-	var state2 = (state1 + x) >>> 0;
-	return $elm$random$Random$next(
-		A2($elm$random$Random$Seed, state2, incr));
 };
 var $elm$time$Time$Name = function (a) {
 	return {$: 'Name', a: a};
@@ -6118,9 +6177,6 @@ var $elm$random$Random$onSelfMsg = F3(
 	function (_v0, _v1, seed) {
 		return $elm$core$Task$succeed(seed);
 	});
-var $elm$random$Random$Generator = function (a) {
-	return {$: 'Generator', a: a};
-};
 var $elm$random$Random$map = F2(
 	function (func, _v0) {
 		var genA = _v0.a;
@@ -6186,6 +6242,31 @@ var $elm$random$Random$int = F2(
 					return accountForBias(seed0);
 				}
 			});
+	});
+var $author$project$Main$randomBelow = F3(
+	function (seed, msgmaker, n) {
+		if (seed.$ === 'Nothing') {
+			return _Utils_Tuple2(
+				A2(
+					$elm$random$Random$generate,
+					msgmaker,
+					A2($elm$random$Random$int, 0, n - 1)),
+				$elm$core$Maybe$Nothing);
+		} else {
+			var s = seed.a;
+			var _v1 = A2(
+				$elm$random$Random$step,
+				A2($elm$random$Random$int, 0, n - 1),
+				s);
+			var m = _v1.a;
+			var newseed = _v1.b;
+			return _Utils_Tuple2(
+				A2(
+					$elm$random$Random$generate,
+					msgmaker,
+					$elm$random$Random$constant(m)),
+				$elm$core$Maybe$Just(newseed));
+		}
 	});
 var $elm$core$Result$andThen = F2(
 	function (callback, result) {
@@ -7681,6 +7762,9 @@ var $author$project$Readfile$numDecoder = A2(
 		$author$project$Readfile$Num,
 		A2($elm$json$Json$Decode$field, 'numleaf', $elm$json$Json$Decode$int)));
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $author$project$Readfile$ABinop = function (a) {
+	return {$: 'ABinop', a: a};
+};
 var $author$project$Readfile$Alt = {$: 'Alt'};
 var $author$project$Readfile$AltList = {$: 'AltList'};
 var $author$project$Readfile$Alternative = {$: 'Alternative'};
@@ -7693,6 +7777,7 @@ var $author$project$Readfile$LBinop = function (a) {
 };
 var $author$project$Readfile$Minus = {$: 'Minus'};
 var $author$project$Readfile$Or = {$: 'Or'};
+var $author$project$Readfile$Plus = {$: 'Plus'};
 var $author$project$Readfile$Skip = {$: 'Skip'};
 var $author$project$Readfile$Times = {$: 'Times'};
 var $elm$json$Json$Decode$fail = _Json_fail;
@@ -7786,83 +7871,153 @@ try {
 } catch ($) {
 	throw 'Some top-level definitions from `Readfile` are causing infinite recursion:\n\n  ┌─────┐\n  │    treeDecoder\n  │     ↓\n  │    branchDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
 var $author$project$Main$update = F2(
-	function (msg, model) {
+	function (msg, pair) {
 		update:
 		while (true) {
+			var model = pair.a;
+			var seed = pair.b;
 			switch (msg.$) {
 				case 'Step':
+					var _v2 = A3(
+						$author$project$Main$randomBelow,
+						seed,
+						$author$project$Main$Thread,
+						$elm$core$List$length(model.running));
+					var cmdmsg = _v2.a;
+					var seed2 = _v2.b;
 					return _Utils_Tuple2(
-						model,
-						A2(
-							$elm$random$Random$generate,
-							$author$project$Main$Thread,
-							A2(
-								$elm$random$Random$int,
-								0,
-								$elm$core$List$length(model.running) - 1)));
+						_Utils_Tuple2(model, seed2),
+						cmdmsg);
 				case 'Thread':
 					var n = msg.a;
-					var _v1 = A2($author$project$Compile$run, model, n);
-					if (_v1.$ === 'Ok') {
-						var m = _v1.a;
-						var _v2 = m.randomGenerator.request;
-						if (_v2.$ === 'Just') {
-							var k = _v2.a;
+					var _v3 = A2($author$project$Compile$run, model, n);
+					if (_v3.$ === 'Ok') {
+						var m = _v3.a;
+						var _v4 = m.randomGenerator.request;
+						if (_v4.$ === 'Just') {
+							var k = _v4.a;
+							var _v5 = A3(
+								$author$project$Main$randomBelow,
+								seed,
+								$author$project$Main$Fulfilment(
+									$author$project$Main$Thread(n)),
+								k);
+							var cmdmsg = _v5.a;
+							var seed2 = _v5.b;
 							return _Utils_Tuple2(
-								model,
-								A2(
-									$elm$random$Random$generate,
-									$author$project$Main$Fulfilment(
-										$author$project$Main$Thread(n)),
-									A2($elm$random$Random$int, 0, k - 1)));
+								_Utils_Tuple2(model, seed2),
+								cmdmsg);
 						} else {
-							return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
+							return _Utils_Tuple2(
+								_Utils_Tuple2(m, seed),
+								$elm$core$Platform$Cmd$none);
 						}
 					} else {
-						var s = _v1.a;
+						var s = _v3.a;
 						return _Utils_Tuple2(
-							A2($author$project$Model$print, s, model),
+							_Utils_Tuple2(
+								A2($author$project$Model$print, s, model),
+								seed),
 							$elm$core$Platform$Cmd$none);
 					}
 				case 'Fulfilment':
 					var t = msg.a;
 					var f = msg.b;
 					var $temp$msg = t,
-						$temp$model = A2($author$project$Model$fulfilRandom, f, model);
+						$temp$pair = _Utils_Tuple2(
+						A2($author$project$Model$fulfilRandom, f, model),
+						seed);
 					msg = $temp$msg;
-					model = $temp$model;
+					pair = $temp$pair;
 					continue update;
 				case 'Run':
-					return _Utils_Tuple2(
-						A2($author$project$Model$print, 'Running has not been implemented', model),
-						$elm$core$Platform$Cmd$none);
-				case 'ReceivedDataFromJS':
-					var data = msg.a;
-					var _v3 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
-					if (_v3.$ === 'Ok') {
-						var t = _v3.a;
+					if ($author$project$Model$isBlocked(model)) {
 						return _Utils_Tuple2(
-							A4(
-								$author$project$Model$spawn,
-								_List_fromArray(
-									[t]),
-								-1,
-								$elm$core$Maybe$Nothing,
-								$author$project$Model$freshModel),
+							_Utils_Tuple2(
+								A2($author$project$Model$print, 'Terminated', model),
+								seed),
 							$elm$core$Platform$Cmd$none);
 					} else {
-						var e = _v3.a;
+						var _v6 = A3(
+							$author$project$Main$randomBelow,
+							seed,
+							$author$project$Main$RunThread,
+							$elm$core$List$length(model.running));
+						var cmdmsg = _v6.a;
+						var seed2 = _v6.b;
 						return _Utils_Tuple2(
-							A2(
-								$author$project$Model$print,
-								'Error: ' + $elm$json$Json$Decode$errorToString(e),
-								$author$project$Model$freshModel),
+							_Utils_Tuple2(model, seed2),
+							cmdmsg);
+					}
+				case 'RunThread':
+					var n = msg.a;
+					var _v7 = A2($author$project$Compile$run, model, n);
+					if (_v7.$ === 'Ok') {
+						var m = _v7.a;
+						var _v8 = m.randomGenerator.request;
+						if (_v8.$ === 'Just') {
+							var k = _v8.a;
+							var _v9 = A3(
+								$author$project$Main$randomBelow,
+								seed,
+								$author$project$Main$Fulfilment(
+									$author$project$Main$RunThread(n)),
+								k);
+							var cmdmsg = _v9.a;
+							var seed2 = _v9.b;
+							return _Utils_Tuple2(
+								_Utils_Tuple2(model, seed2),
+								cmdmsg);
+						} else {
+							var $temp$msg = $author$project$Main$Run,
+								$temp$pair = _Utils_Tuple2(m, seed);
+							msg = $temp$msg;
+							pair = $temp$pair;
+							continue update;
+						}
+					} else {
+						var s = _v7.a;
+						var $temp$msg = $author$project$Main$Run,
+							$temp$pair = _Utils_Tuple2(
+							A2($author$project$Model$print, s, model),
+							seed);
+						msg = $temp$msg;
+						pair = $temp$pair;
+						continue update;
+					}
+				case 'ReceivedDataFromJS':
+					var data = msg.a;
+					var _v10 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
+					if (_v10.$ === 'Ok') {
+						var t = _v10.a;
+						return _Utils_Tuple2(
+							_Utils_Tuple2(
+								A4(
+									$author$project$Model$spawn,
+									_List_fromArray(
+										[t]),
+									-1,
+									$elm$core$Maybe$Nothing,
+									$author$project$Model$freshModel),
+								seed),
+							$elm$core$Platform$Cmd$none);
+					} else {
+						var e = _v10.a;
+						return _Utils_Tuple2(
+							_Utils_Tuple2(
+								A2(
+									$author$project$Model$print,
+									'Error: ' + $elm$json$Json$Decode$errorToString(e),
+									$author$project$Model$freshModel),
+								seed),
 							$elm$core$Platform$Cmd$none);
 					}
 				default:
 					var dir = msg.a;
 					return _Utils_Tuple2(
-						A2($author$project$Model$enqKeypress, dir, model),
+						_Utils_Tuple2(
+							A2($author$project$Model$enqKeypress, dir, model),
+							seed),
 						$elm$core$Platform$Cmd$none);
 			}
 		}
@@ -7919,7 +8074,9 @@ var $author$project$Main$printout = function (s) {
 			$elm$html$Html$text,
 			$elm$core$String$lines(s)));
 };
-var $author$project$Main$view = function (model) {
+var $author$project$Main$view = function (pair) {
+	var _v0 = pair;
+	var model = _v0.a;
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -7943,6 +8100,16 @@ var $author$project$Main$view = function (model) {
 					_List_fromArray(
 						[
 							$elm$html$Html$text('Step')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Events$onClick($author$project$Main$Run)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Run')
 						])),
 					A2($elm$html$Html$br, _List_Nil, _List_Nil)
 				]),

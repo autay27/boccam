@@ -4,11 +4,13 @@ import Browser
 import Browser.Events exposing (onKeyDown)
 import Html exposing (Html, button, div, text, br, hr)
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (class)
 import Json.Decode
 
 import Readfile exposing (Tree, treeDecoder)
 import Compile exposing (run)
 import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, isBlocked, freshModel)
+import State exposing (toJson)
 import KeyboardInput exposing (keyDecoder, Direction)
 
 import Dict exposing (Dict, empty)
@@ -105,8 +107,14 @@ printout s = List.intersperse (br [] []) (List.map text (String.lines s))
 view : (Model, Maybe Seed) -> Html Msg
 view pair =
   let (model, _) = pair in
-    div []
-      ( 
-        [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
-        (printout model.output)
-      )
+    div [class "twopanel"] [
+      div []
+        ( 
+          [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
+          (printout model.output)
+        ),
+      div []
+        (
+          [ div [] [text "State:"], div [] (printout (State.toJson model.state))]
+        )
+    ]

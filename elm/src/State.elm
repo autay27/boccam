@@ -71,7 +71,7 @@ checkDeclared var state =
         _ -> Err "invalid variable name"
 
 toJson : State -> String
-toJson state = encode 2 (dict identity jsonValues state.vars)
+toJson state = encode 4 (dict identity jsonValues state.vars)
 
 jsonValues : Value -> Json.Encode.Value
 jsonValues val = 

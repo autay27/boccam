@@ -1,0 +1,12 @@
+.twopanel {
+    display: flex;
+    flex-direction: row;
+}
+
+.twopanel > div {
+    width: 300px;
+}
+
+.twopanel > div > div {
+    white-space: pre-wrap;
+}

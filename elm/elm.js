@@ -8025,6 +8025,15 @@ var $author$project$Main$update = F2(
 var $author$project$Main$Step = {$: 'Step'};
 var $elm$html$Html$br = _VirtualDom_node('br');
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -8074,46 +8083,102 @@ var $author$project$Main$printout = function (s) {
 			$elm$html$Html$text,
 			$elm$core$String$lines(s)));
 };
+var $elm$json$Json$Encode$dict = F3(
+	function (toKey, toValue, dictionary) {
+		return _Json_wrap(
+			A3(
+				$elm$core$Dict$foldl,
+				F3(
+					function (key, value, obj) {
+						return A3(
+							_Json_addField,
+							toKey(key),
+							toValue(value),
+							obj);
+					}),
+				_Json_emptyObject(_Utils_Tuple0),
+				dictionary));
+	});
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $author$project$State$jsonValues = function (val) {
+	switch (val.$) {
+		case 'Number':
+			var n = val.a;
+			return $elm$json$Json$Encode$int(n);
+		case 'Channel':
+			var s = val.a;
+			return $elm$json$Json$Encode$string(s);
+		case 'Boolval':
+			var b = val.a;
+			return $elm$json$Json$Encode$bool(b);
+		default:
+			return $elm$json$Json$Encode$string('ANY');
+	}
+};
+var $author$project$State$toJson = function (state) {
+	return A2(
+		$elm$json$Json$Encode$encode,
+		4,
+		A3($elm$json$Json$Encode$dict, $elm$core$Basics$identity, $author$project$State$jsonValues, state.vars));
+};
 var $author$project$Main$view = function (pair) {
 	var _v0 = pair;
 	var model = _v0.a;
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
-		_Utils_ap(
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('twopanel')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_Utils_ap(
 					_List_fromArray(
 						[
-							$elm$html$Html$text(model.display)
-						])),
-					A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Events$onClick($author$project$Main$Step)
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text(model.display)
+								])),
+							A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick($author$project$Main$Step)
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Step')
+								])),
+							A2($elm$html$Html$br, _List_Nil, _List_Nil)
 						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Step')
-						])),
-					A2(
-					$elm$html$Html$button,
-					_List_fromArray(
-						[
-							$elm$html$Html$Events$onClick($author$project$Main$Run)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Run')
-						])),
-					A2($elm$html$Html$br, _List_Nil, _List_Nil)
-				]),
-			$author$project$Main$printout(model.output)));
+					$author$project$Main$printout(model.output))),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('State:')
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						$author$project$Main$printout(
+							$author$project$State$toJson(model.state)))
+					]))
+			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});

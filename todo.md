@@ -20,9 +20,14 @@ For details, I've made a new checklist file...
 ## goals - report
 
 - Testing
-    - Implement "Run"
     - Parser - 10 code snippets with/without erros etc.
+
+We just need a JS script that reads a file which has the code and the expected output of the parser. Jeez.
+
     - Interpreter - tast first n things coming out of display(?) / Could even dump the state and somehow check against it . (would also be good to printout the state for teaching purpose....)
+
+OK, so the format I want is 'here is a program, and the state should eventually reach this/go through these transitions/at the nth step should be this' OMG it's almost like formal verification except I really don't want that level of detail LOL
+
 - Evaluation - Do what you would do at a bigger scale  for ~2 people - i.e. get test subjects, ask thm to do a task, Designing INteractive Systems, Benyon Turner Turner - Evaluation chapter
 
 ## unsure

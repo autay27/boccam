@@ -741,7 +741,7 @@ rules: [/^(?:PAR\b)/,/^(?:SEQ\b)/,/^(?:ALT\b)/,/^(?:&)/,/^(?:!)/,/^(?:\?)/,/^(?:
 conditions: {"EXPR":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27],"inclusive":true},"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27],"inclusive":true}}
 });
 /* initialize the pseudo-token stack with 0 indents */
-_iemitstack = [0];;
+var _iemitstack = [0];;
 return lexer;
 })();
 parser.lexer = lexer;

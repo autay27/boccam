@@ -7,7 +7,7 @@ import Html.Events exposing (onClick)
 import Html.Attributes exposing (class)
 import Json.Decode
 
-import Readfile exposing (Tree, treeDecoder)
+import Readfile exposing (Tree, treeDecoder, Rule(..))
 import Compile exposing (run)
 import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, isBlocked, freshModel)
 import State exposing (toJson)
@@ -16,7 +16,6 @@ import KeyboardInput exposing (keyDecoder, Direction)
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int, Seed, step)
 import List exposing (length)
-import Readfile exposing (Rule(..))
 
 
 -- MAIN
@@ -110,7 +109,7 @@ view pair =
     div [class "twopanel"] [
       div []
         ( 
-          [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
+          [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick Run ] [ text "Run" ], br [] []] ++
           (printout model.output)
         ),
       div []

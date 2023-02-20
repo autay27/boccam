@@ -40,5 +40,22 @@ OK, so the format I want is 'here is a program, and the state should eventually 
 
 ## discussion
 
+Testing - Check the first (eg 50) and don't even have a det.random seed, just pick the nth one every time
+Just mention that you could examine state etc and do cafv but it's not within the scope of small educational project.
 
+Calculation spitting out one number is a good start
+Ways to test all constructs in the language
+Think bavck to how you tested it when coding
 
+Thinking about demos
+ - interleaving ( In and out )
+ - pipe sort - User input numbers?
+ - anything interactive
+
+ Evaluation - give an exercise and ask how people think it compares to scala concurrent progamming?
+
+ Todo for next time
+ - Deterministic in a human readable way
+ - Test up to 50 
+ - Gt, Lt etc
+ - IF, FOR

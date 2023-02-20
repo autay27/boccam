@@ -1,3 +1,5 @@
 # compiled files
 
 elm/elm-stuff/**
+
+node_modules/**

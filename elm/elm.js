@@ -8157,6 +8157,16 @@ var $author$project$Main$view = function (pair) {
 								[
 									$elm$html$Html$text('Step')
 								])),
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick($author$project$Main$Run)
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Run')
+								])),
 							A2($elm$html$Html$br, _List_Nil, _List_Nil)
 						]),
 					$author$project$Main$printout(model.output))),

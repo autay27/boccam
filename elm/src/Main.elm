@@ -25,10 +25,10 @@ main =
 
 -- MODEL
 
-seed0 : Maybe Seed
-seed0 = Just (Random.initialSeed 2001)
+seed0 : Maybe Int
+seed0 = Just 0
 
-init : () -> ((Model, Maybe Seed), Cmd Msg)
+init : () -> ((Model, Maybe Int), Cmd Msg)
 init _ = 
   ( ((print "\n" (spawn [Compile.example_tree] -1 Nothing freshModel)), seed0), Cmd.none)
 
@@ -37,7 +37,7 @@ init _ =
 type Msg
   = Step | Thread Int | Run | RunThread Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
-update : Msg -> (Model, Maybe Seed) -> ((Model, Maybe Seed), Cmd Msg)
+update : Msg -> (Model, Maybe Int) -> ((Model, Maybe Int), Cmd Msg)
 update msg pair =
   case pair of 
     (model, seed) ->
@@ -85,16 +85,16 @@ update msg pair =
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
  
-randomBelow : (Maybe Seed) -> (Int -> Msg) -> Int -> (Cmd Msg, Maybe Seed)
+randomBelow : (Maybe Int) -> (Int -> Msg) -> Int -> (Cmd Msg, Maybe Int)
 randomBelow seed msgmaker n =
   case seed of 
     Nothing -> (Random.generate msgmaker (Random.int 0 (n - 1)), Nothing)
-    Just s -> case Random.step (Random.int 0 (n - 1)) s of 
-      (m, newseed) -> (Random.generate msgmaker (Random.constant m), Just newseed)
+    Just m -> let chosen = modBy n m in 
+      (Random.generate msgmaker (Random.constant chosen), Just (m+1))
  
 -- SUBSCRIPTIONS
 
-subscriptions : (Model, Maybe Seed) -> Sub Msg
+subscriptions : (Model, Maybe Int) -> Sub Msg
 subscriptions _ =
   Sub.batch [ messageReceiver ReceivedDataFromJS, 
               Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder)]
@@ -103,7 +103,7 @@ subscriptions _ =
 
 printout s = List.intersperse (br [] []) (List.map text (String.lines s))
 
-view : (Model, Maybe Seed) -> Html Msg
+view : (Model, Maybe Int) -> Html Msg
 view pair =
   let (model, _) = pair in
     div [class "twopanel"] [

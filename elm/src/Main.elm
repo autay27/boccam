@@ -105,13 +105,20 @@ subscriptions _ =
 
 printout s = List.intersperse (br [] []) (List.map text (String.lines s))
 
+printdisplay display = 
+  let 
+    str = case List.head display of 
+      Nothing -> ""
+      Just n -> String.fromInt n 
+  in text str
+
 view : (Model, Maybe Int) -> Html Msg
 view pair =
   let (model, _) = pair in
     div [class "twopanel"] [
       div []
         ( 
-          [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "Run 50 steps" ], br [] []] ++
+          [ div [] [ printdisplay model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "Run 50 steps" ], br [] []] ++
           (printout model.output)
         ),
       div []

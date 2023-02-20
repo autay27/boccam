@@ -5518,7 +5518,7 @@ var $author$project$State$freshState = {
 	vars: $elm$core$Dict$empty
 };
 var $author$project$Model$freshModel = {
-	display: '',
+	display: _List_Nil,
 	ids: $elm$core$Dict$empty,
 	keyboardBuffer: _List_Nil,
 	output: '',
@@ -5538,27 +5538,7 @@ var $author$project$Model$print = F2(
 			m,
 			{output: m.output + (s + '\n')});
 	});
-var $elm$random$Random$Seed = F2(
-	function (a, b) {
-		return {$: 'Seed', a: a, b: b};
-	});
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$random$Random$next = function (_v0) {
-	var state0 = _v0.a;
-	var incr = _v0.b;
-	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
-};
-var $elm$random$Random$initialSeed = function (x) {
-	var _v0 = $elm$random$Random$next(
-		A2($elm$random$Random$Seed, 0, 1013904223));
-	var state1 = _v0.a;
-	var incr = _v0.b;
-	var state2 = (state1 + x) >>> 0;
-	return $elm$random$Random$next(
-		A2($elm$random$Random$Seed, state2, incr));
-};
-var $author$project$Main$seed0 = $elm$core$Maybe$Just(
-	$elm$random$Random$initialSeed(2001));
+var $author$project$Main$seed0 = $elm$core$Maybe$Just(0);
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -6073,9 +6053,12 @@ var $author$project$Main$Fulfilment = F2(
 	function (a, b) {
 		return {$: 'Fulfilment', a: a, b: b};
 	});
-var $author$project$Main$Run = {$: 'Run'};
-var $author$project$Main$RunThread = function (a) {
-	return {$: 'RunThread', a: a};
+var $author$project$Main$RunThread = F2(
+	function (a, b) {
+		return {$: 'RunThread', a: a, b: b};
+	});
+var $author$project$Main$RunUntil = function (a) {
+	return {$: 'RunUntil', a: a};
 };
 var $author$project$Main$Thread = function (a) {
 	return {$: 'Thread', a: a};
@@ -6121,6 +6104,25 @@ var $elm$random$Random$constant = function (value) {
 };
 var $elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
+};
+var $elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 'Seed', a: a, b: b};
+	});
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$random$Random$next = function (_v0) {
+	var state0 = _v0.a;
+	var incr = _v0.b;
+	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
 };
 var $elm$time$Time$Name = function (a) {
 	return {$: 'Name', a: a};
@@ -6243,6 +6245,7 @@ var $elm$random$Random$int = F2(
 				}
 			});
 	});
+var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Main$randomBelow = F3(
 	function (seed, msgmaker, n) {
 		if (seed.$ === 'Nothing') {
@@ -6253,19 +6256,14 @@ var $author$project$Main$randomBelow = F3(
 					A2($elm$random$Random$int, 0, n - 1)),
 				$elm$core$Maybe$Nothing);
 		} else {
-			var s = seed.a;
-			var _v1 = A2(
-				$elm$random$Random$step,
-				A2($elm$random$Random$int, 0, n - 1),
-				s);
-			var m = _v1.a;
-			var newseed = _v1.b;
+			var m = seed.a;
+			var chosen = A2($elm$core$Basics$modBy, n, m);
 			return _Utils_Tuple2(
 				A2(
 					$elm$random$Random$generate,
 					msgmaker,
-					$elm$random$Random$constant(m)),
-				$elm$core$Maybe$Just(newseed));
+					$elm$random$Random$constant(chosen)),
+				$elm$core$Maybe$Just(m + 1));
 		}
 	});
 var $elm$core$Result$andThen = F2(
@@ -7566,10 +7564,12 @@ var $author$project$Compile$chainRun = F3(
 		}
 	});
 var $author$project$Model$display = F2(
-	function (str, m) {
+	function (n, m) {
 		return _Utils_update(
 			m,
-			{display: str});
+			{
+				display: A2($elm$core$List$cons, n, m.display)
+			});
 	});
 var $author$project$Compile$updateDisplay = function (m) {
 	var _v0 = A2(
@@ -7593,10 +7593,7 @@ var $author$project$Compile$updateDisplay = function (m) {
 						A2(
 							$author$project$Model$update,
 							newState,
-							A2(
-								$author$project$Model$display,
-								$elm$core$String$fromInt(n),
-								m)));
+							A2($author$project$Model$display, n, m)));
 				} else {
 					return $author$project$Compile$RunErr('Invalid output to the display (currently requires a number)');
 				}
@@ -7930,7 +7927,8 @@ var $author$project$Main$update = F2(
 					msg = $temp$msg;
 					pair = $temp$pair;
 					continue update;
-				case 'Run':
+				case 'RunUntil':
+					var n = msg.a;
 					if ($author$project$Model$isBlocked(model)) {
 						return _Utils_Tuple2(
 							_Utils_Tuple2(
@@ -7938,46 +7936,53 @@ var $author$project$Main$update = F2(
 								seed),
 							$elm$core$Platform$Cmd$none);
 					} else {
-						var _v6 = A3(
-							$author$project$Main$randomBelow,
-							seed,
-							$author$project$Main$RunThread,
-							$elm$core$List$length(model.running));
-						var cmdmsg = _v6.a;
-						var seed2 = _v6.b;
-						return _Utils_Tuple2(
-							_Utils_Tuple2(model, seed2),
-							cmdmsg);
+						if (!n) {
+							return _Utils_Tuple2(
+								_Utils_Tuple2(model, seed),
+								$elm$core$Platform$Cmd$none);
+						} else {
+							var _v7 = A3(
+								$author$project$Main$randomBelow,
+								seed,
+								$author$project$Main$RunThread(n),
+								$elm$core$List$length(model.running));
+							var cmdmsg = _v7.a;
+							var seed2 = _v7.b;
+							return _Utils_Tuple2(
+								_Utils_Tuple2(model, seed2),
+								cmdmsg);
+						}
 					}
 				case 'RunThread':
-					var n = msg.a;
-					var _v7 = A2($author$project$Compile$run, model, n);
-					if (_v7.$ === 'Ok') {
-						var m = _v7.a;
-						var _v8 = m.randomGenerator.request;
-						if (_v8.$ === 'Just') {
-							var k = _v8.a;
-							var _v9 = A3(
+					var countdown = msg.a;
+					var n = msg.b;
+					var _v8 = A2($author$project$Compile$run, model, n);
+					if (_v8.$ === 'Ok') {
+						var m = _v8.a;
+						var _v9 = m.randomGenerator.request;
+						if (_v9.$ === 'Just') {
+							var k = _v9.a;
+							var _v10 = A3(
 								$author$project$Main$randomBelow,
 								seed,
 								$author$project$Main$Fulfilment(
-									$author$project$Main$RunThread(n)),
+									A2($author$project$Main$RunThread, countdown, n)),
 								k);
-							var cmdmsg = _v9.a;
-							var seed2 = _v9.b;
+							var cmdmsg = _v10.a;
+							var seed2 = _v10.b;
 							return _Utils_Tuple2(
 								_Utils_Tuple2(model, seed2),
 								cmdmsg);
 						} else {
-							var $temp$msg = $author$project$Main$Run,
+							var $temp$msg = $author$project$Main$RunUntil(countdown - 1),
 								$temp$pair = _Utils_Tuple2(m, seed);
 							msg = $temp$msg;
 							pair = $temp$pair;
 							continue update;
 						}
 					} else {
-						var s = _v7.a;
-						var $temp$msg = $author$project$Main$Run,
+						var s = _v8.a;
+						var $temp$msg = $author$project$Main$RunUntil(countdown),
 							$temp$pair = _Utils_Tuple2(
 							A2($author$project$Model$print, s, model),
 							seed);
@@ -7987,9 +7992,9 @@ var $author$project$Main$update = F2(
 					}
 				case 'ReceivedDataFromJS':
 					var data = msg.a;
-					var _v10 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
-					if (_v10.$ === 'Ok') {
-						var t = _v10.a;
+					var _v11 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
+					if (_v11.$ === 'Ok') {
+						var t = _v11.a;
 						return _Utils_Tuple2(
 							_Utils_Tuple2(
 								A4(
@@ -8002,7 +8007,7 @@ var $author$project$Main$update = F2(
 								seed),
 							$elm$core$Platform$Cmd$none);
 					} else {
-						var e = _v10.a;
+						var e = _v11.a;
 						return _Utils_Tuple2(
 							_Utils_Tuple2(
 								A2(
@@ -8053,6 +8058,20 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$printdisplay = function (display) {
+	var str = function () {
+		var _v0 = $elm$core$List$head(display);
+		if (_v0.$ === 'Nothing') {
+			return '';
+		} else {
+			var n = _v0.a;
+			return $elm$core$String$fromInt(n);
+		}
+	}();
+	return $elm$html$Html$text(str);
+};
 var $elm$core$List$intersperse = F2(
 	function (sep, xs) {
 		if (!xs.b) {
@@ -8072,8 +8091,6 @@ var $elm$core$List$intersperse = F2(
 		}
 	});
 var $elm$core$String$lines = _String_lines;
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$printout = function (s) {
 	return A2(
 		$elm$core$List$intersperse,
@@ -8144,7 +8161,7 @@ var $author$project$Main$view = function (pair) {
 							_List_Nil,
 							_List_fromArray(
 								[
-									$elm$html$Html$text(model.display)
+									$author$project$Main$printdisplay(model.display)
 								])),
 							A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 							A2(
@@ -8161,11 +8178,12 @@ var $author$project$Main$view = function (pair) {
 							$elm$html$Html$button,
 							_List_fromArray(
 								[
-									$elm$html$Html$Events$onClick($author$project$Main$Run)
+									$elm$html$Html$Events$onClick(
+									$author$project$Main$RunUntil(50))
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('Run')
+									$elm$html$Html$text('Run 50 steps')
 								])),
 							A2($elm$html$Html$br, _List_Nil, _List_Nil)
 						]),

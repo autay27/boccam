@@ -340,7 +340,7 @@ updateDisplay m =
             case getFromChannel displaychanname m.state of
                 Ok (newState, value) ->
                     case value of 
-                        Number n -> channelEmptied displaychanname (-1) (update newState (display (String.fromInt n) m))
+                        Number n -> channelEmptied displaychanname (-1) (update newState (display n m))
 
                         _ -> RunErr "Invalid output to the display (currently requires a number)"
                 Err msg -> RunErr msg

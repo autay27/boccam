@@ -28,10 +28,12 @@ main =
 seed0 : Maybe Int
 seed0 = Just 0
 
-init : () -> ((Model, Maybe Int), Cmd Msg)
-init _ = 
-  ( ((print "\n" (spawn [Compile.example_tree] -1 Nothing freshModel)), seed0), Cmd.none)
-
+init : Json.Decode.Value -> ((Model, Maybe Int), Cmd Msg)
+init json = 
+  case (Json.Decode.decodeValue treeDecoder json) of 
+    Ok t -> ( ((print "\n" (spawn [t] -1 Nothing freshModel)), seed0), Cmd.none)
+    Err e -> ( ((print "Error parsing JSON!" (spawn [] -1 Nothing freshModel)), seed0), Cmd.none)
+  
 -- UPDATE
 
 type Msg

@@ -55,6 +55,5 @@ Thinking about demos
  Evaluation - give an exercise and ask how people think it compares to scala concurrent progamming?
 
  Todo for next time
- - Test up to 50 
  - Gt, Lt etc
  - IF, FOR

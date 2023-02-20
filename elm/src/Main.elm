@@ -35,7 +35,7 @@ init _ =
 -- UPDATE
 
 type Msg
-  = Step | Thread Int | Run | RunThread Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
+  = Step | Thread Int | RunUntil Int | RunThread Int Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
 update : Msg -> (Model, Maybe Int) -> ((Model, Maybe Int), Cmd Msg)
 update msg pair =
@@ -59,22 +59,24 @@ update msg pair =
 
         Fulfilment t f -> update t (fulfilRandom f model, seed)
 
-        Run -> 
+        RunUntil n -> 
           if isBlocked model then
             ((print "Terminated" model, seed), Cmd.none)
           else
-            let (cmdmsg, seed2) = randomBelow seed RunThread (length model.running) in
-              ((model, seed2), cmdmsg)
+            case n of 
+              0 -> ((model, seed), Cmd.none)
+              _ -> let (cmdmsg, seed2) = randomBelow seed (RunThread n) (length model.running) in
+                ((model, seed2), cmdmsg)
 
-        RunThread n ->
+        RunThread countdown n ->
           case Compile.run model n of 
             Ok m -> 
               case m.randomGenerator.request of
                 Just k -> 
-                  let (cmdmsg, seed2) = randomBelow seed (Fulfilment (RunThread n)) k in
+                  let (cmdmsg, seed2) = randomBelow seed (Fulfilment (RunThread countdown n)) k in
                     ((model, seed2), cmdmsg)
-                Nothing -> update Run (m, seed)
-            Err s -> update Run (print s model, seed)        
+                Nothing -> update (RunUntil (countdown - 1)) (m, seed)
+            Err s -> update (RunUntil countdown) (print s model, seed)        
 
         ReceivedDataFromJS data -> 
           case (Json.Decode.decodeValue treeDecoder data) of 
@@ -109,7 +111,7 @@ view pair =
     div [class "twopanel"] [
       div []
         ( 
-          [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick Run ] [ text "Run" ], br [] []] ++
+          [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "Run 50 steps" ], br [] []] ++
           (printout model.output)
         ),
       div []

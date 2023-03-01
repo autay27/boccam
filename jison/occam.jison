@@ -82,13 +82,31 @@ input
     ;
 
 expr
-    : operand 
-        { $$ = $operand }
-    | expr binop operand
-        { $$ = [$binop, $1, $3] }
+    : simple
+        { $$ = $simple }
+    | expr relop simple
+        { $$ = [$relop, $1, $3] }
     ;
 
-operand
+simple
+    : term
+        { $$ = $term }
+    | simple PLUS term
+        { $$ = ["PLUS", $1, $3] }
+    | simple MINUS term
+        { $$ = ["MINUS", $1, $3] }
+    ;
+
+term
+    : factor
+        { $$ = $factor }
+    | term TIMES factor
+        { $$ = ["TIMES", $1, $3] }
+    | term DIV factor
+        { $$ = ["DIV", $1, $3] }
+    ;
+
+factor
     : INTEGER
         { $$ = Number(yytext);}
     | ID
@@ -97,17 +115,15 @@ operand
         { $$ = $2 }
     ;
 
-binop
-    : PLUS
-        { $$ = "PLUS" }
-    | MINUS
-        { $$ = "MINUS" }
-    | TIMES
-        { $$ = "TIMES" }
-    | DIV
-        { $$ = "DIV" }
-    | AND
-        { $$ = "AND" }
-    | OR
-        { $$ = "OR" }
+relop
+    : GE
+        { $$ = "GT" }
+    | LE
+        { $$ = "LE" }
+    | GT
+        { $$ = "GT" }
+    | LT
+        { $$ = "LT" }
+    | EQ
+        { $$ = "EQ" }
     ;

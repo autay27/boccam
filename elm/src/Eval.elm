@@ -33,6 +33,11 @@ arithEval op x y state =
                     Minus -> Ok (Number (n1 - n2))
                     Times -> Ok (Number (n1 * n2))
                     Div -> Ok (Number (n1 // n2))
+                    Eq -> Ok (Boolval (n1 == n2))
+                    Gt -> Ok (Boolval (n1 > n2))
+                    Lt -> Ok (Boolval (n1 < n2))
+                    Ge -> Ok (Boolval (n1 >= n2))
+                    Le -> Ok (Boolval (n1 <= n2))
                     --placeholder, don't know if this is in occam
             _ -> Err "Invalid arguments for this operator"
     ))

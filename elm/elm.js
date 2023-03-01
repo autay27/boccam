@@ -5242,158 +5242,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Readfile$AssignExpr = {$: 'AssignExpr'};
-var $author$project$Readfile$Branch = F2(
-	function (a, b) {
-		return {$: 'Branch', a: a, b: b};
-	});
-var $author$project$Readfile$DeclareChannel = {$: 'DeclareChannel'};
-var $author$project$Readfile$DeclareVariable = {$: 'DeclareVariable'};
-var $author$project$Readfile$Ident = function (a) {
-	return {$: 'Ident', a: a};
-};
-var $author$project$Readfile$In = {$: 'In'};
-var $author$project$Readfile$Leaf = function (a) {
-	return {$: 'Leaf', a: a};
-};
-var $author$project$Readfile$Num = function (a) {
-	return {$: 'Num', a: a};
-};
-var $author$project$Readfile$Out = {$: 'Out'};
-var $author$project$Readfile$Par = {$: 'Par'};
-var $author$project$Readfile$ProcList = {$: 'ProcList'};
-var $author$project$Readfile$Seq = {$: 'Seq'};
-var $author$project$Readfile$While = {$: 'While'};
-var $author$project$Compile$example_tree = A2(
-	$author$project$Readfile$Branch,
-	$author$project$Readfile$Seq,
-	_List_fromArray(
-		[
-			A2(
-			$author$project$Readfile$Branch,
-			$author$project$Readfile$ProcList,
-			_List_fromArray(
-				[
-					A2(
-					$author$project$Readfile$Branch,
-					$author$project$Readfile$DeclareChannel,
-					_List_fromArray(
-						[
-							$author$project$Readfile$Leaf(
-							$author$project$Readfile$Ident('chan'))
-						])),
-					A2(
-					$author$project$Readfile$Branch,
-					$author$project$Readfile$DeclareChannel,
-					_List_fromArray(
-						[
-							$author$project$Readfile$Leaf(
-							$author$project$Readfile$Ident('chan2'))
-						])),
-					A2(
-					$author$project$Readfile$Branch,
-					$author$project$Readfile$DeclareVariable,
-					_List_fromArray(
-						[
-							$author$project$Readfile$Leaf(
-							$author$project$Readfile$Ident('x'))
-						])),
-					A2(
-					$author$project$Readfile$Branch,
-					$author$project$Readfile$AssignExpr,
-					_List_fromArray(
-						[
-							$author$project$Readfile$Leaf(
-							$author$project$Readfile$Ident('x')),
-							$author$project$Readfile$Leaf(
-							$author$project$Readfile$Num(0))
-						])),
-					A2(
-					$author$project$Readfile$Branch,
-					$author$project$Readfile$Par,
-					_List_fromArray(
-						[
-							A2(
-							$author$project$Readfile$Branch,
-							$author$project$Readfile$ProcList,
-							_List_fromArray(
-								[
-									A2(
-									$author$project$Readfile$Branch,
-									$author$project$Readfile$While,
-									_List_fromArray(
-										[
-											$author$project$Readfile$Leaf(
-											$author$project$Readfile$Ident('TRUE')),
-											A2(
-											$author$project$Readfile$Branch,
-											$author$project$Readfile$Out,
-											_List_fromArray(
-												[
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Ident('chan')),
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Num(99))
-												]))
-										])),
-									A2(
-									$author$project$Readfile$Branch,
-									$author$project$Readfile$While,
-									_List_fromArray(
-										[
-											$author$project$Readfile$Leaf(
-											$author$project$Readfile$Ident('TRUE')),
-											A2(
-											$author$project$Readfile$Branch,
-											$author$project$Readfile$Out,
-											_List_fromArray(
-												[
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Ident('chan2')),
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Num(1))
-												]))
-										])),
-									A2(
-									$author$project$Readfile$Branch,
-									$author$project$Readfile$While,
-									_List_fromArray(
-										[
-											$author$project$Readfile$Leaf(
-											$author$project$Readfile$Ident('TRUE')),
-											A2(
-											$author$project$Readfile$Branch,
-											$author$project$Readfile$In,
-											_List_fromArray(
-												[
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Ident('chan2')),
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Ident('x'))
-												]))
-										])),
-									A2(
-									$author$project$Readfile$Branch,
-									$author$project$Readfile$While,
-									_List_fromArray(
-										[
-											$author$project$Readfile$Leaf(
-											$author$project$Readfile$Ident('TRUE')),
-											A2(
-											$author$project$Readfile$Branch,
-											$author$project$Readfile$In,
-											_List_fromArray(
-												[
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Ident('chan')),
-													$author$project$Readfile$Leaf(
-													$author$project$Readfile$Ident('x'))
-												]))
-										]))
-								]))
-						]))
-				]))
-		]));
+var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $author$project$State$displaychanname = 'DISPLAY';
@@ -5706,21 +5555,211 @@ var $author$project$Model$spawn = F4(
 				newprocs),
 			m2);
 	});
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2(
-		_Utils_Tuple2(
-			A2(
-				$author$project$Model$print,
-				'\n',
-				A4(
-					$author$project$Model$spawn,
-					_List_fromArray(
-						[$author$project$Compile$example_tree]),
-					-1,
-					$elm$core$Maybe$Nothing,
-					$author$project$Model$freshModel)),
-			$author$project$Main$seed0),
-		$elm$core$Platform$Cmd$none);
+var $author$project$Readfile$Branch = F2(
+	function (a, b) {
+		return {$: 'Branch', a: a, b: b};
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $author$project$Readfile$Ident = function (a) {
+	return {$: 'Ident', a: a};
+};
+var $author$project$Readfile$Leaf = function (a) {
+	return {$: 'Leaf', a: a};
+};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Readfile$idDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$author$project$Readfile$Leaf,
+	A2(
+		$elm$json$Json$Decode$map,
+		$author$project$Readfile$Ident,
+		A2($elm$json$Json$Decode$field, 'idleaf', $elm$json$Json$Decode$string)));
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$lazy = function (thunk) {
+	return A2(
+		$elm$json$Json$Decode$andThen,
+		thunk,
+		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
+};
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Readfile$Num = function (a) {
+	return {$: 'Num', a: a};
+};
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $author$project$Readfile$numDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$author$project$Readfile$Leaf,
+	A2(
+		$elm$json$Json$Decode$map,
+		$author$project$Readfile$Num,
+		A2($elm$json$Json$Decode$field, 'numleaf', $elm$json$Json$Decode$int)));
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $author$project$Readfile$ABinop = function (a) {
+	return {$: 'ABinop', a: a};
+};
+var $author$project$Readfile$Alt = {$: 'Alt'};
+var $author$project$Readfile$AltList = {$: 'AltList'};
+var $author$project$Readfile$Alternative = {$: 'Alternative'};
+var $author$project$Readfile$And = {$: 'And'};
+var $author$project$Readfile$AssignExpr = {$: 'AssignExpr'};
+var $author$project$Readfile$AssignProc = {$: 'AssignProc'};
+var $author$project$Readfile$DeclareChannel = {$: 'DeclareChannel'};
+var $author$project$Readfile$DeclareVariable = {$: 'DeclareVariable'};
+var $author$project$Readfile$Div = {$: 'Div'};
+var $author$project$Readfile$Eq = {$: 'Eq'};
+var $author$project$Readfile$Ge = {$: 'Ge'};
+var $author$project$Readfile$Gt = {$: 'Gt'};
+var $author$project$Readfile$Guard = {$: 'Guard'};
+var $author$project$Readfile$In = {$: 'In'};
+var $author$project$Readfile$LBinop = function (a) {
+	return {$: 'LBinop', a: a};
+};
+var $author$project$Readfile$Le = {$: 'Le'};
+var $author$project$Readfile$Lt = {$: 'Lt'};
+var $author$project$Readfile$Minus = {$: 'Minus'};
+var $author$project$Readfile$Or = {$: 'Or'};
+var $author$project$Readfile$Out = {$: 'Out'};
+var $author$project$Readfile$Par = {$: 'Par'};
+var $author$project$Readfile$Plus = {$: 'Plus'};
+var $author$project$Readfile$ProcList = {$: 'ProcList'};
+var $author$project$Readfile$Seq = {$: 'Seq'};
+var $author$project$Readfile$Skip = {$: 'Skip'};
+var $author$project$Readfile$Times = {$: 'Times'};
+var $author$project$Readfile$While = {$: 'While'};
+var $elm$json$Json$Decode$fail = _Json_fail;
+var $author$project$Readfile$ruleFromString = function (str) {
+	switch (str) {
+		case 'par':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Par);
+		case 'seq':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Seq);
+		case 'proc_list':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$ProcList);
+		case 'alt':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Alt);
+		case 'alt_list':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$AltList);
+		case 'alternative':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Alternative);
+		case 'guard':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Guard);
+		case 'in':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$In);
+		case 'out':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Out);
+		case 'assign_expr':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignExpr);
+		case 'assign_proc':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignProc);
+		case 'while':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$While);
+		case 'declare_var':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareVariable);
+		case 'declare_chan':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareChannel);
+		case 'SKIP':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Skip);
+		case 'AND':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$LBinop($author$project$Readfile$And));
+		case 'OR':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$LBinop($author$project$Readfile$Or));
+		case 'PLUS':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Plus));
+		case 'MINUS':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Minus));
+		case 'TIMES':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Times));
+		case 'DIV':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Div));
+		case 'EQ':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Eq));
+		case 'GT':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Gt));
+		case 'LT':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Lt));
+		case 'GE':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Ge));
+		case 'LE':
+			return $elm$json$Json$Decode$succeed(
+				$author$project$Readfile$ABinop($author$project$Readfile$Le));
+		default:
+			return $elm$json$Json$Decode$fail('Invalid grammar rule' + str);
+	}
+};
+var $author$project$Readfile$ruleDecoder = A2($elm$json$Json$Decode$andThen, $author$project$Readfile$ruleFromString, $elm$json$Json$Decode$string);
+function $author$project$Readfile$cyclic$treeDecoder() {
+	return $elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$author$project$Readfile$cyclic$branchDecoder(),
+				$author$project$Readfile$numDecoder,
+				$author$project$Readfile$idDecoder
+			]));
+}
+function $author$project$Readfile$cyclic$branchDecoder() {
+	return A3(
+		$elm$json$Json$Decode$map2,
+		$author$project$Readfile$Branch,
+		A2($elm$json$Json$Decode$field, 'rule', $author$project$Readfile$ruleDecoder),
+		A2(
+			$elm$json$Json$Decode$field,
+			'children',
+			$elm$json$Json$Decode$list(
+				$elm$json$Json$Decode$lazy(
+					function (_v0) {
+						return $author$project$Readfile$cyclic$treeDecoder();
+					}))));
+}
+try {
+	var $author$project$Readfile$treeDecoder = $author$project$Readfile$cyclic$treeDecoder();
+	$author$project$Readfile$cyclic$treeDecoder = function () {
+		return $author$project$Readfile$treeDecoder;
+	};
+	var $author$project$Readfile$branchDecoder = $author$project$Readfile$cyclic$branchDecoder();
+	$author$project$Readfile$cyclic$branchDecoder = function () {
+		return $author$project$Readfile$branchDecoder;
+	};
+} catch ($) {
+	throw 'Some top-level definitions from `Readfile` are causing infinite recursion:\n\n  ┌─────┐\n  │    treeDecoder\n  │     ↓\n  │    branchDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
+var $author$project$Main$init = function (json) {
+	var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, json);
+	if (_v0.$ === 'Ok') {
+		var t = _v0.a;
+		return _Utils_Tuple2(
+			_Utils_Tuple2(
+				A2(
+					$author$project$Model$print,
+					'\n',
+					A4(
+						$author$project$Model$spawn,
+						_List_fromArray(
+							[t]),
+						-1,
+						$elm$core$Maybe$Nothing,
+						$author$project$Model$freshModel)),
+				$author$project$Main$seed0),
+			$elm$core$Platform$Cmd$none);
+	} else {
+		var e = _v0.a;
+		return _Utils_Tuple2(
+			_Utils_Tuple2(
+				A2(
+					$author$project$Model$print,
+					'Error parsing JSON!',
+					A4($author$project$Model$spawn, _List_Nil, -1, $elm$core$Maybe$Nothing, $author$project$Model$freshModel)),
+				$author$project$Main$seed0),
+			$elm$core$Platform$Cmd$none);
+	}
 };
 var $author$project$Main$ReceivedDataFromJS = function (a) {
 	return {$: 'ReceivedDataFromJS', a: a};
@@ -5729,8 +5768,6 @@ var $author$project$Main$ReceivedKeyboardInput = function (a) {
 	return {$: 'ReceivedKeyboardInput', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$KeyboardInput$Left = {$: 'Left'};
 var $author$project$KeyboardInput$Other = {$: 'Other'};
 var $author$project$KeyboardInput$Right = {$: 'Right'};
@@ -6063,7 +6100,6 @@ var $author$project$Main$RunUntil = function (a) {
 var $author$project$Main$Thread = function (a) {
 	return {$: 'Thread', a: a};
 };
-var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$Model$enqKeypress = F2(
 	function (dir, m) {
 		return _Utils_update(
@@ -6417,6 +6453,7 @@ var $author$project$State$Boolval = function (a) {
 var $author$project$State$Number = function (a) {
 	return {$: 'Number', a: a};
 };
+var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Eval$arithEval = F4(
 	function (op, x, y, state) {
 		return A2(
@@ -6439,9 +6476,29 @@ var $author$project$Eval$arithEval = F4(
 								case 'Times':
 									return $elm$core$Result$Ok(
 										$author$project$State$Number(n1 * n2));
-								default:
+								case 'Div':
 									return $elm$core$Result$Ok(
 										$author$project$State$Number((n1 / n2) | 0));
+								case 'Eq':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_eq(n1, n2)));
+								case 'Gt':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) > 0));
+								case 'Lt':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) < 0));
+								case 'Ge':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) > -1));
+								default:
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) < 1));
 							}
 						} else {
 							return $elm$core$Result$Err('Invalid arguments for this operator');
@@ -7735,138 +7792,6 @@ var $author$project$Compile$run = F2(
 				return $elm$core$Result$Err(msg);
 		}
 	});
-var $author$project$Readfile$idDecoder = A2(
-	$elm$json$Json$Decode$map,
-	$author$project$Readfile$Leaf,
-	A2(
-		$elm$json$Json$Decode$map,
-		$author$project$Readfile$Ident,
-		A2($elm$json$Json$Decode$field, 'idleaf', $elm$json$Json$Decode$string)));
-var $elm$json$Json$Decode$andThen = _Json_andThen;
-var $elm$json$Json$Decode$lazy = function (thunk) {
-	return A2(
-		$elm$json$Json$Decode$andThen,
-		thunk,
-		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
-};
-var $elm$json$Json$Decode$list = _Json_decodeList;
-var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $author$project$Readfile$numDecoder = A2(
-	$elm$json$Json$Decode$map,
-	$author$project$Readfile$Leaf,
-	A2(
-		$elm$json$Json$Decode$map,
-		$author$project$Readfile$Num,
-		A2($elm$json$Json$Decode$field, 'numleaf', $elm$json$Json$Decode$int)));
-var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-var $author$project$Readfile$ABinop = function (a) {
-	return {$: 'ABinop', a: a};
-};
-var $author$project$Readfile$Alt = {$: 'Alt'};
-var $author$project$Readfile$AltList = {$: 'AltList'};
-var $author$project$Readfile$Alternative = {$: 'Alternative'};
-var $author$project$Readfile$And = {$: 'And'};
-var $author$project$Readfile$AssignProc = {$: 'AssignProc'};
-var $author$project$Readfile$Div = {$: 'Div'};
-var $author$project$Readfile$Guard = {$: 'Guard'};
-var $author$project$Readfile$LBinop = function (a) {
-	return {$: 'LBinop', a: a};
-};
-var $author$project$Readfile$Minus = {$: 'Minus'};
-var $author$project$Readfile$Or = {$: 'Or'};
-var $author$project$Readfile$Plus = {$: 'Plus'};
-var $author$project$Readfile$Skip = {$: 'Skip'};
-var $author$project$Readfile$Times = {$: 'Times'};
-var $elm$json$Json$Decode$fail = _Json_fail;
-var $author$project$Readfile$ruleFromString = function (str) {
-	switch (str) {
-		case 'par':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$Par);
-		case 'seq':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$Seq);
-		case 'proc_list':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$ProcList);
-		case 'alt':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$Alt);
-		case 'alt_list':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$AltList);
-		case 'alternative':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$Alternative);
-		case 'guard':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$Guard);
-		case 'in':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$In);
-		case 'out':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$Out);
-		case 'assign_expr':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignExpr);
-		case 'assign_proc':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignProc);
-		case 'while':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$While);
-		case 'declare_var':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareVariable);
-		case 'declare_chan':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareChannel);
-		case 'SKIP':
-			return $elm$json$Json$Decode$succeed($author$project$Readfile$Skip);
-		case 'AND':
-			return $elm$json$Json$Decode$succeed(
-				$author$project$Readfile$LBinop($author$project$Readfile$And));
-		case 'OR':
-			return $elm$json$Json$Decode$succeed(
-				$author$project$Readfile$LBinop($author$project$Readfile$Or));
-		case 'PLUS':
-			return $elm$json$Json$Decode$succeed(
-				$author$project$Readfile$ABinop($author$project$Readfile$Plus));
-		case 'MINUS':
-			return $elm$json$Json$Decode$succeed(
-				$author$project$Readfile$ABinop($author$project$Readfile$Minus));
-		case 'TIMES':
-			return $elm$json$Json$Decode$succeed(
-				$author$project$Readfile$ABinop($author$project$Readfile$Times));
-		case 'DIV':
-			return $elm$json$Json$Decode$succeed(
-				$author$project$Readfile$ABinop($author$project$Readfile$Div));
-		default:
-			return $elm$json$Json$Decode$fail('Invalid grammar rule' + str);
-	}
-};
-var $author$project$Readfile$ruleDecoder = A2($elm$json$Json$Decode$andThen, $author$project$Readfile$ruleFromString, $elm$json$Json$Decode$string);
-function $author$project$Readfile$cyclic$treeDecoder() {
-	return $elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				$author$project$Readfile$cyclic$branchDecoder(),
-				$author$project$Readfile$numDecoder,
-				$author$project$Readfile$idDecoder
-			]));
-}
-function $author$project$Readfile$cyclic$branchDecoder() {
-	return A3(
-		$elm$json$Json$Decode$map2,
-		$author$project$Readfile$Branch,
-		A2($elm$json$Json$Decode$field, 'rule', $author$project$Readfile$ruleDecoder),
-		A2(
-			$elm$json$Json$Decode$field,
-			'children',
-			$elm$json$Json$Decode$list(
-				$elm$json$Json$Decode$lazy(
-					function (_v0) {
-						return $author$project$Readfile$cyclic$treeDecoder();
-					}))));
-}
-try {
-	var $author$project$Readfile$treeDecoder = $author$project$Readfile$cyclic$treeDecoder();
-	$author$project$Readfile$cyclic$treeDecoder = function () {
-		return $author$project$Readfile$treeDecoder;
-	};
-	var $author$project$Readfile$branchDecoder = $author$project$Readfile$cyclic$branchDecoder();
-	$author$project$Readfile$cyclic$branchDecoder = function () {
-		return $author$project$Readfile$branchDecoder;
-	};
-} catch ($) {
-	throw 'Some top-level definitions from `Readfile` are causing infinite recursion:\n\n  ┌─────┐\n  │    treeDecoder\n  │     ↓\n  │    branchDecoder\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
 var $author$project$Main$update = F2(
 	function (msg, pair) {
 		update:
@@ -8210,5 +8135,4 @@ var $author$project$Main$view = function (pair) {
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
-_Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+_Platform_export({'Main':{'init':$author$project$Main$main($elm$json$Json$Decode$value)(0)}});}(this));

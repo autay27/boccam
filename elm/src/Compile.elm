@@ -11,10 +11,13 @@ import Html exposing (b)
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
+    Branch DeclareChannel [Leaf (Ident "chan2")], 
     Branch DeclareVariable [Leaf (Ident "x")], 
     Branch AssignExpr [Leaf (Ident "x"), Leaf (Num 0)],
     Branch Par [Branch ProcList 
-        [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Branch (ABinop Plus) [Leaf (Ident "x"), Leaf (Num 1)]]],
+        [Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan"), Leaf (Num 99)]],
+        Branch While [Leaf (Ident "TRUE"), Branch Out [Leaf (Ident "chan2"), Leaf (Num 1)]],
+        Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan2"), Leaf (Ident "x")]],
         Branch While [Leaf (Ident "TRUE"), Branch In [Leaf (Ident "chan"), Leaf (Ident "x")]]]
     ]]]
 
@@ -337,7 +340,7 @@ updateDisplay m =
             case getFromChannel displaychanname m.state of
                 Ok (newState, value) ->
                     case value of 
-                        Number n -> channelEmptied displaychanname (-1) (update newState (display (String.fromInt n) m))
+                        Number n -> channelEmptied displaychanname (-1) (update newState (display n m))
 
                         _ -> RunErr "Invalid output to the display (currently requires a number)"
                 Err msg -> RunErr msg

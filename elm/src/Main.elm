@@ -4,15 +4,17 @@ import Browser
 import Browser.Events exposing (onKeyDown)
 import Html exposing (Html, button, div, text, br, hr)
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (class)
 import Json.Decode
 
-import Readfile exposing (Tree, treeDecoder)
+import Readfile exposing (Tree, treeDecoder, Rule(..))
 import Compile exposing (run)
-import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, freshModel)
+import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, isBlocked, freshModel)
+import State exposing (toJson)
 import KeyboardInput exposing (keyDecoder, Direction)
 
 import Dict exposing (Dict, empty)
-import Random exposing (generate, int)
+import Random exposing (generate, int, Seed, step)
 import List exposing (length)
 
 
@@ -23,51 +25,106 @@ main =
 
 -- MODEL
 
-init : () -> (Model, Cmd Msg)
-init _ = 
-  ( print "\n" (spawn [Compile.example_tree] -1 Nothing freshModel), Cmd.none)
+seed0 : Maybe Int
+seed0 = Just 0
 
+init : Json.Decode.Value -> ((Model, Maybe Int), Cmd Msg)
+init json = 
+  case (Json.Decode.decodeValue treeDecoder json) of 
+    Ok t -> ( ((print "\n" (spawn [t] -1 Nothing freshModel)), seed0), Cmd.none)
+    Err e -> ( ((print "Error parsing JSON!" (spawn [] -1 Nothing freshModel)), seed0), Cmd.none)
+  
 -- UPDATE
 
 type Msg
-  = Step | Run | Thread Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
+  = Step | Thread Int | RunUntil Int | RunThread Int Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
-  case msg of
-    Step ->
-      (model, Random.generate Thread (Random.int 0 (length model.running - 1)))
-    Thread n ->
-      case Compile.run model n of 
-        Ok m -> 
-          case m.randomGenerator.request of
-              Just k -> (model, Random.generate (Fulfilment (Thread n)) (Random.int 0 (k-1)))
-              Nothing -> (m, Cmd.none)
-        Err s -> (print s model, Cmd.none)
-    Fulfilment t f -> update t (fulfilRandom f model)
-    Run -> ((print "Running has not been implemented" model), Cmd.none)
-    ReceivedDataFromJS data -> 
-      case (Json.Decode.decodeValue treeDecoder data) of 
-        Ok t -> ((spawn [t] -1 Nothing freshModel), Cmd.none)
-        Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel), Cmd.none)
-    ReceivedKeyboardInput dir -> (enqKeypress dir model, Cmd.none)
+update : Msg -> (Model, Maybe Int) -> ((Model, Maybe Int), Cmd Msg)
+update msg pair =
+  case pair of 
+    (model, seed) ->
+      case msg of
+
+        Step ->
+          let (cmdmsg, seed2) = randomBelow seed Thread (length model.running) in
+            ((model, seed2), cmdmsg)
+            
+        Thread n ->
+          case Compile.run model n of 
+            Ok m -> 
+              case m.randomGenerator.request of
+                Just k -> 
+                  let (cmdmsg, seed2) = randomBelow seed (Fulfilment (Thread n)) k in
+                    ((model, seed2), cmdmsg)
+                Nothing -> ((m, seed), Cmd.none)
+            Err s -> ((print s model, seed), Cmd.none)
+
+        Fulfilment t f -> update t (fulfilRandom f model, seed)
+
+        RunUntil n -> 
+          if isBlocked model then
+            ((print "Terminated" model, seed), Cmd.none)
+          else
+            case n of 
+              0 -> ((model, seed), Cmd.none)
+              _ -> let (cmdmsg, seed2) = randomBelow seed (RunThread n) (length model.running) in
+                ((model, seed2), cmdmsg)
+
+        RunThread countdown n ->
+          case Compile.run model n of 
+            Ok m -> 
+              case m.randomGenerator.request of
+                Just k -> 
+                  let (cmdmsg, seed2) = randomBelow seed (Fulfilment (RunThread countdown n)) k in
+                    ((model, seed2), cmdmsg)
+                Nothing -> update (RunUntil (countdown - 1)) (m, seed)
+            Err s -> update (RunUntil countdown) (print s model, seed)        
+
+        ReceivedDataFromJS data -> 
+          case (Json.Decode.decodeValue treeDecoder data) of 
+            Ok t -> ((spawn [t] -1 Nothing freshModel, seed), Cmd.none)
+            Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel, seed), Cmd.none)
+
+        ReceivedKeyboardInput dir -> ((enqKeypress dir model, seed), Cmd.none)
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
-
+ 
+randomBelow : (Maybe Int) -> (Int -> Msg) -> Int -> (Cmd Msg, Maybe Int)
+randomBelow seed msgmaker n =
+  case seed of 
+    Nothing -> (Random.generate msgmaker (Random.int 0 (n - 1)), Nothing)
+    Just m -> let chosen = modBy n m in 
+      (Random.generate msgmaker (Random.constant chosen), Just (m+1))
+ 
 -- SUBSCRIPTIONS
 
-subscriptions : Model -> Sub Msg
+subscriptions : (Model, Maybe Int) -> Sub Msg
 subscriptions _ =
-  Sub.batch [ messageReceiver ReceivedDataFromJS, Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder) ]
+  Sub.batch [ messageReceiver ReceivedDataFromJS, 
+              Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder)]
 
 -- VIEW
 
 printout s = List.intersperse (br [] []) (List.map text (String.lines s))
 
-view : Model -> Html Msg
-view model =
-  div []
-    ( 
-      [ div [] [ text model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], br [] []] ++
-      (printout model.output)
-    )
+printdisplay display = 
+  let 
+    str = case List.head display of 
+      Nothing -> ""
+      Just n -> String.fromInt n 
+  in text str
+
+view : (Model, Maybe Int) -> Html Msg
+view pair =
+  let (model, _) = pair in
+    div [class "twopanel"] [
+      div []
+        ( 
+          [ div [] [ printdisplay model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "Run 50 steps" ], br [] []] ++
+          (printout model.output)
+        ),
+      div []
+        (
+          [ div [] [text "State:"], div [] (printout (State.toJson model.state))]
+        )
+    ]

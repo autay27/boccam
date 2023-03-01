@@ -13,7 +13,7 @@ type alias Proc = {code: Tree, id: Id, ancestorId: Maybe Id}
 type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: String, keyboardBuffer: (List Direction) }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, keyboardBuffer: (List Direction) }
 
 freshModel =
     { output = "",
@@ -22,7 +22,7 @@ freshModel =
     state = freshState,
     ids = Dict.empty,
     randomGenerator = { request = Nothing, fulfilment = Nothing },
-    display = "",
+    display = [],
     keyboardBuffer = [] }
 
 print : String -> Model -> Model
@@ -84,8 +84,8 @@ getNext dict =
 block : (List WaitingProc) -> Model -> Model
 block xs m = { m | waiting = xs ++ m.waiting }
 
-display : String -> Model -> Model
-display str m = { m | display = str }
+display : Int -> Model -> Model
+display n m = { m | display = n::m.display }
 
 enqKeypress : Direction -> Model -> Model
 enqKeypress dir m  = { m | keyboardBuffer = dir::m.keyboardBuffer }
@@ -107,3 +107,6 @@ fulfilRandom n m = { m | randomGenerator = {request = Nothing, fulfilment = Just
 
 takeFulfilled : Model -> (Model, Maybe Int)
 takeFulfilled m = ({ m | randomGenerator = {request = Nothing, fulfilment = Nothing } }, m.randomGenerator.fulfilment)
+
+isBlocked : Model -> Bool
+isBlocked m = List.isEmpty m.running

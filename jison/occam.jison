@@ -87,7 +87,7 @@ choice_list
     : choice
         { $$ = ["choice_list", $choice ] }
     | choice_list choice
-        { $cond.push($choice); $$ = $choice_list; }
+        { $choice_list.push($choice); $$ = $choice_list; }
     ;
 
 choice

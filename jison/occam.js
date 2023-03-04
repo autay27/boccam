@@ -119,7 +119,7 @@ break;
 case 14:
  this.$ = ["proc_list", $$[$0] ] 
 break;
-case 15: case 18:
+case 15: case 18: case 26:
  $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
 break;
 case 16:
@@ -145,9 +145,6 @@ case 24:
 break;
 case 25:
  this.$ = ["choice_list", $$[$0] ] 
-break;
-case 26:
- $cond.push($$[$0]); this.$ = $$[$0-1]; 
 break;
 case 28:
  this.$ = ["guarded_choice", $$[$0-3], $$[$0-1]] 

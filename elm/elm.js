@@ -7376,7 +7376,7 @@ var $author$project$Compile$step = F2(
 								if ((choicelist.$ === 'Branch') && (choicelist.a.$ === 'ChoiceList')) {
 									if (!choicelist.b.b) {
 										var _v66 = choicelist.a;
-										return unrolledMe(m);
+										return ranMe(m);
 									} else {
 										var _v67 = choicelist.a;
 										var xs = choicelist.b;
@@ -7395,7 +7395,7 @@ var $author$project$Compile$step = F2(
 												if (_v74.$ === 'Ok') {
 													if (_v74.a.$ === 'Boolval') {
 														if (_v74.a.a) {
-															return unrolledMe(
+															return ranMe(
 																A4(
 																	$author$project$Model$spawn,
 																	_List_fromArray(
@@ -7404,7 +7404,22 @@ var $author$project$Compile$step = F2(
 																	aid,
 																	m));
 														} else {
-															return ranMe(m);
+															return unrolledMe(
+																A4(
+																	$author$project$Model$spawn,
+																	_List_fromArray(
+																		[
+																			A2(
+																			$author$project$Readfile$Branch,
+																			$author$project$Readfile$Cond,
+																			_List_fromArray(
+																				[
+																					A2($author$project$Readfile$Branch, $author$project$Readfile$ChoiceList, ys)
+																				]))
+																		]),
+																	pid,
+																	aid,
+																	m));
 														}
 													} else {
 														return $author$project$Compile$RunErr('problem evaluating if condition');

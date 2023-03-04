@@ -190,12 +190,12 @@ step e m =
                         _ -> Err "Invalid IF branch"
             in
             case choicelist of
-                Branch ChoiceList [] -> unrolledMe m
+                Branch ChoiceList [] -> ranMe m
                 Branch ChoiceList xs -> 
                     case getFirstRestChoices xs of 
                         Ok ((Branch GuardedChoice [cond, proc]), ys) -> case (eval cond state) of 
-                            Ok (Boolval True) -> unrolledMe (spawn [proc] pid aid m)
-                            Ok (Boolval False) -> ranMe m
+                            Ok (Boolval True) -> ranMe (spawn [proc] pid aid m)
+                            Ok (Boolval False) -> unrolledMe (spawn [Branch Cond [Branch ChoiceList ys]] pid aid m)
                             Ok _ -> RunErr "problem evaluating if condition"
                             Err msg -> RunErr ("Failed to evaluate if condition: " ++ msg)
                         Ok _ -> RunErr "problem evaluating IF"

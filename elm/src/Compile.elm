@@ -175,6 +175,34 @@ step e m =
                 Ok (Boolval False) -> ranMe m
                 _ -> RunErr "Condition must evaluate to boolean value"
 
+        Branch Cond (choicelist::[]) ->
+            let
+                getFirstRestChoices ys = case ys of
+                    [] -> Err "No choices left"
+                    (z::zs) -> case z of
+                        Branch GuardedChoice _ ->
+                            Ok (z, zs)
+                        Branch Cond [Branch ChoiceList qs] ->
+                            getFirstRestChoices qs |> Result.andThen (\(first, rest) -> case rest of 
+                                [] -> Ok (first, zs)
+                                ps -> Ok (first, (Branch ChoiceList ps)::zs)
+                            )
+                        _ -> Err "Invalid IF branch"
+            in
+            case choicelist of
+                Branch ChoiceList [] -> unrolledMe m
+                Branch ChoiceList xs -> 
+                    case getFirstRestChoices xs of 
+                        Ok ((Branch GuardedChoice [cond, proc]), ys) -> case (eval cond state) of 
+                            Ok (Boolval True) -> unrolledMe (spawn [proc] pid aid m)
+                            Ok (Boolval False) -> ranMe m
+                            Ok _ -> RunErr "problem evaluating if condition"
+                            Err msg -> RunErr ("Failed to evaluate if condition: " ++ msg)
+                        Ok _ -> RunErr "problem evaluating IF"
+                        Err msg -> RunErr ("couldn't evaluate IF: " ++ msg)
+-- would be better to flatten it once in preprocessing the tree.
+                _ -> RunErr "invalid syntax for IF statement"
+
         Branch DeclareVariable (id::[]) -> 
             case declareVar state id of
                 Ok state2 -> ranMe (update state2 m)

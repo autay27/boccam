@@ -8,6 +8,7 @@ eval : Tree -> State -> Result String Value
 eval t state =
     case t of
         Leaf (Ident "TRUE") -> Ok (Boolval True)
+        Leaf (Ident "FALSE") -> Ok (Boolval False)
         --need to put this in an init state
 
         Leaf (Ident s) -> 

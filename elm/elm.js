@@ -5603,6 +5603,8 @@ var $author$project$Readfile$Alternative = {$: 'Alternative'};
 var $author$project$Readfile$And = {$: 'And'};
 var $author$project$Readfile$AssignExpr = {$: 'AssignExpr'};
 var $author$project$Readfile$AssignProc = {$: 'AssignProc'};
+var $author$project$Readfile$ChoiceList = {$: 'ChoiceList'};
+var $author$project$Readfile$Cond = {$: 'Cond'};
 var $author$project$Readfile$DeclareChannel = {$: 'DeclareChannel'};
 var $author$project$Readfile$DeclareVariable = {$: 'DeclareVariable'};
 var $author$project$Readfile$Div = {$: 'Div'};
@@ -5610,6 +5612,7 @@ var $author$project$Readfile$Eq = {$: 'Eq'};
 var $author$project$Readfile$Ge = {$: 'Ge'};
 var $author$project$Readfile$Gt = {$: 'Gt'};
 var $author$project$Readfile$Guard = {$: 'Guard'};
+var $author$project$Readfile$GuardedChoice = {$: 'GuardedChoice'};
 var $author$project$Readfile$In = {$: 'In'};
 var $author$project$Readfile$LBinop = function (a) {
 	return {$: 'LBinop', a: a};
@@ -5653,6 +5656,12 @@ var $author$project$Readfile$ruleFromString = function (str) {
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignProc);
 		case 'while':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$While);
+		case 'cond':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Cond);
+		case 'choice_list':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$ChoiceList);
+		case 'guarded_choice':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$GuardedChoice);
 		case 'declare_var':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareVariable);
 		case 'declare_chan':
@@ -6510,22 +6519,26 @@ var $author$project$Eval$arithEval = F4(
 	});
 var $author$project$Eval$eval = F2(
 	function (t, state) {
-		_v2$5:
+		_v2$6:
 		while (true) {
 			if (t.$ === 'Leaf') {
 				if (t.a.$ === 'Ident') {
-					if (t.a.a === 'TRUE') {
-						return $elm$core$Result$Ok(
-							$author$project$State$Boolval(true));
-					} else {
-						var s = t.a.a;
-						var _v3 = A2($elm$core$Dict$get, s, state.vars);
-						if (_v3.$ === 'Just') {
-							var v = _v3.a;
-							return $elm$core$Result$Ok(v);
-						} else {
-							return $elm$core$Result$Err('Variable ' + (s + ' not declared'));
-						}
+					switch (t.a.a) {
+						case 'TRUE':
+							return $elm$core$Result$Ok(
+								$author$project$State$Boolval(true));
+						case 'FALSE':
+							return $elm$core$Result$Ok(
+								$author$project$State$Boolval(false));
+						default:
+							var s = t.a.a;
+							var _v3 = A2($elm$core$Dict$get, s, state.vars);
+							if (_v3.$ === 'Just') {
+								var v = _v3.a;
+								return $elm$core$Result$Ok(v);
+							} else {
+								return $elm$core$Result$Err('Variable ' + (s + ' not declared'));
+							}
 					}
 				} else {
 					var n = t.a.a;
@@ -6550,10 +6563,10 @@ var $author$project$Eval$eval = F2(
 							var y = _v7.a;
 							return A4($author$project$Eval$logicEval, b, x, y, state);
 						default:
-							break _v2$5;
+							break _v2$6;
 					}
 				} else {
-					break _v2$5;
+					break _v2$6;
 				}
 			}
 		}
@@ -7003,7 +7016,7 @@ var $author$project$Compile$step = F2(
 		};
 		var aid = e.ancestorId;
 		var _v0 = e.code;
-		_v0$11:
+		_v0$12:
 		while (true) {
 			if (_v0.$ === 'Leaf') {
 				var l = _v0.a;
@@ -7137,10 +7150,10 @@ var $author$project$Compile$step = F2(
 										return $author$project$Compile$RunErr('Condition must evaluate to boolean value');
 									}
 								default:
-									break _v0$11;
+									break _v0$12;
 							}
 						} else {
-							break _v0$11;
+							break _v0$12;
 						}
 					} else {
 						switch (_v0.a.$) {
@@ -7302,42 +7315,151 @@ var $author$project$Compile$step = F2(
 								} else {
 									return $author$project$Compile$RunErr('ALT must be followed by a list of alternatives');
 								}
-							case 'DeclareVariable':
+							case 'Cond':
 								var _v54 = _v0.a;
 								var _v55 = _v0.b;
-								var id = _v55.a;
-								var _v56 = A2($author$project$State$declareVar, state, id);
-								if (_v56.$ === 'Ok') {
-									var state2 = _v56.a;
+								var choicelist = _v55.a;
+								var getFirstRestChoices = function (ys) {
+									if (!ys.b) {
+										return $elm$core$Result$Err('No choices left');
+									} else {
+										var z = ys.a;
+										var zs = ys.b;
+										_v57$2:
+										while (true) {
+											if (z.$ === 'Branch') {
+												switch (z.a.$) {
+													case 'GuardedChoice':
+														var _v58 = z.a;
+														return $elm$core$Result$Ok(
+															_Utils_Tuple2(z, zs));
+													case 'Cond':
+														if (((z.b.b && (z.b.a.$ === 'Branch')) && (z.b.a.a.$ === 'ChoiceList')) && (!z.b.b.b)) {
+															var _v59 = z.a;
+															var _v60 = z.b;
+															var _v61 = _v60.a;
+															var _v62 = _v61.a;
+															var qs = _v61.b;
+															return A2(
+																$elm$core$Result$andThen,
+																function (_v63) {
+																	var first = _v63.a;
+																	var rest = _v63.b;
+																	if (!rest.b) {
+																		return $elm$core$Result$Ok(
+																			_Utils_Tuple2(first, zs));
+																	} else {
+																		var ps = rest;
+																		return $elm$core$Result$Ok(
+																			_Utils_Tuple2(
+																				first,
+																				A2(
+																					$elm$core$List$cons,
+																					A2($author$project$Readfile$Branch, $author$project$Readfile$ChoiceList, ps),
+																					zs)));
+																	}
+																},
+																getFirstRestChoices(qs));
+														} else {
+															break _v57$2;
+														}
+													default:
+														break _v57$2;
+												}
+											} else {
+												break _v57$2;
+											}
+										}
+										return $elm$core$Result$Err('Invalid IF branch');
+									}
+								};
+								if ((choicelist.$ === 'Branch') && (choicelist.a.$ === 'ChoiceList')) {
+									if (!choicelist.b.b) {
+										var _v66 = choicelist.a;
+										return unrolledMe(m);
+									} else {
+										var _v67 = choicelist.a;
+										var xs = choicelist.b;
+										var _v68 = getFirstRestChoices(xs);
+										if (_v68.$ === 'Ok') {
+											if (((((_v68.a.a.$ === 'Branch') && (_v68.a.a.a.$ === 'GuardedChoice')) && _v68.a.a.b.b) && _v68.a.a.b.b.b) && (!_v68.a.a.b.b.b.b)) {
+												var _v69 = _v68.a;
+												var _v70 = _v69.a;
+												var _v71 = _v70.a;
+												var _v72 = _v70.b;
+												var cond = _v72.a;
+												var _v73 = _v72.b;
+												var proc = _v73.a;
+												var ys = _v69.b;
+												var _v74 = A2($author$project$Eval$eval, cond, state);
+												if (_v74.$ === 'Ok') {
+													if (_v74.a.$ === 'Boolval') {
+														if (_v74.a.a) {
+															return unrolledMe(
+																A4(
+																	$author$project$Model$spawn,
+																	_List_fromArray(
+																		[proc]),
+																	pid,
+																	aid,
+																	m));
+														} else {
+															return ranMe(m);
+														}
+													} else {
+														return $author$project$Compile$RunErr('problem evaluating if condition');
+													}
+												} else {
+													var msg = _v74.a;
+													return $author$project$Compile$RunErr('Failed to evaluate if condition: ' + msg);
+												}
+											} else {
+												return $author$project$Compile$RunErr('problem evaluating IF');
+											}
+										} else {
+											var msg = _v68.a;
+											return $author$project$Compile$RunErr('couldn\'t evaluate IF: ' + msg);
+										}
+									}
+								} else {
+									return $author$project$Compile$RunErr('invalid syntax for IF statement');
+								}
+							case 'DeclareVariable':
+								var _v75 = _v0.a;
+								var _v76 = _v0.b;
+								var id = _v76.a;
+								var _v77 = A2($author$project$State$declareVar, state, id);
+								if (_v77.$ === 'Ok') {
+									var state2 = _v77.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v56.a;
+									var msg = _v77.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							case 'DeclareChannel':
-								var _v57 = _v0.a;
-								var _v58 = _v0.b;
-								var id = _v58.a;
-								var _v59 = A2($author$project$State$declareChan, state, id);
-								if (_v59.$ === 'Ok') {
-									var state2 = _v59.a;
+								var _v78 = _v0.a;
+								var _v79 = _v0.b;
+								var id = _v79.a;
+								var _v80 = A2($author$project$State$declareChan, state, id);
+								if (_v80.$ === 'Ok') {
+									var state2 = _v80.a;
 									return ranMe(
 										A2($author$project$Model$update, state2, m));
 								} else {
-									var msg = _v59.a;
+									var msg = _v80.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							default:
-								break _v0$11;
+								break _v0$12;
 						}
 					}
 				} else {
 					if (_v0.a.$ === 'Skip') {
-						var _v60 = _v0.a;
+						var _v81 = _v0.a;
 						return ranMe(m);
 					} else {
-						break _v0$11;
+						break _v0$12;
 					}
 				}
 			}

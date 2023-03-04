@@ -81,7 +81,7 @@ guard
 conditional
     : IF INDENT choice_list DEDENT
         { $$ = ["cond", $choice_list] }
-    :
+    ;
 
 choice_list
     : choice

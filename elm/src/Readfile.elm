@@ -6,7 +6,7 @@ type TreeValue = Num Int | Ident String
 
 type Tree = Leaf TreeValue | Branch Rule (List Tree)
 
-type Rule = Skip | ProcList | Par | Seq | Alt | AltList | Alternative | Guard | In | Out | AssignExpr | AssignProc | While | DeclareChannel | DeclareVariable | ABinop ABop | LBinop LBop 
+type Rule = Skip | ProcList | Par | Seq | Alt | AltList | Alternative | Guard | In | Out | AssignExpr | AssignProc | While | Cond | ChoiceList | GuardedChoice | DeclareChannel | DeclareVariable | ABinop ABop | LBinop LBop 
 
 type ABop = Plus | Minus | Times | Div | Eq | Gt | Lt | Ge | Le
 type LBop = And | Or
@@ -41,6 +41,9 @@ ruleFromString str =
         "assign_expr" -> succeed AssignExpr
         "assign_proc" -> succeed AssignProc
         "while" -> succeed While
+        "cond" -> succeed Cond
+        "choice_list" -> succeed ChoiceList
+        "guarded_choice" -> succeed GuardedChoice
         "declare_var" -> succeed DeclareVariable
         "declare_chan" -> succeed DeclareChannel
         "SKIP" -> succeed Skip

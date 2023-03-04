@@ -51,7 +51,4 @@ Thinking about demos
  Evaluation - give an exercise and ask how people think it compares to scala concurrent progamming?
 
  Todo for next time
- - Operator precedence
- - Gt, Lt etc
- - Eq
  - IF, FOR

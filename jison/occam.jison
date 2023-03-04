@@ -34,6 +34,8 @@ proc
         { $$ = $alternation }
     | WHILE expr INDENT proc DEDENT
         { $$ = ["while", $expr, $proc] }
+    | conditional 
+        { $$ = $conditional }
     ;
 
 proc_block
@@ -74,6 +76,25 @@ guard
         { $$ = ["guard", $expr, $input] }
     | expr AMPERSAND SKIP
         { $$ = ["guard", $expr, ["SKIP"]] }
+    ;
+
+conditional
+    : IF INDENT choice_list DEDENT
+        { $$ = ["cond", $choice_list] }
+    :
+
+choice_list
+    : choice
+        { $$ = ["choice_list", $choice ] }
+    | choice_list choice
+        { $cond.push($choice); $$ = $choice_list; }
+    ;
+
+choice
+    : conditional
+        { $$ = $conditional }
+    | expr INDENT proc DEDENT
+        { $$ = ["guarded_choice", $expr, $proc] }
     ;
 
 input

@@ -18,6 +18,7 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 "SKIP"               return 'SKIP';
 
 "WHILE"			return 'WHILE';
+"IF"			return 'IF';
 
 ":="			return 'ASSIGN';
 "INT"			return 'INT';

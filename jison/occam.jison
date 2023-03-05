@@ -30,6 +30,8 @@ proc
         { $$ = ["par", $proc_block] }
     | SEQ proc_block
         { $$ = ["seq", $proc_block] }
+    | SEQ replicator INDENT proc DEDENT
+        { $$ = "seq", $replicator, $proc }
     | alternation
         { $$ = $alternation }
     | WHILE expr INDENT proc DEDENT
@@ -102,6 +104,9 @@ input
         { $$ = ["in", $1, $3] }
     ;
 
+replicator 
+    : ID EQ LSQB expr FOR expr RSQB
+        { $$ = ["replicator", $1, $4, $6] }
 expr
     : simple
         { $$ = $simple }

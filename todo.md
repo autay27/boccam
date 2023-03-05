@@ -11,11 +11,16 @@
 
 - Implementing all the parallel parts of occam 1
 
-What I don't have (overview): WAIT, SKIP, IF, FOR, DEF, Named processes, a lot of operators/initial constants, PRI ALT, PRI PAR, Replicators
+What I don't have (overview): WAIT, SKIP, FOR, DEF, Named processes, a lot of operators/initial constants, PRI ALT, PRI PAR, Replicators
 For details, I've made a new checklist file...
 
 - hook up with codemirror
 - Errors per line number - Give each token a line number, have a syntax analyser step at the start to catch things like multiple output per channel
+
+#### Things the AST checker should do.
+- Prevent multiple processes output to the same channel/input from.
+- Prevent modifying the replicator's variable inside the relevant process.
+
 
 ## goals - report
 
@@ -23,8 +28,6 @@ For details, I've made a new checklist file...
     - Parser - 10 code snippets with/without erros etc.
     - AST generator/ error checker
     - Interpreter - test first n things coming out of display(?) with det. seed / Could even dump the state and somehow check against it . (would also be good to printout the state for teaching purpose....) Just mention that you could examine state etc and do cafv but it's not within the scope of small educational project.
-
-OK, so the format I want is 'here is a program, and the state should eventually reach this/go through these transitions/at the nth step should be this' OMG it's almost like formal verification except I really don't want that level of detail LOL
 
 - Evaluation - Do what you would do at a bigger scale  for ~2 people - i.e. get test subjects, ask thm to do a task, Designing INteractive Systems, Benyon Turner Turner - Evaluation chapter
 

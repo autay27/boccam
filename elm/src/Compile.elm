@@ -6,6 +6,7 @@ import Readfile exposing (Tree(..), TreeValue(..), Rule(..), ABop(..))
 import Model exposing (..)
 import State exposing (..)
 import Eval exposing (eval)
+import Utils exposing (replaceLeaf, pickValidBranches, dirToValue)
 import KeyboardInput exposing (Direction(..))
 import Html exposing (b)
 
@@ -94,12 +95,23 @@ step e m =
                 Branch ProcList ys -> unrolledMe (spawn ys pid aid m) 
                 _ -> RunErr "PAR rule must be followed by process list only"
 
-        Branch Seq (x::[]) ->
-            case x of 
-                Branch ProcList [] -> ranMe m
-                Branch ProcList (y::ys) -> 
+        Branch Seq xs ->
+            case xs of 
+                [Branch ProcList []] -> ranMe m
+                [Branch ProcList (y::ys)] -> 
                     unrolledMe (spawnAndWait y (Branch Seq [Branch ProcList ys]) pid aid m) 
-                _ -> RunErr "SEQ rule must be followed by process list only"
+                [Branch Replicator [v1, e1, e2], proc] -> 
+                    case (eval e1 state, eval e2 state) of
+                        (Ok (Number k), Ok (Number l)) ->
+                            if k > l then ranMe m
+                            else 
+                                let
+                                    nextMe = Branch Seq [Branch Replicator [v1, Leaf (Num (k+1)), Leaf (Num l)], proc]
+                                    replicated = replaceLeaf v1 (Leaf (Num k)) proc
+                                in
+                                    unrolledMe (spawnAndWait replicated nextMe pid aid m)
+                        _ -> RunErr "Error evaluating replicator"
+                _ -> RunErr "SEQ rule must be followed by process list or replicator only"
 
         Branch In (chan::var::[]) ->
             case getName chan of
@@ -218,44 +230,6 @@ step e m =
 
         Leaf l -> RunErr "Tried to run variable"
         Branch s _ -> RunErr "Wrong tree structure"
-
-pickValidBranches : List Tree -> State -> Result String (List Tree)
-pickValidBranches alts state = 
-    let 
-        flattenAlt ys = case ys of 
-            [] -> Ok []
-            (z::zs) -> case z of 
-                Branch Alternative [Branch Guard _, _] -> 
-                    flattenAlt zs |> Result.andThen (\therest -> 
-                        Ok (z::therest)
-                    )
-                Branch Alternative [Branch Alt [Branch AltList qs], _] -> 
-                    flattenAlt qs |> Result.andThen (\flattened -> 
-                        flattenAlt zs |> Result.andThen (\therest -> 
-                            Ok (flattened ++ therest)
-                        ))
-                _ -> Err "Invalid ALT branch"
-        filterByGuard ys = case ys of
-            [] -> Ok []
-            (x::xs) -> filterByGuard xs |> Result.andThen (\therest ->
-                case x of 
-                    Branch Alternative [Branch Guard (bool::input::[]), proc] ->
-                        case eval bool state of 
-                            Ok (Boolval True) -> case input of         
-                                Branch In (chan::var::[]) ->
-                                    checkFull state chan |> Result.andThen (\f -> 
-                                        if f then Ok (x::therest) else Ok therest
-                                    )
-                                Branch Skip _ -> Ok (x::therest)
-                                _ -> Err "unexpected channel in alternative branch"
-                            Ok (Boolval False) -> Ok therest
-                            Ok _ -> Err "Expression in front of a guard on an alt branch must be boolean"
-                            Err msg -> Err msg
-                    _ -> Err "Unexpected branch in alternative"
-                )
-    in
-        flattenAlt alts |> Result.andThen filterByGuard
-
 
 receiveOnChan : String -> Tree -> Id -> Model -> Outcome
 receiveOnChan chanid var pid m = 
@@ -384,9 +358,3 @@ updateKeyboard m =
             Err msg -> RunErr ("tried to update keyboard, but " ++ msg)
         Nothing -> Ran m []
 
-dirToValue : Direction -> Value
-dirToValue dir =
-    case dir of
-        Left -> Number 0
-        Right -> Number 1
-        Other -> Number 2

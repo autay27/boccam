@@ -1,0 +1,2 @@
+SEQ i = [1 FOR 5]
+    DISPLAY ! i

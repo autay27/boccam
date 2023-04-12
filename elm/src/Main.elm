@@ -125,6 +125,6 @@ view pair =
         ),
       div []
         (
-          [ div [] [text "State:"], div [] (printout (State.toJson model.state))]
+          [ div [] [text "State:"], div [] (printout (State.toJson model.state)), div [] [text "DisplayLog:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
         )
     ]

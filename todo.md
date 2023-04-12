@@ -5,17 +5,22 @@
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 - We need some refactoring wrt how errors are handled, at the moment there is a lot of converting Err to RunErr etc which could be done automatically.
-- Generally the code is messy and things are not cleanly separated out.
 
 ## goals - code
 
-- Implementing all the parallel parts of occam 1
-
-What I don't have (overview): WAIT, SKIP, FOR, DEF, Named processes, a lot of operators/initial constants, PRI ALT, PRI PAR, Replicators
-For details, I've made a new checklist file...
-
 - hook up with codemirror
 - Errors per line number - Give each token a line number, have a syntax analyser step at the start to catch things like multiple output per channel
+- Graphics
+- Enough of occam to run game of life
+    - process names, probably
+    - 2d arrays
+    - drawing to pixels (on the "update" command)
+    - how to describe colours to send to pixels
+
+For the graphics,  a pixelated screen and set the color of each brick by a number. Then, you only need to implement 2d arrays and you can draw to the screen easily.
+> Game of life becomes ez
+> 1d automata
+> Compare to LOGO turtle teaching program.
 
 #### Things the AST checker should do.
 - Prevent multiple processes output to the same channel/input from.

@@ -37,6 +37,9 @@ suite =
         [
             test "flipping values passed through channel in right order" <|
                 \_ -> 
-                    case (update (RunUntil testNumSteps) ((print "\n" (spawn [flipping] -1 Nothing freshModel)), Nothing)) of 
-                        ((model, _), _) -> Expect.equal True (Tuple.first (List.foldl (\new (b, old) -> ((new /= old) && b, new)) (True, 1) model.display))
+                    case (update (RunUntil testNumSteps) (spawn [flipping] -1 Nothing freshModel, Nothing)) of
+                        ((model, _), _) -> Expect.all [
+                            (\disp -> Expect.equal True (Tuple.first (List.foldl (\new (b, old) -> ((new /= old) && b, new)) (True, 1) disp))),
+                            (\disp -> Expect.greaterThan 0 (List.length disp))
+                            ] model.display
         ]

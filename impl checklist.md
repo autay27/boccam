@@ -8,7 +8,6 @@
 - SKIP (mainly parsing)
 
 ## Constructs
-- IF
 - FOR
 
 ## Declarations

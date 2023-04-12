@@ -8380,7 +8380,25 @@ var $author$project$Main$view = function (pair) {
 						$elm$html$Html$div,
 						_List_Nil,
 						$author$project$Main$printout(
-							$author$project$State$toJson(model.state)))
+							$author$project$State$toJson(model.state))),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('DisplayLog:')
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								A2(
+									$elm$core$String$join,
+									', ',
+									A2($elm$core$List$map, $elm$core$String$fromInt, model.display)))
+							]))
 					]))
 			]));
 };

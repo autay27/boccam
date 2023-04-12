@@ -1,0 +1,11 @@
+SEQ 
+    CHAN OF INT chan:
+    INT y:
+    PAR
+        WHILE TRUE
+            SEQ i = [1 FOR 10]
+                chan ! i
+        WHILE TRUE
+            SEQ
+                chan ? y
+                DISPLAY ! y

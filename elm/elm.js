@@ -5372,6 +5372,7 @@ var $author$project$Model$freshModel = {
 	keyboardBuffer: _List_Nil,
 	output: '',
 	randomGenerator: {fulfilment: $elm$core$Maybe$Nothing, request: $elm$core$Maybe$Nothing},
+	randomSeed: $elm$core$Maybe$Nothing,
 	running: _List_Nil,
 	state: $author$project$State$freshState,
 	waiting: _List_Nil
@@ -5387,7 +5388,6 @@ var $author$project$Model$print = F2(
 			m,
 			{output: m.output + (s + '\n')});
 	});
-var $author$project$Main$seed0 = $elm$core$Maybe$Just(0);
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -5748,28 +5748,24 @@ var $author$project$Main$init = function (json) {
 	if (_v0.$ === 'Ok') {
 		var t = _v0.a;
 		return _Utils_Tuple2(
-			_Utils_Tuple2(
-				A2(
-					$author$project$Model$print,
-					'\n',
-					A4(
-						$author$project$Model$spawn,
-						_List_fromArray(
-							[t]),
-						-1,
-						$elm$core$Maybe$Nothing,
-						$author$project$Model$freshModel)),
-				$author$project$Main$seed0),
+			A2(
+				$author$project$Model$print,
+				'\n',
+				A4(
+					$author$project$Model$spawn,
+					_List_fromArray(
+						[t]),
+					-1,
+					$elm$core$Maybe$Nothing,
+					$author$project$Model$freshModel)),
 			$elm$core$Platform$Cmd$none);
 	} else {
 		var e = _v0.a;
 		return _Utils_Tuple2(
-			_Utils_Tuple2(
-				A2(
-					$author$project$Model$print,
-					'Error parsing JSON!',
-					A4($author$project$Model$spawn, _List_Nil, -1, $elm$core$Maybe$Nothing, $author$project$Model$freshModel)),
-				$author$project$Main$seed0),
+			A2(
+				$author$project$Model$print,
+				'Error parsing JSON!',
+				A4($author$project$Model$spawn, _List_Nil, -1, $elm$core$Maybe$Nothing, $author$project$Model$freshModel)),
 			$elm$core$Platform$Cmd$none);
 	}
 };
@@ -8043,162 +8039,148 @@ var $author$project$Compile$run = F2(
 				return $elm$core$Result$Err(msg);
 		}
 	});
+var $author$project$Model$updateSeed = F2(
+	function (seed, model) {
+		return _Utils_update(
+			model,
+			{randomSeed: seed});
+	});
 var $author$project$Main$update = F2(
-	function (msg, pair) {
+	function (msg, model) {
 		update:
 		while (true) {
-			var model = pair.a;
-			var seed = pair.b;
 			switch (msg.$) {
 				case 'Step':
-					var _v2 = A3(
+					var _v1 = A3(
 						$author$project$Main$randomBelow,
-						seed,
+						model.randomSeed,
 						$author$project$Main$Thread,
 						$elm$core$List$length(model.running));
-					var cmdmsg = _v2.a;
-					var seed2 = _v2.b;
+					var cmdmsg = _v1.a;
+					var seed = _v1.b;
 					return _Utils_Tuple2(
-						_Utils_Tuple2(model, seed2),
+						A2($author$project$Model$updateSeed, seed, model),
 						cmdmsg);
 				case 'Thread':
 					var n = msg.a;
-					var _v3 = A2($author$project$Compile$run, model, n);
-					if (_v3.$ === 'Ok') {
-						var m = _v3.a;
-						var _v4 = m.randomGenerator.request;
-						if (_v4.$ === 'Just') {
-							var k = _v4.a;
-							var _v5 = A3(
+					var _v2 = A2($author$project$Compile$run, model, n);
+					if (_v2.$ === 'Ok') {
+						var m = _v2.a;
+						var _v3 = m.randomGenerator.request;
+						if (_v3.$ === 'Just') {
+							var k = _v3.a;
+							var _v4 = A3(
 								$author$project$Main$randomBelow,
-								seed,
+								model.randomSeed,
 								$author$project$Main$Fulfilment(
 									$author$project$Main$Thread(n)),
 								k);
-							var cmdmsg = _v5.a;
-							var seed2 = _v5.b;
+							var cmdmsg = _v4.a;
+							var seed = _v4.b;
 							return _Utils_Tuple2(
-								_Utils_Tuple2(model, seed2),
+								A2($author$project$Model$updateSeed, seed, model),
 								cmdmsg);
 						} else {
-							return _Utils_Tuple2(
-								_Utils_Tuple2(m, seed),
-								$elm$core$Platform$Cmd$none);
+							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 						}
 					} else {
-						var s = _v3.a;
+						var s = _v2.a;
 						return _Utils_Tuple2(
-							_Utils_Tuple2(
-								A2($author$project$Model$print, s, model),
-								seed),
+							A2($author$project$Model$print, s, model),
 							$elm$core$Platform$Cmd$none);
 					}
 				case 'Fulfilment':
 					var t = msg.a;
 					var f = msg.b;
 					var $temp$msg = t,
-						$temp$pair = _Utils_Tuple2(
-						A2($author$project$Model$fulfilRandom, f, model),
-						seed);
+						$temp$model = A2($author$project$Model$fulfilRandom, f, model);
 					msg = $temp$msg;
-					pair = $temp$pair;
+					model = $temp$model;
 					continue update;
 				case 'RunUntil':
 					var n = msg.a;
 					if ($author$project$Model$isBlocked(model)) {
 						return _Utils_Tuple2(
-							_Utils_Tuple2(
-								A2($author$project$Model$print, 'Terminated', model),
-								seed),
+							A2($author$project$Model$print, 'Terminated', model),
 							$elm$core$Platform$Cmd$none);
 					} else {
 						if (!n) {
-							return _Utils_Tuple2(
-								_Utils_Tuple2(model, seed),
-								$elm$core$Platform$Cmd$none);
+							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 						} else {
-							var _v7 = A3(
+							var _v6 = A3(
 								$author$project$Main$randomBelow,
-								seed,
+								model.randomSeed,
 								$author$project$Main$RunThread(n),
 								$elm$core$List$length(model.running));
-							var cmdmsg = _v7.a;
-							var seed2 = _v7.b;
+							var cmdmsg = _v6.a;
+							var seed = _v6.b;
 							return _Utils_Tuple2(
-								_Utils_Tuple2(model, seed2),
+								A2($author$project$Model$updateSeed, seed, model),
 								cmdmsg);
 						}
 					}
 				case 'RunThread':
 					var countdown = msg.a;
 					var n = msg.b;
-					var _v8 = A2($author$project$Compile$run, model, n);
-					if (_v8.$ === 'Ok') {
-						var m = _v8.a;
-						var _v9 = m.randomGenerator.request;
-						if (_v9.$ === 'Just') {
-							var k = _v9.a;
-							var _v10 = A3(
+					var _v7 = A2($author$project$Compile$run, model, n);
+					if (_v7.$ === 'Ok') {
+						var m = _v7.a;
+						var _v8 = m.randomGenerator.request;
+						if (_v8.$ === 'Just') {
+							var k = _v8.a;
+							var _v9 = A3(
 								$author$project$Main$randomBelow,
-								seed,
+								m.randomSeed,
 								$author$project$Main$Fulfilment(
 									A2($author$project$Main$RunThread, countdown, n)),
 								k);
-							var cmdmsg = _v10.a;
-							var seed2 = _v10.b;
+							var cmdmsg = _v9.a;
+							var seed = _v9.b;
 							return _Utils_Tuple2(
-								_Utils_Tuple2(model, seed2),
+								A2($author$project$Model$updateSeed, seed, model),
 								cmdmsg);
 						} else {
 							var $temp$msg = $author$project$Main$RunUntil(countdown - 1),
-								$temp$pair = _Utils_Tuple2(m, seed);
+								$temp$model = m;
 							msg = $temp$msg;
-							pair = $temp$pair;
+							model = $temp$model;
 							continue update;
 						}
 					} else {
-						var s = _v8.a;
+						var s = _v7.a;
 						var $temp$msg = $author$project$Main$RunUntil(countdown),
-							$temp$pair = _Utils_Tuple2(
-							A2($author$project$Model$print, s, model),
-							seed);
+							$temp$model = A2($author$project$Model$print, s, model);
 						msg = $temp$msg;
-						pair = $temp$pair;
+						model = $temp$model;
 						continue update;
 					}
 				case 'ReceivedDataFromJS':
 					var data = msg.a;
-					var _v11 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
-					if (_v11.$ === 'Ok') {
-						var t = _v11.a;
+					var _v10 = A2($elm$json$Json$Decode$decodeValue, $author$project$Readfile$treeDecoder, data);
+					if (_v10.$ === 'Ok') {
+						var t = _v10.a;
 						return _Utils_Tuple2(
-							_Utils_Tuple2(
-								A4(
-									$author$project$Model$spawn,
-									_List_fromArray(
-										[t]),
-									-1,
-									$elm$core$Maybe$Nothing,
-									$author$project$Model$freshModel),
-								seed),
+							A4(
+								$author$project$Model$spawn,
+								_List_fromArray(
+									[t]),
+								-1,
+								$elm$core$Maybe$Nothing,
+								$author$project$Model$freshModel),
 							$elm$core$Platform$Cmd$none);
 					} else {
-						var e = _v11.a;
+						var e = _v10.a;
 						return _Utils_Tuple2(
-							_Utils_Tuple2(
-								A2(
-									$author$project$Model$print,
-									'Error: ' + $elm$json$Json$Decode$errorToString(e),
-									$author$project$Model$freshModel),
-								seed),
+							A2(
+								$author$project$Model$print,
+								'Error: ' + $elm$json$Json$Decode$errorToString(e),
+								$author$project$Model$freshModel),
 							$elm$core$Platform$Cmd$none);
 					}
 				default:
 					var dir = msg.a;
 					return _Utils_Tuple2(
-						_Utils_Tuple2(
-							A2($author$project$Model$enqKeypress, dir, model),
-							seed),
+						A2($author$project$Model$enqKeypress, dir, model),
 						$elm$core$Platform$Cmd$none);
 			}
 		}
@@ -8315,9 +8297,7 @@ var $author$project$State$toJson = function (state) {
 		4,
 		A3($elm$json$Json$Encode$dict, $elm$core$Basics$identity, $author$project$State$jsonValues, state.vars));
 };
-var $author$project$Main$view = function (pair) {
-	var _v0 = pair;
-	var model = _v0.a;
+var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(

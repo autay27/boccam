@@ -5,7 +5,7 @@
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such. Either fix it or make it unfindable.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 
-- Replicator is not working anymore? What changed? Oh my god, I was doing everything with the changes from the stupid testing package. Need to roll that back.
+- Changing how seed works actually broke EVERYTHING. Let's fix that.
 
 ## goals - code
 

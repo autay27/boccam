@@ -8071,17 +8071,17 @@ var $author$project$Main$update = F2(
 							var k = _v3.a;
 							var _v4 = A3(
 								$author$project$Main$randomBelow,
-								model.randomSeed,
+								m.randomSeed,
 								$author$project$Main$Fulfilment(
 									$author$project$Main$Thread(n)),
 								k);
 							var cmdmsg = _v4.a;
 							var seed = _v4.b;
 							return _Utils_Tuple2(
-								A2($author$project$Model$updateSeed, seed, model),
+								A2($author$project$Model$updateSeed, seed, m),
 								cmdmsg);
 						} else {
-							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+							return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
 						}
 					} else {
 						var s = _v2.a;
@@ -8137,7 +8137,7 @@ var $author$project$Main$update = F2(
 							var cmdmsg = _v9.a;
 							var seed = _v9.b;
 							return _Utils_Tuple2(
-								A2($author$project$Model$updateSeed, seed, model),
+								A2($author$project$Model$updateSeed, seed, m),
 								cmdmsg);
 						} else {
 							var $temp$msg = $author$project$Main$RunUntil(countdown - 1),

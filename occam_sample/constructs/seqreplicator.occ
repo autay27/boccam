@@ -1,5 +1,5 @@
 ---
-xs = [1,2,3,4,5]
+xs = [2,3,4,5]
 ---
-SEQ i = [1 FOR 5]
+SEQ i = [2 FOR 5]
     DISPLAY ! i

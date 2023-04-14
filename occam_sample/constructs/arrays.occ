@@ -1,0 +1,18 @@
+---
+xs = [0,1,2]
+---
+SEQ
+    [3]INT x:
+    [3]CHAN chans:
+    SEQ
+        PAR
+            PAR i = [0 FOR 2]
+                chans[i] ! i
+            PAR i = [0 FOR 2]
+                chans[i] ? slots[i]
+        SEQ
+            DISPLAY ! chans[0]
+            DISPLAY ! chans[1]
+            DISPLAY ! chans[2]
+
+

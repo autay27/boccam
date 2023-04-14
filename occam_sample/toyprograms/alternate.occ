@@ -1,0 +1,15 @@
+---
+xs = [0,1,0,1..]
+---
+SEQ
+    INT x:
+    CHAN chan:
+    PAR
+        WHILE TRUE
+            SEQ
+                chan ! 0
+                chan ! 1
+        WHILE TRUE
+            SEQ
+                chan ? x
+                DISPLAY ! x

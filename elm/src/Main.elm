@@ -25,22 +25,21 @@ main =
 
 -- MODEL
 
-type Effect
-  = NoEffect
-  | RandomBelow { msgmaker : (Int -> Msg), n : Int }
+seed0 : Maybe Int
+seed0 = Just 0
 
-init : Json.Decode.Value -> (Model, Effect)
+init : Json.Decode.Value -> (Model, Cmd Msg)
 init json = 
   case (Json.Decode.decodeValue treeDecoder json) of 
-    Ok t -> ( (print "\n" (spawn [t] -1 Nothing freshModel)), NoEffect)
-    Err e -> ((print "Error parsing JSON!" (spawn [] -1 Nothing freshModel)), NoEffect)
+    Ok t -> ( (print "\n" (spawn [t] -1 Nothing freshModel)), Cmd.none)
+    Err e -> ((print "Error parsing JSON!" (spawn [] -1 Nothing freshModel)), Cmd.none)
   
 -- UPDATE
 
 type Msg
   = Step | Thread Int | RunUntil Int | RunThread Int Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
 
-update : Msg -> Model -> (Model, Effect)
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
 
@@ -55,17 +54,17 @@ update msg model =
             Just k -> 
               let (cmdmsg, seed) = randomBelow model.randomSeed (Fulfilment (Thread n)) k in
                 (updateSeed seed model, cmdmsg)
-            Nothing -> (model, NoEffect)
-        Err s -> ((print s model), NoEffect)
+            Nothing -> (model, Cmd.none)
+        Err s -> ((print s model), Cmd.none)
 
     Fulfilment t f -> update t (fulfilRandom f model)
 
     RunUntil n -> 
       if isBlocked model then
-        ((print "Terminated" model), NoEffect)
+        ((print "Terminated" model), Cmd.none)
       else
         case n of 
-          0 -> (model, NoEffect)
+          0 -> (model, Cmd.none)
           _ -> let (cmdmsg, seed) = randomBelow model.randomSeed (RunThread n) (length model.running) in
             (updateSeed seed model, cmdmsg)
 
@@ -81,27 +80,20 @@ update msg model =
 
     ReceivedDataFromJS data -> 
       case (Json.Decode.decodeValue treeDecoder data) of 
-        Ok t -> (spawn [t] -1 Nothing freshModel, NoEffect)
-        Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel), NoEffect)
+        Ok t -> (spawn [t] -1 Nothing freshModel, Cmd.none)
+        Err e -> ((print ("Error: " ++ (Json.Decode.errorToString e)) freshModel), Cmd.none)
 
-    ReceivedKeyboardInput dir -> (enqKeypress dir model, NoEffect)
+    ReceivedKeyboardInput dir -> (enqKeypress dir model, Cmd.none)
 
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
  
-randomBelow : (Maybe Int) -> (Int -> Msg) -> Int -> (Effect, Maybe Int)
+randomBelow : (Maybe Int) -> (Int -> Msg) -> Int -> (Cmd Msg, Maybe Int)
 randomBelow seed msgmaker n =
   case seed of 
     Nothing -> (Random.generate msgmaker (Random.int 0 (n - 1)), Nothing)
     Just m -> let chosen = modBy n m in 
       (Random.generate msgmaker (Random.constant chosen), Just (m+1))
-
-perform : Effect -> Cmd Msg
-perform effect = 
-  case effect of
-      NoEffect -> Cmd.none
-
-      RandomBelow r -> Random.generate r.msgmaker (Random.int 0 (r.n - 1))
-
+ 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg

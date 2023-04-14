@@ -5,7 +5,7 @@
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such. Either fix it or make it unfindable.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 
-- Changing how seed works actually broke EVERYTHING. Let's fix that.
+- RunUntil doesn't handle errors correctly at the moment, it goes into an infinite loop. Seems fixable.
 
 ## goals - code
 

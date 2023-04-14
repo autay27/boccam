@@ -7736,7 +7736,7 @@ var $author$project$Compile$make_step = F2(
 					{running: notChosen});
 				return A2($author$project$Compile$step, t, m2);
 			} else {
-				return $author$project$Compile$RunErr('Failed to choose a thread');
+				return $author$project$Compile$RunErr('Failed to choose a thread - Number out of bounds');
 			}
 		} else {
 			return $author$project$Compile$Blocked(
@@ -8078,7 +8078,7 @@ var $author$project$Main$update = F2(
 							var cmdmsg = _v4.a;
 							var seed = _v4.b;
 							return _Utils_Tuple2(
-								A2($author$project$Model$updateSeed, seed, m),
+								A2($author$project$Model$updateSeed, seed, model),
 								cmdmsg);
 						} else {
 							return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
@@ -8137,7 +8137,7 @@ var $author$project$Main$update = F2(
 							var cmdmsg = _v9.a;
 							var seed = _v9.b;
 							return _Utils_Tuple2(
-								A2($author$project$Model$updateSeed, seed, m),
+								A2($author$project$Model$updateSeed, seed, model),
 								cmdmsg);
 						} else {
 							var $temp$msg = $author$project$Main$RunUntil(countdown - 1),
@@ -8148,7 +8148,7 @@ var $author$project$Main$update = F2(
 						}
 					} else {
 						var s = _v7.a;
-						var $temp$msg = $author$project$Main$RunUntil(countdown),
+						var $temp$msg = $author$project$Main$RunUntil(countdown - 1),
 							$temp$model = A2($author$project$Model$print, s, model);
 						msg = $temp$msg;
 						model = $temp$model;

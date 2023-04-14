@@ -53,7 +53,7 @@ update msg model =
           case m.randomGenerator.request of
             Just k -> 
               let (cmdmsg, seed) = randomBelow m.randomSeed (Fulfilment (Thread n)) k in
-                (updateSeed seed m, cmdmsg)
+                (updateSeed seed model, cmdmsg)
             Nothing -> (m, Cmd.none)
         Err s -> ((print s model), Cmd.none)
 
@@ -74,9 +74,9 @@ update msg model =
           case m.randomGenerator.request of
             Just k -> 
               let (cmdmsg, seed) = randomBelow m.randomSeed (Fulfilment (RunThread countdown n)) k in
-                (updateSeed seed m, cmdmsg)
+                (updateSeed seed model, cmdmsg)
             Nothing -> update (RunUntil (countdown - 1)) m
-        Err s -> update (RunUntil countdown) (print s model)       
+        Err s -> update (RunUntil (countdown - 1)) (print s model)
 
     ReceivedDataFromJS data -> 
       case (Json.Decode.decodeValue treeDecoder data) of 

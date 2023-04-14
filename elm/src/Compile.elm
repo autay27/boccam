@@ -55,7 +55,7 @@ make_step m n =
                 case chosen of 
                     Just t -> let m2 = {  m | running = notChosen } in 
                         step t m2
-                    Nothing -> RunErr "Failed to choose a thread"
+                    Nothing -> RunErr "Failed to choose a thread - Number out of bounds"
 
         [] -> Blocked (print "blocking..." m)
 

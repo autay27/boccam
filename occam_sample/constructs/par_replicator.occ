@@ -1,0 +1,5 @@
+---
+sort xs = [1,2,3,4,5]
+---
+PAR i = [1 FOR 5]
+    DISPLAY ! i

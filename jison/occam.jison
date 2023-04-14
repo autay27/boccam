@@ -145,7 +145,7 @@ factor
 
 relop
     : GE
-        { $$ = "GT" }
+        { $$ = "GE" }
     | LE
         { $$ = "LE" }
     | GT

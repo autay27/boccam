@@ -1,0 +1,43 @@
+---
+xs = [1,2,3,4,5]
+---
+SEQ
+    INT x:
+    x := 1
+    SEQ
+        IF
+            (1 >= 0) AND (1 >= 1)
+                SEQ
+                    IF
+                        0 >= 1
+                            DISPLAY ! 0
+                    DISPLAY ! 1
+        IF
+            (0 <= 0) AND (0 <= 1)
+                SEQ
+                    IF
+                        1 <= 0
+                            DISPLAY ! 0
+                    DISPLAY ! 2
+        IF
+            1 > 0
+                SEQ
+                    IF
+                        0 > 1
+                            DISPLAY ! 0
+                    DISPLAY ! 3
+        IF
+            0 < 1
+                SEQ
+                    IF
+                        1 < 0
+                            DISPLAY ! 0
+                    DISPLAY ! 4
+        IF
+            0 = 0
+                SEQ
+                    IF
+                        0 = 1
+                            DISPLAY ! 0
+                    DISPLAY ! 5
+

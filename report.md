@@ -62,8 +62,35 @@ Elm, JS and CodeMirror
 
 ## Testing & Evaluation
 
-- Running example programs / tests (no idea how to design tests)
+### Testing methodology
+
+A variety of simple programs were formulated to test that the interpreter behaved as expected.
+
+Because Occam programs do not directly return any values, they cannot be tested in the usual way by expecting certain outputs given certain inputs. The most formal and thorough way to test would be to consider the state of the program, define invariants and forbidden state transitions (i.e. a process attempting to output on channel *c* always blocks until another process is attempting to input from channel *c*; whenever the number of blocking processes increases, the number of running processes must decrease by the same amount) and ensure that these rules are never violated when tested on a variety of programs. To take it a step further one could model the program as an abstract state machine and verify it with computer-aided formal verification methods. However, these techniques are outside the scope of this project.
+
+Instead, programs were tested by defining a *display* channel along which any process could pass a message without blocking. Rather than being received by another process, these messages would be collected in an ordered list. We used this *display* list to represent the output of a program; thus, we could once again test programs by inspecting their output. For example, we can test that messages are passed along a channel in the correct order by having one process send messages 1,2,3... along channel *c* while another receives them on channel *c* and outputs them on the *display* channel. Then, we stop the program after an arbitrary number of steps (e.g. 100 steps) and expect the *display* list to now contain a sequence [1,2,3...][^1: Actually, due to the way lists are constructed it would be reversed, but this does not affect the testing method.]. We choose sequences or properties that can be easily checked using operations on lists such as filters, folds and length comparisons.
+
+(Either explain why Elm made this hard to automate, or automate it with some JS.)
+
+Invariants tested for:
+- All comparison operators work as expected; IF statements work correctly
+- While loops terminate as expected
+- Assignments to variables affect the correct variable
+- Processes block when and only when waiting to input or output on a channel
+- Replicators behave as expected
+- Arrays of variables and channels can be accessed and assigned to
+- Messages passed along a channel are not lost or duplicated
+- Messages from different processes are interleaved correctly
+
+**should I include the programs in the **
+
+### Demonstration program
+
+Either do Conway's game of life or the 2d automata. I think 2d automata might actually be better because it shows a pretty pattern and maybe average CS professor will be like 'oh yeah, THAT thing'
 - Opportunity to include lots of colorful pictures of it in use!
+
+### User Evaluation
+
 - Self assessment, send it to my friends. (see todo)
 
 
@@ -71,7 +98,7 @@ Elm, JS and CodeMirror
 
 u konw the drill
 - your experience/ what you learned / challenges and mistakes 
-- how could this project be extended
+- how could this project be extended, what would be "another project"
 
 ### Future work
 - what directions could a further full student project go 

@@ -13,7 +13,7 @@ type alias Proc = {code: Tree, id: Id, ancestorId: Maybe Id}
 type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, keyboardBuffer: (List Direction) }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, keyboardBuffer: (List Direction) }
 
 freshModel =
     { output = "",
@@ -21,6 +21,7 @@ freshModel =
     waiting = [],
     state = freshState,
     ids = Dict.empty,
+    randomSeed = Nothing,
     randomGenerator = { request = Nothing, fulfilment = Nothing },
     display = [],
     keyboardBuffer = [] }
@@ -98,6 +99,9 @@ deqKeypress m =
         List.head (drop (len-1) m.keyboardBuffer) |> Maybe.andThen (\dir ->     
             Just (dir, { m | keyboardBuffer = take (len-1) m.keyboardBuffer })
         )
+
+updateSeed : Maybe Int -> Model -> Model
+updateSeed seed model = {model | randomSeed = seed }
 
 requestRandomUpTo : Int -> Model -> Model
 requestRandomUpTo n m = { m | randomGenerator = { request = Just n, fulfilment = Nothing } }

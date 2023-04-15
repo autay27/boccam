@@ -1,0 +1,17 @@
+---
+length (filter (\x -> x == 1) xs) == 5
+length (filter (\x -> x == 0) xs) == 5
+---
+
+SEQ
+    INT x:
+    CHAN chan:
+    PAR
+        SEQ i = [0 FOR 4]
+            chan ! 1
+        SEQ i = [0 FOR 4]
+            chan ! 1
+        WHILE TRUE
+            SEQ
+                chan ? x
+                DISPLAY ! x

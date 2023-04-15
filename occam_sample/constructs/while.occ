@@ -1,0 +1,14 @@
+---
+xs = [5,0]
+---
+SEQ
+    INT x:
+    x := 0
+    SEQ
+        WHILE x < 5
+            x := x + 1
+        DISPLAY ! x
+        WHILE x >= 1
+            x := x - 1
+        DISPLAY ! x
+

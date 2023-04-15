@@ -1,0 +1,13 @@
+---
+sort xs = [1,2,3,4,5]
+---
+SEQ
+    CHAN individuals[5]:
+    CHAN merged:
+    PAR
+        WHILE TRUE
+            ALT i = [1 FOR 5]
+                individuals[i] ? x
+                    merged ! x
+        PAR i = [1 FOR 5]
+            individuals[i] ! i

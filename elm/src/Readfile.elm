@@ -6,9 +6,9 @@ type TreeValue = Num Int | Ident String
 
 type Tree = Leaf TreeValue | Branch Rule (List Tree)
 
-type Rule = Skip | ProcList | Par | Seq | Alt | AltList | Alternative | Guard | In | Out | AssignExpr | AssignProc | While | DeclareChannel | DeclareVariable | ABinop ABop | LBinop LBop 
+type Rule = Skip | ProcList | Par | Seq | Alt | AltList | Alternative | Guard | In | Out | AssignExpr | AssignProc | While | Cond | ChoiceList | GuardedChoice | Replicator | DeclareChannel | DeclareVariable | ABinop ABop | LBinop LBop 
 
-type ABop = Plus | Minus | Times | Div
+type ABop = Plus | Minus | Times | Div | Eq | Gt | Lt | Ge | Le
 type LBop = And | Or
 
 
@@ -41,6 +41,10 @@ ruleFromString str =
         "assign_expr" -> succeed AssignExpr
         "assign_proc" -> succeed AssignProc
         "while" -> succeed While
+        "cond" -> succeed Cond
+        "choice_list" -> succeed ChoiceList
+        "guarded_choice" -> succeed GuardedChoice
+        "replicator" -> succeed Replicator
         "declare_var" -> succeed DeclareVariable
         "declare_chan" -> succeed DeclareChannel
         "SKIP" -> succeed Skip
@@ -50,6 +54,11 @@ ruleFromString str =
         "MINUS" -> succeed (ABinop Minus)
         "TIMES" -> succeed (ABinop Times)
         "DIV" -> succeed (ABinop Div)
+        "EQ" -> succeed (ABinop Eq)
+        "GT" -> succeed (ABinop Gt)
+        "LT" -> succeed (ABinop Lt)
+        "GE" -> succeed (ABinop Ge)
+        "LE" -> succeed (ABinop Le)
         _ -> fail ("Invalid grammar rule" ++ str)
 
 numDecoder : Decoder Tree

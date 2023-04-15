@@ -1,11 +1,15 @@
+---
+filter xs (\x -> x > 0) == sort (filter xs (\x -> x > 0))
+filter xs (\x -> x < 0) == reverse (sort (filter xs (\x -> x < 0)))
+---
 SEQ 
     CHAN OF INT left:
     CHAN OF INT right:
     INT x:
     INT y:
     INT z:
-    x := 0
-    y := 0
+    x := 1
+    y := 1
     PAR
         WHILE TRUE
             SEQ

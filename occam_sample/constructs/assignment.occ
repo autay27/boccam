@@ -1,0 +1,18 @@
+---
+xs = [1,2,3,4,5]
+---
+SEQ
+    INT x:
+    x := 1
+    INT y:
+    SEQ
+        y := 5
+        DISPLAY ! x
+        x := 2
+        DISPLAY ! x
+        x := 3
+        DISPLAY ! x
+        x := 4
+        DISPLAY ! x
+        x := 1
+        DISPLAY ! y

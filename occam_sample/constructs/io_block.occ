@@ -1,0 +1,17 @@
+---
+xs = [2]
+---
+SEQ
+    INT x:
+    x := 1
+    CHAN OF INT chan:
+    CHAN OF INT chan2:
+    PAR
+        SEQ
+            chan ! x
+            DISPLAY ! 0
+        SEQ
+            chan2 ? x
+            DISPLAY ! 1
+        DISPLAY ! 2
+

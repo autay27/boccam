@@ -30,10 +30,14 @@ proc
         { $$ = ["par", $proc_block] }
     | SEQ proc_block
         { $$ = ["seq", $proc_block] }
+    | SEQ replicator INDENT proc DEDENT
+        { $$ = ["seq", $replicator, $proc] }
     | alternation
         { $$ = $alternation }
     | WHILE expr INDENT proc DEDENT
         { $$ = ["while", $expr, $proc] }
+    | conditional 
+        { $$ = $conditional }
     ;
 
 proc_block
@@ -76,11 +80,35 @@ guard
         { $$ = ["guard", $expr, ["SKIP"]] }
     ;
 
+conditional
+    : IF INDENT choice_list DEDENT
+        { $$ = ["cond", $choice_list] }
+    ;
+
+choice_list
+    : choice
+        { $$ = ["choice_list", $choice ] }
+    | choice_list choice
+        { $choice_list.push($choice); $$ = $choice_list; }
+    ;
+
+choice
+    : conditional
+        { $$ = $conditional }
+    | expr INDENT proc DEDENT
+        { $$ = ["guarded_choice", $expr, $proc] }
+    ;
+
 input
     : ID IN ID 
         { $$ = ["in", $1, $3] }
     ;
 
+replicator 
+    : ID EQ LSQB expr FOR expr RSQB
+        { $$ = ["replicator", $1, $4, $6] }
+    ;
+    
 expr
     : simple
         { $$ = $simple }
@@ -117,7 +145,7 @@ factor
 
 relop
     : GE
-        { $$ = "GT" }
+        { $$ = "GE" }
     | LE
         { $$ = "LE" }
     | GT

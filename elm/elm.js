@@ -5607,12 +5607,14 @@ var $author$project$Readfile$ChoiceList = {$: 'ChoiceList'};
 var $author$project$Readfile$Cond = {$: 'Cond'};
 var $author$project$Readfile$DeclareChannel = {$: 'DeclareChannel'};
 var $author$project$Readfile$DeclareVariable = {$: 'DeclareVariable'};
+var $author$project$Readfile$Dimensions = {$: 'Dimensions'};
 var $author$project$Readfile$Div = {$: 'Div'};
 var $author$project$Readfile$Eq = {$: 'Eq'};
 var $author$project$Readfile$Ge = {$: 'Ge'};
 var $author$project$Readfile$Gt = {$: 'Gt'};
 var $author$project$Readfile$Guard = {$: 'Guard'};
 var $author$project$Readfile$GuardedChoice = {$: 'GuardedChoice'};
+var $author$project$Readfile$Id = {$: 'Id'};
 var $author$project$Readfile$In = {$: 'In'};
 var $author$project$Readfile$LBinop = function (a) {
 	return {$: 'LBinop', a: a};
@@ -5655,6 +5657,10 @@ var $author$project$Readfile$ruleFromString = function (str) {
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignExpr);
 		case 'assign_proc':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$AssignProc);
+		case 'id':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Id);
+		case 'dimensions_list':
+			return $elm$json$Json$Decode$succeed($author$project$Readfile$Dimensions);
 		case 'while':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$While);
 		case 'cond':

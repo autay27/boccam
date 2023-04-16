@@ -21,7 +21,7 @@ proc
     | CHAN OF INT ID DECLARED
         { $$ = ["declare_chan", $4] }
     | dimensions_list CHAN OF INT ID DECLARED
-        { $$ = ["declare_chan", $4] }
+        { $$ = ["declare_chan", $dimensions_list, $4] }
     | id ASSIGN expr
         { $$ = ["assign_expr", $1, $expr] }
     | id OUT expr

@@ -96,7 +96,7 @@ case 4:
  this.$ = ["declare_chan", $$[$0-1]] 
 break;
 case 5:
- this.$ = ["declare_chan", $$[$0-2]] 
+ this.$ = ["declare_chan", $$[$0-5], $$[$0-2]] 
 break;
 case 6:
  this.$ = ["assign_expr", $$[$0-2], $$[$0]] 
@@ -773,16 +773,10 @@ break;
 case 35:
 					var indentation = yy_.yytext.length - yy_.yytext.search(/\s/) - 1;
 
-					console.log("LINE:" + yy_.yytext)
-					console.log(indentation)
-					console.log(_iemitstack)
-
 					if (indentation > _iemitstack[0]) {
 						_iemitstack.unshift(indentation);
-						console.log("INDENT")
 						return 21;
 					} else if (indentation == _iemitstack[0]) {
-						console.log("NEWLINE")
 						return 29;
 					}
 				
@@ -793,7 +787,10 @@ case 35:
 						tokens.unshift("DEDENT");
 						_iemitstack.shift();
 					}
-					if (tokens.length > 0) { console.log(tokens.length + " dedents"); tokens.unshift("NEWLINE"); return tokens; }
+					if (tokens.length > 0) {
+						tokens.unshift("NEWLINE");
+						return tokens;
+					}
 
 				
 break;

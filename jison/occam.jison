@@ -15,7 +15,7 @@ process
 
 proc
     : INT ID DECLARED
-        { $$ = ["declare_var", [], $2] }
+        { $$ = ["declare_var", ["dimensions_list"], $2] }
     | dimensions_list INT ID DECLARED
         { $$ = ["declare_var", $dimensions_list, $2] }
     | CHAN OF INT ID DECLARED
@@ -51,7 +51,7 @@ dimensions_list
 
 id
     : ID
-        { $$ = [ "id", $1, [] ] }
+        { $$ = [ "id", $1, ["dimensions_list"] ] }
     | ID dimensions_list
         { $$ = [ "id", $1, $dimensions_list ] }
     ;

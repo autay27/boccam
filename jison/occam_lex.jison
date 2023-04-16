@@ -70,16 +70,10 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 <INITIAL>[\n\r]{spc}*		%{
 					var indentation = yytext.length - yytext.search(/\s/) - 1;
 
-					console.log("LINE:" + yytext)
-					console.log(indentation)
-					console.log(_iemitstack)
-
 					if (indentation > _iemitstack[0]) {
 						_iemitstack.unshift(indentation);
-						console.log("INDENT")
 						return 'INDENT';
 					} else if (indentation == _iemitstack[0]) {
-						console.log("NEWLINE")
 						return 'NEWLINE';
 					}
 				
@@ -90,7 +84,10 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 						tokens.unshift("DEDENT");
 						_iemitstack.shift();
 					}
-					if (tokens.length > 0) { console.log(tokens.length + " dedents"); tokens.unshift("NEWLINE"); return tokens; }
+					if (tokens.length > 0) {
+						tokens.unshift("NEWLINE");
+						return tokens;
+					}
 
 				%}
 {spc}+				/* ignore all other whitespace */

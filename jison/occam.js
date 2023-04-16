@@ -87,7 +87,7 @@ case 1:
  console.log("AST: %j", $$[$0-1]); return $$[$0-1] 
 break;
 case 2:
- this.$ = ["declare_var", [], $$[$0-1]] 
+ this.$ = ["declare_var", ["dimensions_list"], $$[$0-1]] 
 break;
 case 3:
  this.$ = ["declare_var", $$[$0-3], $$[$0-2]] 
@@ -126,7 +126,7 @@ case 16:
  $$[$0].push($$[$0-2]); this.$ = $$[$0]; 
 break;
 case 17:
- this.$ = [ "id", $$[$0], [] ] 
+ this.$ = [ "id", $$[$0], ["dimensions_list"] ] 
 break;
 case 18:
  this.$ = [ "id", $$[$0-1], $$[$0] ] 

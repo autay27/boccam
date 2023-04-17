@@ -215,13 +215,13 @@ step e m =
 -- would be better to flatten it once in preprocessing the tree.
                 _ -> RunErr "invalid syntax for IF statement"
 
-        Branch DeclareVariable (id::[]) -> 
-            case declareVar state id of
+        Branch DeclareVariable _ -> 
+            case declareVar state e.code of
                 Ok state2 -> ranMe (update state2 m)
                 Err msg -> RunErr msg
 
-        Branch DeclareChannel (id::[]) -> 
-            case (declareChan state  id) of
+        Branch DeclareChannel _ ->
+            case (declareChan state e.code) of
                 Ok state2 -> ranMe (update state2 m)
                 Err msg -> RunErr msg
 

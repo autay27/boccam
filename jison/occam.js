@@ -96,7 +96,7 @@ case 4:
  this.$ = ["declare_chan", $$[$0-1]] 
 break;
 case 5:
- this.$ = ["declare_chan", $$[$0-5], $$[$0-2]] 
+ this.$ = ["declare_chan", $$[$0-5], $$[$0-1]] 
 break;
 case 6:
  this.$ = ["assign_expr", $$[$0-2], $$[$0]] 

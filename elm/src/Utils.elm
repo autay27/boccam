@@ -2,7 +2,7 @@ module Utils exposing (..)
 
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 import Eval exposing (eval)
-import State exposing (State, Value(..), checkFull)
+import State exposing (State, Value(..), checkFull, Identifier)
 import KeyboardInput exposing (Direction(..))
 
 replaceLeaf : Tree -> Tree -> Tree -> Tree

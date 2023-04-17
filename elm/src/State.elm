@@ -1,15 +1,22 @@
 module State exposing (..)
 
 import Dict exposing (Dict, member, empty, insert)
-import Readfile exposing (Tree(..), TreeValue(..))
+import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
+import StateUtils exposing (..)
+
 import Json.Encode exposing (encode, dict)
 import Html exposing (s)
+import Result exposing (andThen)
 
 type alias Chan = { value: Value, isFull: Bool }
 
-type Value = Number Int | Channel String | Boolval Bool | Any
+type ChanStorage = ChanSingle Chan | ChanArray (Dict Int ChanStorage)
 
-type alias State = { vars: Dict String Value, chans: Dict String Chan }
+type Value = Number Int | Channel String | Boolval Bool | Array (Dict Int Value) | Any
+
+type alias State = { vars: Dict String Value, chans: Dict String ChanStorage }
+
+type alias Identifier = { str: String, dims: List Int }
 
 displaychanname = "DISPLAY"
 keyboardchanname = "KEYBOARD"
@@ -18,21 +25,20 @@ freshState = { vars = Dict.empty, chans = (Dict.insert keyboardchanname freshCha
 
 freshChannel = { value = Any, isFull = False }
 
-getName : Tree -> Result String String
-getName tree = case tree of
-    Leaf (Ident str) -> Ok str
-    _ -> Err "Invalid name for a variable or channel"
-
 checkFull : State -> Tree -> Result String Bool
-checkFull state var = 
-    case getName var of
-        Ok str -> case Dict.get str state.chans of
-            Just ch ->  Ok ch.isFull
-            Nothing -> Err "channel not declared"
-        _ -> Err "not a channel"
-        
+checkFull state var =
+    treeToId var |> andThen (\id ->
+            accessChannel id state |> Result.andThen (\ch -> ch.isFull)
+        )
+
+--if we move the "check declared' part in here we can get rid of the extra function which for some reason gets called only once in Compile
 assignVar : State -> Tree -> Value -> Result String State
-assignVar state var val = 
+assignVar state var val =
+    treeToId var |> andThen (\id ->
+
+    )
+
+
     case getName var of 
         Ok str ->
             if Dict.member str state.chans then 
@@ -43,25 +49,28 @@ assignVar state var val =
 
 declareVar : State -> Tree -> Result String State
 declareVar state var = 
-    case getName var of 
-        Ok str ->    
-            if Dict.member str state.vars then 
-                Err ("declared a variable " ++ str ++ " that already exists")
-            else
-                assignVar state var Any
-        _ -> Err "not a valid variable name"
+    treeToId var |> andThen (\id ->
+        if Dict.member id.str state.vars then 
+            Err ("declared a variable " ++ id.str ++ " that already exists")
+        else if Dict.member id.str state.chans then 
+            Err ("tried to declare " ++ id.str ++ " as a variable, but it is already a channel")
+        else 
+            let freshvars = makeVarArray id.dims in Ok {state | vars = Dict.insert id.str freshvars state.vars }
+    )
 
-declareChan : State -> Tree -> Result String State
-declareChan state var = 
-    case getName var of 
-        Ok str ->  
-            if Dict.member str state.vars then 
-                    Err ("tried to declare " ++ str ++ " as a channel, but it is already a variable")
-                else if Dict.member str state.chans then 
-                        Err "channel already declared"
-                    else 
-                        Ok {state | chans = (Dict.insert str freshChannel state.chans)}
-        _ -> Err "tried to declare, but name was a number"
+declareChan : State -> Tree -> List Int -> Result String State
+declareChan state var =
+    treeToId var |> andThen (\id ->    
+        if Dict.member id.str state.vars then 
+            Err ("tried to declare " ++ id.str ++ " as a channel, but it is already a variable")
+        else if Dict.member id.str state.chans then 
+                Err (id.str ++ "channel already declared")
+        else 
+            let
+                freshchans = makeChanArray id.dims
+            in
+                Ok {state | chans = (Dict.insert id.str freshchans state.chans)}
+    )
 
 checkDeclared : Tree -> State -> Result String ()
 checkDeclared var state =

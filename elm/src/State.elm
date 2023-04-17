@@ -12,7 +12,7 @@ type alias Chan = { value: Value, isFull: Bool }
 
 type ChanStorage = ChanSingle Chan | ChanArray (Dict Int ChanStorage)
 
-type Value = Number Int | Channel String | Boolval Bool | Array (Dict Int Value) | Any
+type Value = Number Int | Boolval Bool | Array (Dict Int Value) | Any
 
 type alias State = { vars: Dict String Value, chans: Dict String ChanStorage }
 
@@ -86,6 +86,5 @@ jsonValues : Value -> Json.Encode.Value
 jsonValues val = 
     case val of 
         Number n -> Json.Encode.int n
-        Channel s -> Json.Encode.string s
         Boolval b -> Json.Encode.bool b
         Any -> Json.Encode.string "ANY"

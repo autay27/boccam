@@ -5,6 +5,7 @@ import List exposing (head, take, drop, map, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..), ABop(..))
 import Model exposing (..)
 import State exposing (..)
+import StateUtils exposing (Value(..), State, Identifier, treeToId, freshChannel)
 import Eval exposing (eval)
 import Utils exposing (replaceLeaf, pickValidBranches, dirToValue)
 import KeyboardInput exposing (Direction(..))
@@ -113,35 +114,35 @@ step e m =
                         _ -> RunErr "Error evaluating replicator"
                 _ -> RunErr "SEQ rule must be followed by process list or replicator only"
 
-        Branch In (chan::var::[]) ->
-            case getName chan of
-                Ok chanid -> 
-                    case checkFull state chan of
-                        Ok True -> receiveOnChan chanid var pid m
-                        Ok False -> Blocked (block [{ proc = e, waitCond = FilledChan chanid }] m)
-                        Err msg -> RunErr ("tried to get input but " ++ msg)
-                Err msg -> RunErr "invalid channel name"
+        Branch In (chan::var::[]) ->            
+            case checkFull state chan of
+                Ok True -> receiveOnChan chan var pid m
+                Ok False ->
+                    case treeToId chan of
+                        Ok chanid ->
+                            Blocked (block [{ proc = e, waitCond = FilledChan chanid.str }] m)
+                        Err msg -> RunErr msg
+                Err msg -> RunErr ("tried to get input but " ++ msg)
 
         Branch Out (chan::expr::[]) -> 
-            case getName chan of
-                Ok chanid -> 
-                    case checkFull state chan of
-                        Ok True -> 
-                            RunErr ("Occam doesn't allow more than one parallel process to output to the same channel")
+            case checkFull state chan of
+                Ok True -> 
+                    RunErr ("Occam doesn't allow more than one parallel process to output to the same channel")
 
-                        Ok False -> 
-                            case eval expr state of
-                                Ok n -> 
+                Ok False -> 
+                    case eval expr state of
+                        Ok n -> 
+                            case treeToId chan of
+                                Ok chanid ->
                                     let
-                                        waiting = { proc = e, waitCond = EmptiedChan chanid }
+                                        waiting = { proc = e, waitCond = EmptiedChan chanid.str }
                                     in
-                                        sendOnChan chanid n pid (block [waiting] m)
+                                        sendOnChan chanid.str n pid (block [waiting] m)
+                                Err msg -> RunErr msg
+                        Err msg -> RunErr ("tried to output a value but " ++ msg)
 
-                                Err msg -> RunErr ("tried to output a value but " ++ msg)
+                Err msg -> RunErr ("tried to output to a channel but " ++ msg)
 
-                        Err msg -> RunErr ("tried to output to a channel but " ++ msg)
-
-                Err msg -> RunErr ("invalid channel name")
 
         Branch Alt (x::[]) ->
             case x of
@@ -151,9 +152,7 @@ step e m =
                             Branch Alternative [Branch Guard (bool::action::[]), proc] ->
                                 case action of
                                     Branch In (chan::var::[]) ->
-                                        case getName chan of 
-                                            Ok chanid -> receiveOnChan chanid var pid (spawn [proc] pid aid model)
-                                            _ -> RunErr "Invalid channel name in alt branch"
+                                        receiveOnChan chan var pid (spawn [proc] pid aid model)
                                     Branch Skip _ -> ranMe (spawn [proc] pid aid model)
                                     _ -> RunErr "Invalid alt guard"
                             _ -> RunErr "Invalid alt branch"
@@ -172,14 +171,11 @@ step e m =
                 _ -> RunErr "ALT must be followed by a list of alternatives"
         
         Branch AssignExpr (id::e1::[]) ->
-            case checkDeclared id state of
-                Ok () ->
-                    case (eval e1 state) of
-                        Ok v -> case (assignVar state id v) of
-                            Ok s -> ranMe (update s m)
-                            Err msg -> RunErr msg
-                        Err msg -> RunErr msg
-                Err msg -> RunErr ("Tried to assign to variable, but " ++ msg)
+            case (eval e1 state) of
+                Ok v -> case (assignVar state id v) of
+                    Ok s -> ranMe (update s m)
+                    Err msg -> RunErr msg
+                Err msg -> RunErr msg
 
         Branch While (cond::body::[]) -> 
             case (eval cond state) of
@@ -231,34 +227,38 @@ step e m =
         Leaf l -> RunErr "Tried to run variable"
         Branch s _ -> RunErr "Wrong tree structure"
 
-receiveOnChan : String -> Tree -> Id -> Model -> Outcome
-receiveOnChan chanid var pid m = 
-    case getFromChannel chanid m.state of
+receiveOnChan : Tree -> Tree -> Id -> Model -> Outcome
+receiveOnChan chan var pid m = 
+    case treeToId chan of
+        Ok chanid ->
+            case getFromChannel chanid.str m.state of
 
-        Ok (stateChanEmptied, receivedValue) -> case (assignVar stateChanEmptied var receivedValue) of
+                Ok (stateChanEmptied, receivedValue) -> case (assignVar stateChanEmptied var receivedValue) of
 
-            Ok stateChanEmptiedAssigned -> case receivedValue of
+                    Ok stateChanEmptiedAssigned -> case receivedValue of
 
-                Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (getName var))) 
-                    { m | state = stateChanEmptiedAssigned })
+                        Number n -> channelEmptied chanid.str pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (treeToId var |> Result.andThen (\id -> Ok id.str)))) 
+                            { m | state = stateChanEmptiedAssigned })
 
-                _ -> RunErr "unexpected, input was not a number"
+                        _ -> RunErr "unexpected, input was not a number"
 
-            Err msg -> RunErr msg
+                    Err msg -> RunErr msg
 
-        Err msg -> RunErr msg 
+                Err msg -> RunErr msg 
+        Err msg -> RunErr msg
 
-
-getFromChannel : String -> State -> Result String (State, Value)
+--well, this needs an overhaul
+getFromChannel : Identifier -> State -> Result String (State, Value)
 getFromChannel chanid state =
-    case Dict.get chanid state.chans of
-        Just channel ->
+    case accessChannel chanid.str chanid.dims state of
+        Ok channel ->
             let
                 foundValue = channel.value 
                 stateChanEmptied = { state | chans = (Dict.insert chanid freshChannel state.chans)}
+                --oh great, we need the recursive replacement here too.
             in 
                 Ok (stateChanEmptied, foundValue)
-        Nothing -> Err "could not find the specified channel"
+        Err msg -> Err ("could not find the specified channel: " ++ msg)
 
 
 sendOnChan : String -> Value -> Id -> Model -> Outcome
@@ -267,6 +267,7 @@ sendOnChan chanid val pid m =
         Number n ->
             let 
                 state = m.state
+                --need to recursively update the channel here too..
                 filledchan = { isFull = True, value = val }
                 updatedState = { state | chans = Dict.insert chanid filledchan state.chans }
             in
@@ -286,12 +287,9 @@ channelFilled chan pid m =
             (unblocking::notUnblocking) -> 
                 case unblocking.proc.code of 
                     Branch In (chan2::var::[]) -> 
-                        case getName chan2 of
-                            Ok chanid2 ->
-                                case receiveOnChan chanid2 var unblocking.proc.id { m | waiting = notUnblocking ++ stillBlocking } of
-                                    Ran model xs -> Ran model xs
-                                    other -> other
-                            Err msg -> RunErr "unblocking process channel had a funny name, following a channel being filled"
+                        case receiveOnChan chan2 var unblocking.proc.id { m | waiting = notUnblocking ++ stillBlocking } of
+                            Ran model xs -> Ran model xs
+                            other -> other
 
                     _ -> RunErr "unexpected process unblocking following a channel being filled"
 

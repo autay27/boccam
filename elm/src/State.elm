@@ -8,44 +8,41 @@ import Json.Encode exposing (encode, dict)
 import Html exposing (s)
 import Result exposing (andThen)
 
-type alias Chan = { value: Value, isFull: Bool }
-
-type ChanStorage = ChanSingle Chan | ChanArray (Dict Int ChanStorage)
-
-type Value = Number Int | Boolval Bool | Array (Dict Int Value) | Any
-
-type alias State = { vars: Dict String Value, chans: Dict String ChanStorage }
-
-type alias Identifier = { str: String, dims: List Int }
-
 displaychanname = "DISPLAY"
 keyboardchanname = "KEYBOARD"
 
 freshState = { vars = Dict.empty, chans = (Dict.insert keyboardchanname freshChannel(Dict.insert displaychanname freshChannel Dict.empty)) }
 
-freshChannel = { value = Any, isFull = False }
+accessChannel : String -> List Int -> State -> Result String Chan
+accessChannel str dims state =
+    let 
+        indexIntoArray ds dict = 
+            case ds of
+                [] -> Err ("Not enough indexes for array " ++ str)
+                (i::is) -> case Dict.get i dict of
+                    Just (ChanSingle ch) -> if is == [] then Ok ch else Err ("Too many indexes for array " ++ str)
+                    Just (ChanArray arr) -> indexIntoArray is arr
+                    Nothing -> Err ("Index " ++ (String.fromInt i) ++ " out of bounds for " ++ str)
+    in
+        case Dict.get str state.chans of
+            Just (ChanSingle ch) -> if List.length dims == 0 then Ok ch else Err (str ++ " is not an array but indexes given")
+            Just (ChanArray dict) -> indexIntoArray dims dict
+            Nothing -> Err "Channel not declared"
 
 checkFull : State -> Tree -> Result String Bool
 checkFull state var =
     treeToId var |> andThen (\id ->
-            accessChannel id state |> Result.andThen (\ch -> ch.isFull)
+            accessChannel id.str id.dims state |> andThen (\ch -> Ok ch.isFull)
         )
 
---if we move the "check declared' part in here we can get rid of the extra function which for some reason gets called only once in Compile
 assignVar : State -> Tree -> Value -> Result String State
 assignVar state var val =
     treeToId var |> andThen (\id ->
+            if Dict.member id.str state.chans then Err "tried to assign to a channel" 
+            else derefAndUpdateVariable val id.str id.dims state |> andThen (\(ov, newstate) -> 
+                    Ok newstate)
+        )
 
-    )
-
-
-    case getName var of 
-        Ok str ->
-            if Dict.member str state.chans then 
-                Err "tried to assign to a channel" 
-            else 
-                Ok {state | vars = (Dict.insert str val state.vars)}
-        _ -> Err "not a valid variable name"
 
 declareVar : State -> Tree -> Result String State
 declareVar state var = 
@@ -58,7 +55,7 @@ declareVar state var =
             let freshvars = makeVarArray id.dims in Ok {state | vars = Dict.insert id.str freshvars state.vars }
     )
 
-declareChan : State -> Tree -> List Int -> Result String State
+declareChan : State -> Tree -> Result String State
 declareChan state var =
     treeToId var |> andThen (\id ->    
         if Dict.member id.str state.vars then 
@@ -72,13 +69,6 @@ declareChan state var =
                 Ok {state | chans = (Dict.insert id.str freshchans state.chans)}
     )
 
-checkDeclared : Tree -> State -> Result String ()
-checkDeclared var state =
-    case getName var of 
-        Ok str ->
-            if Dict.member str state.vars then Ok () else Err ("variable " ++ str ++ " not declared")
-        _ -> Err "invalid variable name"
-
 toJson : State -> String
 toJson state = encode 4 (dict identity jsonValues state.vars)
 
@@ -87,4 +77,5 @@ jsonValues val =
     case val of 
         Number n -> Json.Encode.int n
         Boolval b -> Json.Encode.bool b
+        Array xs -> Json.Encode.string "Array - not printed yet"
         Any -> Json.Encode.string "ANY"

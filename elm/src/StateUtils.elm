@@ -98,7 +98,7 @@ derefAndUpdateVariable val str dims state =
                     Nothing -> Err "Index out of bounds"
     in
         case Dict.get str state.vars of
-            Nothing -> Err "Variable not declared"
+            Nothing -> Err ("Variable " ++ str ++ " not declared")
             Just (Array dict) -> case dims of 
                 (d::ds) -> 
                     dAUArray val d ds dict |> Result.andThen (\(accessedvalue, updatedvars)->

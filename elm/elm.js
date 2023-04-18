@@ -6439,7 +6439,7 @@ var $author$project$StateUtils$derefAndUpdateVariable = F4(
 			});
 		var _v4 = A2($elm$core$Dict$get, str, state.vars);
 		if (_v4.$ === 'Nothing') {
-			return $elm$core$Result$Err('Variable not declared');
+			return $elm$core$Result$Err('Variable ' + (str + ' not declared'));
 		} else {
 			if (_v4.a.$ === 'Array') {
 				var dict = _v4.a.a;

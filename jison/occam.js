@@ -90,7 +90,7 @@ case 2:
  this.$ = ["declare_var", ["dimensions_list"], $$[$0-1]] 
 break;
 case 3:
- this.$ = ["declare_var", $$[$0-3], $$[$0-2]] 
+ this.$ = ["declare_var", $$[$0-3], $$[$0-1]] 
 break;
 case 4:
  this.$ = ["declare_chan", ["dimensions_list"], $$[$0-1]] 

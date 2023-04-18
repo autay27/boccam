@@ -17,7 +17,7 @@ proc
     : INT ID DECLARED
         { $$ = ["declare_var", ["dimensions_list"], $2] }
     | dimensions_list INT ID DECLARED
-        { $$ = ["declare_var", $dimensions_list, $2] }
+        { $$ = ["declare_var", $dimensions_list, $3] }
     | CHAN OF INT ID DECLARED
         { $$ = ["declare_chan", ["dimensions_list"], $4] }
     | dimensions_list CHAN OF INT ID DECLARED

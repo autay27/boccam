@@ -19,7 +19,7 @@ proc
     | dimensions_list INT ID DECLARED
         { $$ = ["declare_var", $dimensions_list, $2] }
     | CHAN OF INT ID DECLARED
-        { $$ = ["declare_chan", $4] }
+        { $$ = ["declare_chan", ["dimensions_list"], $4] }
     | dimensions_list CHAN OF INT ID DECLARED
         { $$ = ["declare_chan", $dimensions_list, $5] }
     | id ASSIGN expr
@@ -121,7 +121,7 @@ input
     ;
 
 replicator 
-    : ID EQ LSQB expr FOR expr RSQB
+    : id EQ LSQB expr FOR expr RSQB
         { $$ = ["replicator", $1, $4, $6] }
     ;
     

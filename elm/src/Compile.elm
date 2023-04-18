@@ -7,7 +7,7 @@ import Model exposing (..)
 import State exposing (..)
 import StateUtils exposing (Value(..), State, Identifier, treeToId, freshChannel)
 import Eval exposing (eval)
-import Utils exposing (replaceLeaf, pickValidBranches, dirToValue)
+import Utils exposing (replaceSubtree, pickValidBranches, dirToValue)
 import KeyboardInput exposing (Direction(..))
 import Html exposing (b)
 import Result exposing (andThen)
@@ -109,7 +109,7 @@ step e m =
                             else 
                                 let
                                     nextMe = Branch Seq [Branch Replicator [v1, Leaf (Num (k+1)), Leaf (Num l)], proc]
-                                    replicated = replaceLeaf v1 (Leaf (Num k)) proc
+                                    replicated = replaceSubtree v1 (Leaf (Num k)) proc
                                 in
                                     unrolledMe (spawnAndWait replicated nextMe pid aid m)
                         _ -> RunErr "Error evaluating replicator"

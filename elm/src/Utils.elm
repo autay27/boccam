@@ -6,11 +6,11 @@ import StateUtils exposing (State, Value(..), Identifier)
 import State exposing (checkFull)
 import KeyboardInput exposing (Direction(..))
 
-replaceLeaf : Tree -> Tree -> Tree -> Tree
-replaceLeaf old new code =
+replaceSubtree : Tree -> Tree -> Tree -> Tree
+replaceSubtree old new code =
     case code of
         Branch rule xs ->
-            Branch rule (List.map (replaceLeaf old new) xs)
+            if (Branch rule xs) == old then new else Branch rule (List.map (replaceSubtree old new) xs)
         Leaf l -> if (Leaf l) == old then new else (Leaf l)
 
 pickValidBranches : List Tree -> State -> Result String (List Tree)

@@ -25,7 +25,7 @@ treeToId tree =
             Ok { str = i, dims = treeToDimsList ds }
         Branch DeclareVariable [Branch Dimensions ds, (Leaf (Ident i))] ->
             Ok { str = i, dims = treeToDimsList ds }
-        _ -> Err "Problem with identifier parsing"
+        _ -> Err ("problem parsing ident with tree " ++ (printTree tree))
 
 treeToDimsList : List Tree -> List Int
 treeToDimsList ds =
@@ -34,6 +34,39 @@ treeToDimsList ds =
         ((Leaf (Num n))::xs) -> n::(treeToDimsList xs)
         _ -> [-11111]
         
+
+ruleToString : Rule -> String
+ruleToString r = case r of 
+    Skip -> "Skip"
+    ProcList -> "ProcList"
+    Par -> "Par"
+    Seq -> "Seq"
+    Alt -> "Alt"
+    AltList -> "AltList"
+    Alternative -> "Alternative"
+    Guard -> "Guard"
+    In -> "In"
+    Out -> "Out"
+    AssignExpr -> "AssignExpr"
+    AssignProc -> "AssignProc"
+    Id -> "Id"
+    Dimensions -> "Dimensions"
+    While -> "While"
+    Cond -> "Cond"
+    ChoiceList -> "ChoiceList"
+    GuardedChoice -> "GuardedChoice"
+    Replicator -> "Replicator"
+    DeclareChannel -> "DeclareChannel"
+    DeclareVariable -> "DeclareVariable"
+    ABinop _ -> "ABop"
+    LBinop _ -> "LBop"
+
+printTree : Tree -> String
+printTree t = case t of
+    Leaf (Ident i) -> "Ident " ++ i
+    Leaf (Num n) -> "Num " ++ (String.fromInt n)
+    Branch rule xs -> (ruleToString rule) ++ "[" ++ ((List.map printTree xs) |> (List.intersperse ", ") |> String.concat) ++ "]"
+
 makeChanArray : List Int -> ChanStorage
 makeChanArray dimensions =
     case dimensions of

@@ -76,4 +76,33 @@ derefAndUpdateVariable val str dims state =
                 [] -> Ok (accessedvalue, {state | vars = Dict.insert str val state.vars})
                 _ -> Err ("Too many indexes for array " ++ str)
 
-            
+
+-- Returns a pair with the current value of the variable, and the state if channel was updated to the new channel-value
+derefAndUpdateChannel : Chan -> String -> List Int -> State -> Result String (Chan, State)
+derefAndUpdateChannel ch str dims state =
+    let 
+        dAUArray d ds dict =
+            case ds of
+                [] -> case Dict.get d dict of
+                    Just (ChanArray _) -> Err ("Not enough indexes for array " ++ str)
+                    Just (ChanSingle oldchan) -> Ok (oldchan, ChanArray (Dict.insert d (ChanSingle ch) dict))
+                    Nothing -> Err "Index out of bounds"
+                (i::is) -> case Dict.get d dict of
+                    Just (ChanArray dict2) -> 
+                        dAUArray i is dict2 |> Result.andThen (\(oldchan, newstruct) ->
+                            Ok (oldchan, ChanArray (Dict.insert d newstruct dict))
+                        )
+                    Just _ -> Err ("Too many indexes for array " ++ str)
+                    Nothing -> Err "Index out of bounds"
+    in
+        case Dict.get str state.chans of
+            Nothing -> Err "Channel not declared"
+            Just (ChanArray dict) -> case dims of 
+                (d::ds) -> 
+                    dAUArray d ds dict |> Result.andThen (\(accessedvalue, updatedstruct)->
+                        Ok (accessedvalue, {state | chans = Dict.insert str updatedstruct state.chans })
+                    )
+                _ -> Err ("Not enough indices for array " ++ str)
+            Just (ChanSingle accessedchan) -> case dims of
+                [] -> Ok (accessedchan, {state | chans = Dict.insert str (ChanSingle ch) state.chans})
+                _ -> Err ("Too many indexes for array " ++ str)

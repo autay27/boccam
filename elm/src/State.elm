@@ -11,28 +11,41 @@ import Result exposing (andThen)
 displaychanname = "DISPLAY"
 keyboardchanname = "KEYBOARD"
 
-freshState = { vars = Dict.empty, chans = (Dict.insert keyboardchanname freshChannel(Dict.insert displaychanname freshChannel Dict.empty)) }
+displaychanid = { str = displaychanname, dims = [] }
+keyboardchanid = { str = keyboardchanname, dims = [] }
 
-accessChannel : String -> List Int -> State -> Result String Chan
-accessChannel str dims state =
-    let 
-        indexIntoArray ds dict = 
-            case ds of
-                [] -> Err ("Not enough indexes for array " ++ str)
-                (i::is) -> case Dict.get i dict of
-                    Just (ChanSingle ch) -> if is == [] then Ok ch else Err ("Too many indexes for array " ++ str)
-                    Just (ChanArray arr) -> indexIntoArray is arr
-                    Nothing -> Err ("Index " ++ (String.fromInt i) ++ " out of bounds for " ++ str)
+freshState : State 
+freshState = 
+    { 
+        vars = Dict.empty, 
+        chans = Dict.empty |>
+            Dict.insert displaychanname (ChanSingle freshChannel) |> 
+            Dict.insert keyboardchanname (ChanSingle freshChannel)
+    }
+
+dummyChannel = freshChannel
+
+fillChannel : Value -> Identifier -> State -> Result String State
+fillChannel val chanid state = 
+    let
+        filledchan = { isFull = True, value = val }
     in
-        case Dict.get str state.chans of
-            Just (ChanSingle ch) -> if List.length dims == 0 then Ok ch else Err (str ++ " is not an array but indexes given")
-            Just (ChanArray dict) -> indexIntoArray dims dict
-            Nothing -> Err "Channel not declared"
+        derefAndUpdateChannel filledchan chanid.str chanid.dims state |> andThen (\(_, newstate) -> Ok newstate)
+
+getValueAndEmptyChannel : Identifier -> State -> Result String (Value, State)
+getValueAndEmptyChannel chanid state = 
+    derefAndUpdateChannel freshChannel chanid.str chanid.dims state |> andThen (\(oldchan, newstate) ->
+        Ok (oldchan.value, newstate)
+    )
+
+accessChannel : Identifier -> State -> Result String Chan
+accessChannel chanid state =
+    derefAndUpdateChannel dummyChannel chanid.str chanid.dims state |> andThen (\(oldchan, _) -> Ok oldchan)
 
 checkFull : State -> Tree -> Result String Bool
 checkFull state var =
     treeToId var |> andThen (\id ->
-            accessChannel id.str id.dims state |> andThen (\ch -> Ok ch.isFull)
+            accessChannel id state |> andThen (\ch -> Ok ch.isFull)
         )
 
 assignVar : State -> Tree -> Value -> Result String State

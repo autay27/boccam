@@ -10,6 +10,7 @@ import Eval exposing (eval)
 import Utils exposing (replaceLeaf, pickValidBranches, dirToValue)
 import KeyboardInput exposing (Direction(..))
 import Html exposing (b)
+import Result exposing (andThen)
 
 example_tree = Branch Seq [Branch ProcList[
     Branch DeclareChannel [Leaf (Ident "chan")], 
@@ -137,7 +138,7 @@ step e m =
                                     let
                                         waiting = { proc = e, waitCond = EmptiedChan chanid.str }
                                     in
-                                        sendOnChan chanid.str n pid (block [waiting] m)
+                                        sendOnChan chanid n pid (block [waiting] m)
                                 Err msg -> RunErr msg
                         Err msg -> RunErr ("tried to output a value but " ++ msg)
 
@@ -231,9 +232,9 @@ receiveOnChan : Tree -> Tree -> Id -> Model -> Outcome
 receiveOnChan chan var pid m = 
     case treeToId chan of
         Ok chanid ->
-            case getFromChannel chanid.str m.state of
+            case getValueAndEmptyChannel chanid m.state of
 
-                Ok (stateChanEmptied, receivedValue) -> case (assignVar stateChanEmptied var receivedValue) of
+                Ok (receivedValue, stateChanEmptied) -> case (assignVar stateChanEmptied var receivedValue) of
 
                     Ok stateChanEmptiedAssigned -> case receivedValue of
 
@@ -247,40 +248,23 @@ receiveOnChan chan var pid m =
                 Err msg -> RunErr msg 
         Err msg -> RunErr msg
 
---well, this needs an overhaul
-getFromChannel : Identifier -> State -> Result String (State, Value)
-getFromChannel chanid state =
-    case accessChannel chanid.str chanid.dims state of
-        Ok channel ->
-            let
-                foundValue = channel.value 
-                stateChanEmptied = { state | chans = (Dict.insert chanid freshChannel state.chans)}
-                --oh great, we need the recursive replacement here too.
-            in 
-                Ok (stateChanEmptied, foundValue)
-        Err msg -> Err ("could not find the specified channel: " ++ msg)
-
-
-sendOnChan : String -> Value -> Id -> Model -> Outcome
+sendOnChan : Identifier -> Value -> Id -> Model -> Outcome
 sendOnChan chanid val pid m =
     case val of
         Number n ->
-            let 
-                state = m.state
-                --need to recursively update the channel here too..
-                filledchan = { isFull = True, value = val }
-                updatedState = { state | chans = Dict.insert chanid filledchan state.chans }
-            in
-                channelFilled chanid pid (print ("outputted " ++ String.fromInt n ++ " to " ++ chanid) (update updatedState m))
+            case fillChannel val chanid m.state of
 
+                Ok updatedState -> channelFilled chanid pid (print ("outputted " ++ String.fromInt n ++ " to " ++ chanid.str) (update updatedState m))
 
+                Err msg -> RunErr msg
+                
         _ -> RunErr "Channels are integer only at the moment"
 
-channelFilled : String -> Id -> Model -> Outcome
-channelFilled chan pid m =
+channelFilled : Identifier -> Id -> Model -> Outcome
+channelFilled chanid pid m =
     let 
         (mayUnblock, stillBlocking) = List.partition (\wp ->
-                wp.waitCond == FilledChan chan
+                wp.waitCond == FilledChan chanid.str
             ) m.waiting
     in
         case mayUnblock of 
@@ -335,10 +319,10 @@ chainRun model f g =
 
 updateDisplay : Model -> Outcome
 updateDisplay m = 
-    case checkFull m.state (Leaf (Ident displaychanname)) of
+    case checkFull m.state (Branch Id [(Leaf (Ident displaychanname)), Branch Dimensions []]) of
         Ok True -> 
-            case getFromChannel displaychanname m.state of
-                Ok (newState, value) ->
+            case getValueAndEmptyChannel displaychanid m.state of
+                Ok (value, newState) ->
                     case value of 
                         Number n -> channelEmptied displaychanname (-1) (update newState (display n m))
 
@@ -352,7 +336,7 @@ updateKeyboard m =
     case deqKeypress m of
         Just (dir, m2) -> case checkFull m2.state (Leaf (Ident keyboardchanname)) of 
             Ok True -> Ran m []
-            Ok False -> sendOnChan keyboardchanname (dirToValue dir) (-2) m2
+            Ok False -> sendOnChan displaychanid (dirToValue dir) (-2) m2
             Err msg -> RunErr ("tried to update keyboard, but " ++ msg)
         Nothing -> Ran m []
 

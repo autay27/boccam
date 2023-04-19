@@ -1,20 +1,22 @@
 module Eval exposing (..)
 
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..), ABop(..), LBop(..))
-import State exposing (State, Value(..))
-import Dict
+import StateUtils exposing (State, Value(..), treeToId, derefAndUpdateVariable)
+import Result exposing (andThen)
 
 eval : Tree -> State -> Result String Value
 eval t state =
     case t of
-        Leaf (Ident "TRUE") -> Ok (Boolval True)
-        Leaf (Ident "FALSE") -> Ok (Boolval False)
+        Branch Id [Leaf (Ident "TRUE"), Branch Dimensions []] -> Ok (Boolval True)
+        Branch Id [Leaf (Ident "FALSE"), Branch Dimensions []] -> Ok (Boolval False)
         --need to put this in an init state
 
-        Leaf (Ident s) -> 
-            case Dict.get s state.vars of
-                Just v -> Ok v
-                Nothing -> Err ("Variable " ++ s ++ " not declared")
+        Branch Id _ -> 
+            treeToId t |> andThen (\varid -> 
+                derefAndUpdateVariable Any varid.str varid.dims state |> andThen (\(val, _) ->
+                    Ok val
+                )
+            )
 
         Leaf (Num n) -> Ok (Number n)
 
@@ -22,7 +24,7 @@ eval t state =
 
         Branch (LBinop b) (x::y::[]) -> logicEval b x y state
 
-        Branch rule children -> Err "not a valid value"
+        _ -> Err "not a valid value"
 
 arithEval: ABop -> Tree -> Tree -> State -> Result String Value
 arithEval op x y state =

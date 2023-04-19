@@ -15,14 +15,16 @@ process
 
 proc
     : INT ID DECLARED
-        { $$ = ["declare_var", $2] }
+        { $$ = ["declare_var", ["dimensions_list"], $2] }
+    | dimensions_list INT ID DECLARED
+        { $$ = ["declare_var", $dimensions_list, $3] }
     | CHAN OF INT ID DECLARED
-        { $$ = ["declare_chan", $4] }
-    | ID ASSIGN expr
+        { $$ = ["declare_chan", ["dimensions_list"], $4] }
+    | dimensions_list CHAN OF INT ID DECLARED
+        { $$ = ["declare_chan", $dimensions_list, $5] }
+    | id ASSIGN expr
         { $$ = ["assign_expr", $1, $expr] }
-    | ID ASSIGN proc
-        { $$ = ["assign_proc", $1, $proc] }
-    | ID OUT expr 
+    | id OUT expr
         { $$ = ["out", $1, $expr] }
     | input
         { $$ = $input }
@@ -40,6 +42,20 @@ proc
         { $$ = $conditional }
     ;
 
+dimensions_list
+    : LSQB expr RSQB
+        { $$ = ["dimensions_list", $expr] }
+    | LSQB expr RSQB dimensions_list
+        { $dimensions_list.push($expr); $$ = $dimensions_list; }
+    ;
+
+id
+    : ID
+        { $$ = [ "id", $1, ["dimensions_list"] ] }
+    | ID dimensions_list
+        { $$ = [ "id", $1, $dimensions_list ] }
+    ;
+
 proc_block
     : INDENT proc_list DEDENT 
         { $$ = $proc_list }
@@ -48,7 +64,7 @@ proc_block
 proc_list 
     : proc 
         { $$ = ["proc_list", $proc ] }
-    | proc_list proc
+    | proc_list NEWLINE proc
         { $proc_list.push($proc); $$ = $proc_list; }
     ;
 
@@ -60,7 +76,7 @@ alternation
 alt_list
     : alternative
         { $$ = ["alt_list", $alternative ] }
-    | alt_list alternative
+    | alt_list NEWLINE alternative
         { $alt_list.push($alternative); $$ = $alt_list; }
     ;
 
@@ -88,7 +104,7 @@ conditional
 choice_list
     : choice
         { $$ = ["choice_list", $choice ] }
-    | choice_list choice
+    | choice_list NEWLINE choice
         { $choice_list.push($choice); $$ = $choice_list; }
     ;
 
@@ -100,12 +116,12 @@ choice
     ;
 
 input
-    : ID IN ID 
+    : id IN id
         { $$ = ["in", $1, $3] }
     ;
 
 replicator 
-    : ID EQ LSQB expr FOR expr RSQB
+    : id EQ LSQB expr FOR expr RSQB
         { $$ = ["replicator", $1, $4, $6] }
     ;
     
@@ -137,8 +153,8 @@ term
 factor
     : INTEGER
         { $$ = Number(yytext);}
-    | ID
-        { $$ = yytext }
+    | id
+        { $$ = $id }
     | LPAR expr RPAR
         { $$ = $2 }
     ;

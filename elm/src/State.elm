@@ -1,74 +1,86 @@
 module State exposing (..)
 
 import Dict exposing (Dict, member, empty, insert)
-import Readfile exposing (Tree(..), TreeValue(..))
+import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
+import StateUtils exposing (..)
+
 import Json.Encode exposing (encode, dict)
 import Html exposing (s)
-
-type alias Chan = { value: Value, isFull: Bool }
-
-type Value = Number Int | Channel String | Boolval Bool | Any
-
-type alias State = { vars: Dict String Value, chans: Dict String Chan }
+import Result exposing (andThen)
 
 displaychanname = "DISPLAY"
 keyboardchanname = "KEYBOARD"
 
-freshState = { vars = Dict.empty, chans = (Dict.insert keyboardchanname freshChannel(Dict.insert displaychanname freshChannel Dict.empty)) }
+displaychanid = { str = displaychanname, dims = [] }
+keyboardchanid = { str = keyboardchanname, dims = [] }
 
-freshChannel = { value = Any, isFull = False }
+freshState : State 
+freshState = 
+    { 
+        vars = Dict.empty, 
+        chans = Dict.empty |>
+            Dict.insert displaychanname (ChanSingle freshChannel) |> 
+            Dict.insert keyboardchanname (ChanSingle freshChannel)
+    }
 
-getName : Tree -> Result String String
-getName tree = case tree of
-    Leaf (Ident str) -> Ok str
-    _ -> Err "Invalid name for a variable or channel"
+dummyChannel = freshChannel
+
+fillChannel : Value -> Identifier -> State -> Result String State
+fillChannel val chanid state = 
+    let
+        filledchan = { isFull = True, value = val }
+    in
+        derefAndUpdateChannel filledchan chanid.str chanid.dims state |> andThen (\(_, newstate) -> Ok newstate)
+
+getValueAndEmptyChannel : Identifier -> State -> Result String (Value, State)
+getValueAndEmptyChannel chanid state = 
+    derefAndUpdateChannel freshChannel chanid.str chanid.dims state |> andThen (\(oldchan, newstate) ->
+        Ok (oldchan.value, newstate)
+    )
+
+accessChannel : Identifier -> State -> Result String Chan
+accessChannel chanid state =
+    derefAndUpdateChannel dummyChannel chanid.str chanid.dims state |> andThen (\(oldchan, _) -> Ok oldchan)
 
 checkFull : State -> Tree -> Result String Bool
-checkFull state var = 
-    case getName var of
-        Ok str -> case Dict.get str state.chans of
-            Just ch ->  Ok ch.isFull
-            Nothing -> Err "channel not declared"
-        _ -> Err "not a channel"
-        
+checkFull state var =
+    treeToId var |> andThen (\id ->
+            accessChannel id state |> andThen (\ch -> Ok ch.isFull)
+        )
+
 assignVar : State -> Tree -> Value -> Result String State
-assignVar state var val = 
-    case getName var of 
-        Ok str ->
-            if Dict.member str state.chans then 
-                Err "tried to assign to a channel" 
-            else 
-                Ok {state | vars = (Dict.insert str val state.vars)}
-        _ -> Err "not a valid variable name"
+assignVar state var val =
+    treeToId var |> andThen (\id ->
+            if Dict.member id.str state.chans then Err "tried to assign to a channel" 
+            else derefAndUpdateVariable val id.str id.dims state |> andThen (\(ov, newstate) -> 
+                    Ok newstate)
+        )
+
 
 declareVar : State -> Tree -> Result String State
 declareVar state var = 
-    case getName var of 
-        Ok str ->    
-            if Dict.member str state.vars then 
-                Err ("declared a variable " ++ str ++ " that already exists")
-            else
-                assignVar state var Any
-        _ -> Err "not a valid variable name"
+    treeToId var |> andThen (\id ->
+        if Dict.member id.str state.vars then 
+            Err ("declared a variable " ++ id.str ++ " that already exists")
+        else if Dict.member id.str state.chans then 
+            Err ("tried to declare " ++ id.str ++ " as a variable, but it is already a channel")
+        else 
+            let freshvars = makeVarArray id.dims in Ok {state | vars = Dict.insert id.str freshvars state.vars }
+    )
 
 declareChan : State -> Tree -> Result String State
-declareChan state var = 
-    case getName var of 
-        Ok str ->  
-            if Dict.member str state.vars then 
-                    Err ("tried to declare " ++ str ++ " as a channel, but it is already a variable")
-                else if Dict.member str state.chans then 
-                        Err "channel already declared"
-                    else 
-                        Ok {state | chans = (Dict.insert str freshChannel state.chans)}
-        _ -> Err "tried to declare, but name was a number"
-
-checkDeclared : Tree -> State -> Result String ()
-checkDeclared var state =
-    case getName var of 
-        Ok str ->
-            if Dict.member str state.vars then Ok () else Err ("variable " ++ str ++ " not declared")
-        _ -> Err "invalid variable name"
+declareChan state var =
+    treeToId var |> andThen (\id ->    
+        if Dict.member id.str state.vars then 
+            Err ("tried to declare " ++ id.str ++ " as a channel, but it is already a variable")
+        else if Dict.member id.str state.chans then 
+                Err (id.str ++ "channel already declared")
+        else 
+            let
+                freshchans = makeChanArray id.dims
+            in
+                Ok {state | chans = (Dict.insert id.str freshchans state.chans)}
+    )
 
 toJson : State -> String
 toJson state = encode 4 (dict identity jsonValues state.vars)
@@ -77,6 +89,6 @@ jsonValues : Value -> Json.Encode.Value
 jsonValues val = 
     case val of 
         Number n -> Json.Encode.int n
-        Channel s -> Json.Encode.string s
         Boolval b -> Json.Encode.bool b
+        Array xs -> Json.Encode.string "Array - not printed yet"
         Any -> Json.Encode.string "ANY"

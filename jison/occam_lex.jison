@@ -46,8 +46,6 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 "<"			    return 'LT';
 "="             return 'EQ';
 
-
-
 {id}				return 'ID';
 \d+				return 'INTEGER';
 
@@ -71,9 +69,12 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 
 <INITIAL>[\n\r]{spc}*		%{
 					var indentation = yytext.length - yytext.search(/\s/) - 1;
+
 					if (indentation > _iemitstack[0]) {
 						_iemitstack.unshift(indentation);
 						return 'INDENT';
+					} else if (indentation == _iemitstack[0]) {
+						return 'NEWLINE';
 					}
 				
 					var tokens = [];
@@ -83,7 +84,11 @@ spc			[\t \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u20
 						tokens.unshift("DEDENT");
 						_iemitstack.shift();
 					}
-					if (tokens.length) return tokens;
+					if (tokens.length > 0) {
+						tokens.unshift("NEWLINE");
+						return tokens;
+					}
+
 				%}
 {spc}+				/* ignore all other whitespace */
 

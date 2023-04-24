@@ -7,11 +7,13 @@ import Html.Events exposing (onClick)
 import Html.Attributes exposing (class)
 import Json.Decode
 
+
 import Readfile exposing (Tree, treeDecoder, Rule(..))
 import Compile exposing (run)
 import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, isBlocked, freshModel, updateSeed)
 import State exposing (toJson)
 import KeyboardInput exposing (keyDecoder, Direction)
+import Utils exposing (printgraphics)
 
 import Dict exposing (Dict, empty)
 import Random exposing (generate, int, Seed, step)
@@ -122,6 +124,6 @@ view model =
       ),
     div []
       (
-        [ div [] [text "State:"], div [] (printout (State.toJson model.state)), div [] [text "DisplayLog:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
+        [ div [] [ printgraphics model.graphics ], div [] [text "State:"], div [] (printout (State.toJson model.state)), div [] [text "DisplayLog:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
       )
   ]

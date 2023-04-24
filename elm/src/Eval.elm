@@ -55,3 +55,59 @@ logicEval op x y state =
                     Or -> Ok (Boolval (b1 || b2))
             _ -> Err "Invalid arguments for this operator"
     ))
+
+treeToId : Tree -> Result String Identifier
+treeToId tree =
+    case tree of
+        Branch Id [(Leaf (Ident i)), Branch Dimensions ds] ->
+            idMaker i ds
+        Branch DeclareChannel [Branch Dimensions ds, (Leaf (Ident i))] ->
+            idMaker i ds
+        Branch DeclareVariable [Branch Dimensions ds, (Leaf (Ident i))] ->
+            idMaker i ds
+        _ -> Err ("problem parsing ident with tree " ++ (printTree tree))
+
+idMaker i ds = treeToDimsList ds |> andThen (\result -> Ok { str = i, dims = result })
+
+treeToDimsList : List Tree -> Result String (List Int)
+treeToDimsList ds =
+    case ds of
+        [] -> Ok []
+        ((Leaf (Num n))::xs) -> (treeToDimsList xs) |> andThen (\ys -> n::ys)
+        ((Branch Id is)::xs) -> eval (Branch Id is) |> andThen (\val -> case val of
+                Number n -> (treeToDimsList xs) |> andThen (\ys -> n::ys)
+                _ -> Err "Dimension must be a number"
+            )
+        _ -> Err "Issue evaluating dimensions!"
+
+ruleToString : Rule -> String
+ruleToString r = case r of
+    Skip -> "Skip"
+    ProcList -> "ProcList"
+    Par -> "Par"
+    Seq -> "Seq"
+    Alt -> "Alt"
+    AltList -> "AltList"
+    Alternative -> "Alternative"
+    Guard -> "Guard"
+    In -> "In"
+    Out -> "Out"
+    AssignExpr -> "AssignExpr"
+    AssignProc -> "AssignProc"
+    Id -> "Id"
+    Dimensions -> "Dimensions"
+    While -> "While"
+    Cond -> "Cond"
+    ChoiceList -> "ChoiceList"
+    GuardedChoice -> "GuardedChoice"
+    Replicator -> "Replicator"
+    DeclareChannel -> "DeclareChannel"
+    DeclareVariable -> "DeclareVariable"
+    ABinop _ -> "ABop"
+    LBinop _ -> "LBop"
+
+printTree : Tree -> String
+printTree t = case t of
+    Leaf (Ident i) -> "Ident " ++ i
+    Leaf (Num n) -> "Num " ++ (String.fromInt n)
+    Branch rule xs -> (ruleToString rule) ++ "[" ++ ((List.map printTree xs) |> (List.intersperse ", ") |> String.concat) ++ "]"

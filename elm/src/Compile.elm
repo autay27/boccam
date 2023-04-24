@@ -7,7 +7,7 @@ import Model exposing (..)
 import State exposing (..)
 import StateUtils exposing (Value(..), State, Identifier, treeToId, freshChannel)
 import Eval exposing (eval)
-import Utils exposing (replaceSubtree, pickValidBranches, dirToValue)
+import Utils exposing (replaceSubtree, pickValidBranches, dirToValue, updateCell)
 import KeyboardInput exposing (Direction(..))
 import Html exposing (b)
 import Result exposing (andThen)
@@ -126,23 +126,29 @@ step e m =
                 Err msg -> RunErr ("tried to get input but " ++ msg)
 
         Branch Out (chan::expr::[]) -> 
-            case checkFull state chan of
-                Ok True -> 
-                    RunErr ("Occam doesn't allow more than one parallel process to output to the same channel")
+            case eval expr state of
+                Ok n ->
+                    case treeToId chan of
+                        Ok chanid ->
+                            if chanid.str == graphicschanname then
+                                case updateCell m n chanid of
+                                    Ok updatedModel -> ranMe updatedModel
+                                    Err msg -> RunErr msg
+                            else
+                                case checkFull state chan of
+                                    Ok True ->
+                                        RunErr ("Occam doesn't allow more than one parallel process to output to the same channel")
 
-                Ok False -> 
-                    case eval expr state of
-                        Ok n -> 
-                            case treeToId chan of
-                                Ok chanid ->
-                                    let
-                                        waiting = { proc = e, waitCond = EmptiedChan chanid.str }
-                                    in
-                                        sendOnChan chanid n pid (block [waiting] m)
-                                Err msg -> RunErr msg
-                        Err msg -> RunErr ("tried to output a value but " ++ msg)
+                                    Ok False ->
+                                        let
+                                            waiting = { proc = e, waitCond = EmptiedChan chanid.str }
+                                        in
+                                            sendOnChan chanid n pid (block [waiting] m)
+                                    Err msg -> RunErr ("tried to output to a channel but " ++ msg)
+                        Err msg -> RunErr ("tried to output to a channel but " ++ msg)
+                Err msg -> RunErr ("tried to output a value but " ++ msg)
 
-                Err msg -> RunErr ("tried to output to a channel but " ++ msg)
+
 
 
         Branch Alt (x::[]) ->

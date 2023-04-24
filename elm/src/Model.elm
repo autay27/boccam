@@ -14,7 +14,9 @@ type alias Proc = {code: Tree, id: Id, ancestorId: Maybe Id}
 type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
 type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, keyboardBuffer: (List Direction) }
+type alias Graphics = List (List Int)
+
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, graphics: Graphics, keyboardBuffer: (List Direction) }
 
 freshModel =
     { output = "",
@@ -25,7 +27,11 @@ freshModel =
     randomSeed = Nothing,
     randomGenerator = { request = Nothing, fulfilment = Nothing },
     display = [],
-    keyboardBuffer = [] }
+    graphics = freshGraphics,
+    keyboardBuffer = []
+    }
+
+freshGraphics = List.repeat 32 (List.range 0 31)
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }

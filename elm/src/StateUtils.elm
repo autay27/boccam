@@ -2,6 +2,8 @@ module StateUtils exposing (..)
 
 import Dict exposing (Dict, member, empty, insert)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
+import Eval exposing (eval)
+import Result exposing (andThen)
 
 type alias Chan = { value: Value, isFull: Bool }
 
@@ -20,21 +22,26 @@ treeToId : Tree -> Result String Identifier
 treeToId tree =
     case tree of
         Branch Id [(Leaf (Ident i)), Branch Dimensions ds] ->
-            Ok { str = i, dims = treeToDimsList ds }
+            idMaker i ds
         Branch DeclareChannel [Branch Dimensions ds, (Leaf (Ident i))] ->
-            Ok { str = i, dims = treeToDimsList ds }
+            idMaker i ds
         Branch DeclareVariable [Branch Dimensions ds, (Leaf (Ident i))] ->
-            Ok { str = i, dims = treeToDimsList ds }
+            idMaker i ds
         _ -> Err ("problem parsing ident with tree " ++ (printTree tree))
 
-treeToDimsList : List Tree -> List Int
+idMaker i ds = treeToDimsList ds |> andThen (\result -> Ok { str = i, dims = result })
+
+treeToDimsList : List Tree -> Result String (List Int)
 treeToDimsList ds =
     case ds of
-        [] -> []
-        ((Leaf (Num n))::xs) -> n::(treeToDimsList xs)
-        _ -> [-11111]
+        [] -> Ok []
+        ((Leaf (Num n))::xs) -> (treeToDimsList xs) |> andThen (\ys -> n::ys)
+        ((Branch Id is)::xs) -> eval (Branch Id is) |> andThen (\val -> case val of
+                Number n -> (treeToDimsList xs) |> andThen (\ys -> n::ys)
+                _ -> Err "Dimension must be a number"
+            )
+        _ -> Err "Issue evaluating dimensions!"
         
-
 ruleToString : Rule -> String
 ruleToString r = case r of 
     Skip -> "Skip"
@@ -129,7 +136,7 @@ derefAndUpdateChannel ch str dims state =
                     Nothing -> Err "Index out of bounds"
     in
         case Dict.get str state.chans of
-            Nothing -> Err "Channel not declared"
+            Nothing -> Err ("Channel " ++ str ++ " not declared")
             Just (ChanArray dict) -> case dims of 
                 (d::ds) -> 
                     dAUArray d ds dict |> Result.andThen (\(accessedvalue, updatedstruct)->

@@ -5245,6 +5245,31 @@ var $elm$browser$Browser$element = _Browser_element;
 var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $author$project$Model$freshGraphics = A2(
+	$elm$core$List$repeat,
+	32,
+	A2($elm$core$List$range, 0, 31));
 var $author$project$StateUtils$ChanSingle = function (a) {
 	return {$: 'ChanSingle', a: a};
 };
@@ -5375,6 +5400,7 @@ var $author$project$State$freshState = {
 };
 var $author$project$Model$freshModel = {
 	display: _List_Nil,
+	graphics: $author$project$Model$freshGraphics,
 	ids: $elm$core$Dict$empty,
 	keyboardBuffer: _List_Nil,
 	output: '',
@@ -6732,7 +6758,7 @@ var $author$project$StateUtils$derefAndUpdateChannel = F4(
 			});
 		var _v4 = A2($elm$core$Dict$get, str, state.chans);
 		if (_v4.$ === 'Nothing') {
-			return $elm$core$Result$Err('Channel not declared');
+			return $elm$core$Result$Err('Channel ' + (str + ' not declared'));
 		} else {
 			if (_v4.a.$ === 'ChanArray') {
 				var dict = _v4.a.a;
@@ -7059,6 +7085,7 @@ var $author$project$Eval$logicEval = F4(
 			},
 			A2($author$project$Eval$eval, x, state));
 	});
+var $author$project$State$graphicschanname = 'GRAPHICS';
 var $author$project$Utils$pickValidBranches = F2(
 	function (alts, state) {
 		var flattenAlt = function (ys) {
@@ -7490,6 +7517,190 @@ var $author$project$Model$takeFulfilled = function (m) {
 			}),
 		m.randomGenerator.fulfilment);
 };
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $author$project$Utils$updateCoord = F4(
+	function (n, x, y, graphics) {
+		var newcol = function () {
+			var _v0 = $elm$core$List$head(
+				A2($elm$core$List$drop, x - 1, graphics));
+			if (_v0.$ === 'Just') {
+				var somecol = _v0.a;
+				return $elm$core$Result$Ok(
+					_Utils_ap(
+						A2($elm$core$List$take, x - 1, somecol),
+						A2(
+							$elm$core$List$cons,
+							n,
+							A2($elm$core$List$drop, x, somecol))));
+			} else {
+				return $elm$core$Result$Err('Graphics y-coordinate out of bounds');
+			}
+		}();
+		return A2(
+			$elm$core$Result$andThen,
+			function (col) {
+				return ((0 <= x) && (_Utils_cmp(
+					x,
+					$elm$core$List$length(graphics)) < 0)) ? $elm$core$Result$Ok(
+					_Utils_ap(
+						A2($elm$core$List$take, x - 1, graphics),
+						A2(
+							$elm$core$List$cons,
+							col,
+							A2($elm$core$List$drop, x, graphics)))) : $elm$core$Result$Err('Graphics x-coordinate out of bounds');
+			},
+			newcol);
+	});
+var $author$project$Utils$updateCell = F3(
+	function (model, value, cid) {
+		if (value.$ === 'Number') {
+			var n = value.a;
+			var _v1 = cid.dims;
+			if ((_v1.b && _v1.b.b) && (!_v1.b.b.b)) {
+				var x = _v1.a;
+				var _v2 = _v1.b;
+				var y = _v2.a;
+				return A2(
+					$elm$core$Result$andThen,
+					function (newGraphics) {
+						return $elm$core$Result$Ok(
+							_Utils_update(
+								model,
+								{graphics: newGraphics}));
+					},
+					A4($author$project$Utils$updateCoord, n, x, y, model.graphics));
+			} else {
+				return $elm$core$Result$Err('Incorrect number of dimensions for graphics channel array (requires 2)');
+			}
+		} else {
+			return $elm$core$Result$Err('Cannot output a boolean to the graphics array');
+		}
+	});
 var $author$project$Compile$step = F2(
 	function (e, m) {
 		var state = m.state;
@@ -7674,79 +7885,90 @@ var $author$project$Compile$step = F2(
 							var chan = _v25.a;
 							var _v26 = _v25.b;
 							var expr = _v26.a;
-							var _v27 = A2($author$project$State$checkFull, state, chan);
+							var _v27 = A2($author$project$Eval$eval, expr, state);
 							if (_v27.$ === 'Ok') {
-								if (_v27.a) {
-									return $author$project$Compile$RunErr('Occam doesn\'t allow more than one parallel process to output to the same channel');
-								} else {
-									var _v28 = A2($author$project$Eval$eval, expr, state);
-									if (_v28.$ === 'Ok') {
-										var n = _v28.a;
-										var _v29 = $author$project$StateUtils$treeToId(chan);
+								var n = _v27.a;
+								var _v28 = $author$project$StateUtils$treeToId(chan);
+								if (_v28.$ === 'Ok') {
+									var chanid = _v28.a;
+									if (_Utils_eq(chanid.str, $author$project$State$graphicschanname)) {
+										var _v29 = A3($author$project$Utils$updateCell, m, n, chanid);
 										if (_v29.$ === 'Ok') {
-											var chanid = _v29.a;
-											var waiting = {
-												proc: e,
-												waitCond: $author$project$Model$EmptiedChan(chanid.str)
-											};
-											return A4(
-												$author$project$Compile$sendOnChan,
-												chanid,
-												n,
-												pid,
-												A2(
-													$author$project$Model$block,
-													_List_fromArray(
-														[waiting]),
-													m));
+											var updatedModel = _v29.a;
+											return ranMe(updatedModel);
 										} else {
 											var msg = _v29.a;
 											return $author$project$Compile$RunErr(msg);
 										}
 									} else {
-										var msg = _v28.a;
-										return $author$project$Compile$RunErr('tried to output a value but ' + msg);
+										var _v30 = A2($author$project$State$checkFull, state, chan);
+										if (_v30.$ === 'Ok') {
+											if (_v30.a) {
+												return $author$project$Compile$RunErr('Occam doesn\'t allow more than one parallel process to output to the same channel');
+											} else {
+												var waiting = {
+													proc: e,
+													waitCond: $author$project$Model$EmptiedChan(chanid.str)
+												};
+												return A4(
+													$author$project$Compile$sendOnChan,
+													chanid,
+													n,
+													pid,
+													A2(
+														$author$project$Model$block,
+														_List_fromArray(
+															[waiting]),
+														m));
+											}
+										} else {
+											var msg = _v30.a;
+											return $author$project$Compile$RunErr('tried to output to a channel but ' + msg);
+										}
 									}
+								} else {
+									var msg = _v28.a;
+									return $author$project$Compile$RunErr('tried to output to a channel but ' + msg);
 								}
 							} else {
 								var msg = _v27.a;
-								return $author$project$Compile$RunErr('tried to output to a channel but ' + msg);
+								return $author$project$Compile$RunErr('tried to output a value but ' + msg);
 							}
 						} else {
 							break _v0$12;
 						}
 					case 'Alt':
 						if (_v0.b.b && (!_v0.b.b.b)) {
-							var _v30 = _v0.a;
-							var _v31 = _v0.b;
-							var x = _v31.a;
+							var _v31 = _v0.a;
+							var _v32 = _v0.b;
+							var x = _v32.a;
 							if ((x.$ === 'Branch') && (x.a.$ === 'AltList')) {
-								var _v33 = x.a;
+								var _v34 = x.a;
 								var xs = x.b;
 								var enactAlternative = F2(
 									function (a, model) {
 										if ((((((((((a.$ === 'Branch') && (a.a.$ === 'Alternative')) && a.b.b) && (a.b.a.$ === 'Branch')) && (a.b.a.a.$ === 'Guard')) && a.b.a.b.b) && a.b.a.b.b.b) && (!a.b.a.b.b.b.b)) && a.b.b.b) && (!a.b.b.b.b)) {
-											var _v39 = a.a;
-											var _v40 = a.b;
-											var _v41 = _v40.a;
+											var _v40 = a.a;
+											var _v41 = a.b;
 											var _v42 = _v41.a;
-											var _v43 = _v41.b;
-											var bool = _v43.a;
-											var _v44 = _v43.b;
-											var action = _v44.a;
-											var _v45 = _v40.b;
-											var proc = _v45.a;
-											_v46$2:
+											var _v43 = _v42.a;
+											var _v44 = _v42.b;
+											var bool = _v44.a;
+											var _v45 = _v44.b;
+											var action = _v45.a;
+											var _v46 = _v41.b;
+											var proc = _v46.a;
+											_v47$2:
 											while (true) {
 												if (action.$ === 'Branch') {
 													switch (action.a.$) {
 														case 'In':
 															if ((action.b.b && action.b.b.b) && (!action.b.b.b.b)) {
-																var _v47 = action.a;
-																var _v48 = action.b;
-																var chan = _v48.a;
-																var _v49 = _v48.b;
-																var _var = _v49.a;
+																var _v48 = action.a;
+																var _v49 = action.b;
+																var chan = _v49.a;
+																var _v50 = _v49.b;
+																var _var = _v50.a;
 																return A4(
 																	$author$project$Compile$receiveOnChan,
 																	chan,
@@ -7760,10 +7982,10 @@ var $author$project$Compile$step = F2(
 																		aid,
 																		model));
 															} else {
-																break _v46$2;
+																break _v47$2;
 															}
 														case 'Skip':
-															var _v50 = action.a;
+															var _v51 = action.a;
 															return ranMe(
 																A4(
 																	$author$project$Model$spawn,
@@ -7773,10 +7995,10 @@ var $author$project$Compile$step = F2(
 																	aid,
 																	model));
 														default:
-															break _v46$2;
+															break _v47$2;
 													}
 												} else {
-													break _v46$2;
+													break _v47$2;
 												}
 											}
 											return $author$project$Compile$RunErr('Invalid alt guard');
@@ -7784,16 +8006,16 @@ var $author$project$Compile$step = F2(
 											return $author$project$Compile$RunErr('Invalid alt branch');
 										}
 									});
-								var _v34 = A2($author$project$Utils$pickValidBranches, xs, state);
-								if (_v34.$ === 'Ok') {
-									if (!_v34.a.b) {
+								var _v35 = A2($author$project$Utils$pickValidBranches, xs, state);
+								if (_v35.$ === 'Ok') {
+									if (!_v35.a.b) {
 										return ranMe(m);
 									} else {
-										var ys = _v34.a;
-										var _v35 = $author$project$Model$takeFulfilled(m);
-										if (_v35.b.$ === 'Nothing') {
-											var model = _v35.a;
-											var _v36 = _v35.b;
+										var ys = _v35.a;
+										var _v36 = $author$project$Model$takeFulfilled(m);
+										if (_v36.b.$ === 'Nothing') {
+											var model = _v36.a;
+											var _v37 = _v36.b;
 											return $author$project$Compile$Requesting(
 												A2(
 													$author$project$Model$requestRandomUpTo,
@@ -7804,12 +8026,12 @@ var $author$project$Compile$step = F2(
 															$elm$core$List$length(ys)),
 														model)));
 										} else {
-											var model = _v35.a;
-											var rand = _v35.b.a;
-											var _v37 = $elm$core$List$head(
+											var model = _v36.a;
+											var rand = _v36.b.a;
+											var _v38 = $elm$core$List$head(
 												A2($elm$core$List$drop, rand, ys));
-											if (_v37.$ === 'Just') {
-												var a = _v37.a;
+											if (_v38.$ === 'Just') {
+												var a = _v38.a;
 												return A2(enactAlternative, a, model);
 											} else {
 												return $author$project$Compile$RunErr(
@@ -7819,7 +8041,7 @@ var $author$project$Compile$step = F2(
 										}
 									}
 								} else {
-									var msg = _v34.a;
+									var msg = _v35.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							} else {
@@ -7830,25 +8052,25 @@ var $author$project$Compile$step = F2(
 						}
 					case 'AssignExpr':
 						if ((_v0.b.b && _v0.b.b.b) && (!_v0.b.b.b.b)) {
-							var _v51 = _v0.a;
-							var _v52 = _v0.b;
-							var id = _v52.a;
-							var _v53 = _v52.b;
-							var e1 = _v53.a;
-							var _v54 = A2($author$project$Eval$eval, e1, state);
-							if (_v54.$ === 'Ok') {
-								var v = _v54.a;
-								var _v55 = A3($author$project$State$assignVar, state, id, v);
-								if (_v55.$ === 'Ok') {
-									var s = _v55.a;
+							var _v52 = _v0.a;
+							var _v53 = _v0.b;
+							var id = _v53.a;
+							var _v54 = _v53.b;
+							var e1 = _v54.a;
+							var _v55 = A2($author$project$Eval$eval, e1, state);
+							if (_v55.$ === 'Ok') {
+								var v = _v55.a;
+								var _v56 = A3($author$project$State$assignVar, state, id, v);
+								if (_v56.$ === 'Ok') {
+									var s = _v56.a;
 									return ranMe(
 										A2($author$project$Model$update, s, m));
 								} else {
-									var msg = _v55.a;
+									var msg = _v56.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							} else {
-								var msg = _v54.a;
+								var msg = _v55.a;
 								return $author$project$Compile$RunErr(msg);
 							}
 						} else {
@@ -7856,14 +8078,14 @@ var $author$project$Compile$step = F2(
 						}
 					case 'While':
 						if ((_v0.b.b && _v0.b.b.b) && (!_v0.b.b.b.b)) {
-							var _v56 = _v0.a;
-							var _v57 = _v0.b;
-							var cond = _v57.a;
-							var _v58 = _v57.b;
-							var body = _v58.a;
-							var _v59 = A2($author$project$Eval$eval, cond, state);
-							if ((_v59.$ === 'Ok') && (_v59.a.$ === 'Boolval')) {
-								if (_v59.a.a) {
+							var _v57 = _v0.a;
+							var _v58 = _v0.b;
+							var cond = _v58.a;
+							var _v59 = _v58.b;
+							var body = _v59.a;
+							var _v60 = A2($author$project$Eval$eval, cond, state);
+							if ((_v60.$ === 'Ok') && (_v60.a.$ === 'Boolval')) {
+								if (_v60.a.a) {
 									return unrolledMe(
 										A5($author$project$Model$spawnAndWait, body, e.code, pid, aid, m));
 								} else {
@@ -7877,35 +8099,35 @@ var $author$project$Compile$step = F2(
 						}
 					case 'Cond':
 						if (_v0.b.b && (!_v0.b.b.b)) {
-							var _v60 = _v0.a;
-							var _v61 = _v0.b;
-							var choicelist = _v61.a;
+							var _v61 = _v0.a;
+							var _v62 = _v0.b;
+							var choicelist = _v62.a;
 							var getFirstRestChoices = function (ys) {
 								if (!ys.b) {
 									return $elm$core$Result$Err('No choices left');
 								} else {
 									var z = ys.a;
 									var zs = ys.b;
-									_v63$2:
+									_v64$2:
 									while (true) {
 										if (z.$ === 'Branch') {
 											switch (z.a.$) {
 												case 'GuardedChoice':
-													var _v64 = z.a;
+													var _v65 = z.a;
 													return $elm$core$Result$Ok(
 														_Utils_Tuple2(z, zs));
 												case 'Cond':
 													if (((z.b.b && (z.b.a.$ === 'Branch')) && (z.b.a.a.$ === 'ChoiceList')) && (!z.b.b.b)) {
-														var _v65 = z.a;
-														var _v66 = z.b;
-														var _v67 = _v66.a;
+														var _v66 = z.a;
+														var _v67 = z.b;
 														var _v68 = _v67.a;
-														var qs = _v67.b;
+														var _v69 = _v68.a;
+														var qs = _v68.b;
 														return A2(
 															$elm$core$Result$andThen,
-															function (_v69) {
-																var first = _v69.a;
-																var rest = _v69.b;
+															function (_v70) {
+																var first = _v70.a;
+																var rest = _v70.b;
 																if (!rest.b) {
 																	return $elm$core$Result$Ok(
 																		_Utils_Tuple2(first, zs));
@@ -7922,13 +8144,13 @@ var $author$project$Compile$step = F2(
 															},
 															getFirstRestChoices(qs));
 													} else {
-														break _v63$2;
+														break _v64$2;
 													}
 												default:
-													break _v63$2;
+													break _v64$2;
 											}
 										} else {
-											break _v63$2;
+											break _v64$2;
 										}
 									}
 									return $elm$core$Result$Err('Invalid IF branch');
@@ -7936,26 +8158,26 @@ var $author$project$Compile$step = F2(
 							};
 							if ((choicelist.$ === 'Branch') && (choicelist.a.$ === 'ChoiceList')) {
 								if (!choicelist.b.b) {
-									var _v72 = choicelist.a;
+									var _v73 = choicelist.a;
 									return ranMe(m);
 								} else {
-									var _v73 = choicelist.a;
+									var _v74 = choicelist.a;
 									var xs = choicelist.b;
-									var _v74 = getFirstRestChoices(xs);
-									if (_v74.$ === 'Ok') {
-										if (((((_v74.a.a.$ === 'Branch') && (_v74.a.a.a.$ === 'GuardedChoice')) && _v74.a.a.b.b) && _v74.a.a.b.b.b) && (!_v74.a.a.b.b.b.b)) {
-											var _v75 = _v74.a;
+									var _v75 = getFirstRestChoices(xs);
+									if (_v75.$ === 'Ok') {
+										if (((((_v75.a.a.$ === 'Branch') && (_v75.a.a.a.$ === 'GuardedChoice')) && _v75.a.a.b.b) && _v75.a.a.b.b.b) && (!_v75.a.a.b.b.b.b)) {
 											var _v76 = _v75.a;
 											var _v77 = _v76.a;
-											var _v78 = _v76.b;
-											var cond = _v78.a;
-											var _v79 = _v78.b;
-											var proc = _v79.a;
-											var ys = _v75.b;
-											var _v80 = A2($author$project$Eval$eval, cond, state);
-											if (_v80.$ === 'Ok') {
-												if (_v80.a.$ === 'Boolval') {
-													if (_v80.a.a) {
+											var _v78 = _v77.a;
+											var _v79 = _v77.b;
+											var cond = _v79.a;
+											var _v80 = _v79.b;
+											var proc = _v80.a;
+											var ys = _v76.b;
+											var _v81 = A2($author$project$Eval$eval, cond, state);
+											if (_v81.$ === 'Ok') {
+												if (_v81.a.$ === 'Boolval') {
+													if (_v81.a.a) {
 														return ranMe(
 															A4(
 																$author$project$Model$spawn,
@@ -7986,14 +8208,14 @@ var $author$project$Compile$step = F2(
 													return $author$project$Compile$RunErr('problem evaluating if condition');
 												}
 											} else {
-												var msg = _v80.a;
+												var msg = _v81.a;
 												return $author$project$Compile$RunErr('Failed to evaluate if condition: ' + msg);
 											}
 										} else {
 											return $author$project$Compile$RunErr('problem evaluating IF');
 										}
 									} else {
-										var msg = _v74.a;
+										var msg = _v75.a;
 										return $author$project$Compile$RunErr('couldn\'t evaluate IF: ' + msg);
 									}
 								}
@@ -8004,30 +8226,30 @@ var $author$project$Compile$step = F2(
 							break _v0$12;
 						}
 					case 'DeclareVariable':
-						var _v81 = _v0.a;
-						var _v82 = A2($author$project$State$declareVar, state, e.code);
-						if (_v82.$ === 'Ok') {
-							var state2 = _v82.a;
+						var _v82 = _v0.a;
+						var _v83 = A2($author$project$State$declareVar, state, e.code);
+						if (_v83.$ === 'Ok') {
+							var state2 = _v83.a;
 							return ranMe(
 								A2($author$project$Model$update, state2, m));
 						} else {
-							var msg = _v82.a;
+							var msg = _v83.a;
 							return $author$project$Compile$RunErr(msg);
 						}
 					case 'DeclareChannel':
-						var _v83 = _v0.a;
-						var _v84 = A2($author$project$State$declareChan, state, e.code);
-						if (_v84.$ === 'Ok') {
-							var state2 = _v84.a;
+						var _v84 = _v0.a;
+						var _v85 = A2($author$project$State$declareChan, state, e.code);
+						if (_v85.$ === 'Ok') {
+							var state2 = _v85.a;
 							return ranMe(
 								A2($author$project$Model$update, state2, m));
 						} else {
-							var msg = _v84.a;
+							var msg = _v85.a;
 							return $author$project$Compile$RunErr(msg);
 						}
 					case 'Skip':
 						if (!_v0.b.b) {
-							var _v85 = _v0.a;
+							var _v86 = _v0.a;
 							return ranMe(m);
 						} else {
 							break _v0$12;
@@ -8039,132 +8261,6 @@ var $author$project$Compile$step = F2(
 		}
 		var s = _v0.a;
 		return $author$project$Compile$RunErr('Wrong tree structure');
-	});
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
 	});
 var $author$project$Compile$make_step = F2(
 	function (m, n) {
@@ -8686,6 +8782,128 @@ var $author$project$Main$printdisplay = function (display) {
 	}();
 	return $elm$html$Html$text(str);
 };
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $elm$core$List$concatMap = F2(
+	function (f, list) {
+		return $elm$core$List$concat(
+			A2($elm$core$List$map, f, list));
+	});
+var $elm$core$Tuple$pair = F2(
+	function (a, b) {
+		return _Utils_Tuple2(a, b);
+	});
+var $author$project$Utils$zipWithIndex = function (xs) {
+	return A3(
+		$elm$core$List$map2,
+		$elm$core$Tuple$pair,
+		xs,
+		A2(
+			$elm$core$List$range,
+			0,
+			$elm$core$List$length(xs) - 1));
+};
+var $author$project$Utils$graphicsAddCoords = function (xs) {
+	return A2(
+		$elm$core$List$concatMap,
+		function (_v0) {
+			var ys = _v0.a;
+			var i = _v0.b;
+			return A2(
+				$elm$core$List$map,
+				function (_v1) {
+					var color = _v1.a;
+					var j = _v1.b;
+					return _Utils_Tuple2(
+						color,
+						_Utils_Tuple2(i, j));
+				},
+				ys);
+		},
+		$author$project$Utils$zipWithIndex(
+			A2($elm$core$List$map, $author$project$Utils$zipWithIndex, xs)));
+};
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $author$project$Utils$numberToColor = function (n) {
+	numberToColor:
+	while (true) {
+		switch (n) {
+			case 0:
+				return 'black';
+			case 1:
+				return 'grey';
+			case 2:
+				return 'white';
+			case 3:
+				return 'red';
+			case 4:
+				return 'yellow';
+			case 5:
+				return 'limegreen';
+			case 6:
+				return 'cyan';
+			case 7:
+				return 'blue';
+			case 8:
+				return 'magenta';
+			default:
+				var $temp$n = 0;
+				n = $temp$n;
+				continue numberToColor;
+		}
+	}
+};
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var $author$project$Utils$itemToRect = function (item) {
+	var color = item.a;
+	var _v1 = item.b;
+	var i = _v1.a;
+	var j = _v1.b;
+	return A2(
+		$elm$svg$Svg$rect,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$x(
+				$elm$core$String$fromInt(10 * i)),
+				$elm$svg$Svg$Attributes$y(
+				$elm$core$String$fromInt(10 * j)),
+				$elm$svg$Svg$Attributes$width('10'),
+				$elm$svg$Svg$Attributes$height('10'),
+				$elm$svg$Svg$Attributes$fill(
+				$author$project$Utils$numberToColor(color))
+			]),
+		_List_Nil);
+};
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $author$project$Utils$printgraphics = function (graphics) {
+	return A2(
+		$elm$svg$Svg$svg,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$width('320'),
+				$elm$svg$Svg$Attributes$height('320'),
+				$elm$svg$Svg$Attributes$viewBox('0 0 320 320')
+			]),
+		A2(
+			$elm$core$List$map,
+			$author$project$Utils$itemToRect,
+			$author$project$Utils$graphicsAddCoords(graphics)));
+};
 var $elm$core$String$lines = _String_lines;
 var $author$project$Main$printout = function (s) {
 	return A2(
@@ -8787,6 +9005,13 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$author$project$Utils$printgraphics(model.graphics)
+							])),
 						A2(
 						$elm$html$Html$div,
 						_List_Nil,

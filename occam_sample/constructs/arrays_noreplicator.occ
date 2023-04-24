@@ -1,0 +1,15 @@
+SEQ
+    [2][3]INT slots:
+    [3]CHAN OF INT chans:
+    SEQ
+        PAR
+            chans[0] ! 0
+            chans[1] ! 1
+            chans[2] ! 2
+            chans[0] ? slots[1][0]
+            chans[1] ? slots[0][1]
+            chans[2] ? slots[0][2]
+        SEQ
+            DISPLAY ! slots[1][0]
+            DISPLAY ! slots[0][1]
+            DISPLAY ! slots[0][2]

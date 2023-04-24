@@ -10,6 +10,7 @@ import Result exposing (andThen)
 
 displaychanname = "DISPLAY"
 keyboardchanname = "KEYBOARD"
+graphicschanname = "GRAPHICS"
 
 displaychanid = { str = displaychanname, dims = [] }
 keyboardchanid = { str = keyboardchanname, dims = [] }

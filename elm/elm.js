@@ -7683,59 +7683,70 @@ var $elm$core$List$take = F2(
 var $author$project$Utils$updateCoord = F4(
 	function (n, x, y, graphics) {
 		var newcol = function () {
-			var _v0 = $elm$core$List$head(
-				A2($elm$core$List$drop, x - 1, graphics));
-			if (_v0.$ === 'Just') {
-				var somecol = _v0.a;
-				return $elm$core$Result$Ok(
-					_Utils_ap(
-						A2($elm$core$List$take, x - 1, somecol),
-						A2(
-							$elm$core$List$cons,
-							n,
-							A2($elm$core$List$drop, x, somecol))));
+			if ((0 <= x) && (_Utils_cmp(
+				x,
+				$elm$core$List$length(graphics)) < 0)) {
+				var _v0 = $elm$core$List$head(
+					A2($elm$core$List$drop, x, graphics));
+				if (_v0.$ === 'Just') {
+					var somecol = _v0.a;
+					return ((0 <= y) && (_Utils_cmp(
+						y,
+						$elm$core$List$length(graphics)) < 0)) ? $elm$core$Result$Ok(
+						_Utils_ap(
+							A2($elm$core$List$take, y, somecol),
+							A2(
+								$elm$core$List$cons,
+								n,
+								A2($elm$core$List$drop, y + 1, somecol)))) : $elm$core$Result$Err('Graphics y-coordinate out of bounds');
+				} else {
+					return $elm$core$Result$Err('Graphics x-coordinate out of bounds');
+				}
 			} else {
-				return $elm$core$Result$Err('Graphics y-coordinate out of bounds');
+				return $elm$core$Result$Err('Graphics x-coordinate out of bounds');
 			}
 		}();
 		return A2(
 			$elm$core$Result$andThen,
 			function (col) {
-				return ((0 <= x) && (_Utils_cmp(
-					x,
-					$elm$core$List$length(graphics)) < 0)) ? $elm$core$Result$Ok(
+				return $elm$core$Result$Ok(
 					_Utils_ap(
-						A2($elm$core$List$take, x - 1, graphics),
+						A2($elm$core$List$take, x, graphics),
 						A2(
 							$elm$core$List$cons,
 							col,
-							A2($elm$core$List$drop, x, graphics)))) : $elm$core$Result$Err('Graphics x-coordinate out of bounds');
+							A2($elm$core$List$drop, x + 1, graphics))));
 			},
 			newcol);
 	});
 var $author$project$Utils$updateCell = F3(
 	function (model, value, cid) {
-		if (value.$ === 'Number') {
-			var n = value.a;
-			var _v1 = cid.dims;
-			if ((_v1.b && _v1.b.b) && (!_v1.b.b.b)) {
-				var x = _v1.a;
-				var _v2 = _v1.b;
-				var y = _v2.a;
-				return A2(
-					$elm$core$Result$andThen,
-					function (newGraphics) {
-						return $elm$core$Result$Ok(
-							_Utils_update(
-								model,
-								{graphics: newGraphics}));
-					},
-					A4($author$project$Utils$updateCoord, n, x, y, model.graphics));
-			} else {
-				return $elm$core$Result$Err('Incorrect number of dimensions for graphics channel array (requires 2)');
-			}
-		} else {
-			return $elm$core$Result$Err('Cannot output a boolean to the graphics array');
+		switch (value.$) {
+			case 'Number':
+				var n = value.a;
+				var _v1 = cid.dims;
+				if ((_v1.b && _v1.b.b) && (!_v1.b.b.b)) {
+					var x = _v1.a;
+					var _v2 = _v1.b;
+					var y = _v2.a;
+					return A2(
+						$elm$core$Result$andThen,
+						function (newGraphics) {
+							return $elm$core$Result$Ok(
+								_Utils_update(
+									model,
+									{graphics: newGraphics}));
+						},
+						A4($author$project$Utils$updateCoord, n, x, y, model.graphics));
+				} else {
+					return $elm$core$Result$Err('Incorrect number of dimensions for graphics channel array (requires 2)');
+				}
+			case 'Boolval':
+				return $elm$core$Result$Err('Cannot output boolean to a pixel');
+			case 'Array':
+				return $elm$core$Result$Err('Cannot output array to a pixel');
+			default:
+				return $elm$core$Result$Err('Trying to output value which has not been set yet to a pixel');
 		}
 	});
 var $author$project$Compile$step = F2(
@@ -8915,9 +8926,9 @@ var $author$project$Utils$itemToRect = function (item) {
 		_List_fromArray(
 			[
 				$elm$svg$Svg$Attributes$x(
-				$elm$core$String$fromInt(10 * i)),
-				$elm$svg$Svg$Attributes$y(
 				$elm$core$String$fromInt(10 * j)),
+				$elm$svg$Svg$Attributes$y(
+				$elm$core$String$fromInt(10 * i)),
 				$elm$svg$Svg$Attributes$width('10'),
 				$elm$svg$Svg$Attributes$height('10'),
 				$elm$svg$Svg$Attributes$fill(

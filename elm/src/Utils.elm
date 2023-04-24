@@ -88,8 +88,8 @@ itemToRect : (Int, (Int, Int)) -> Html msg
 itemToRect item = case item of
     (color, (i,j)) ->
         rect
-            [ x (String.fromInt (10*i))
-            , y (String.fromInt (10*j))
+            [ x (String.fromInt (10*j))
+            , y (String.fromInt (10*i))
             , width "10"
             , height "10"
             , fill (numberToColor color)
@@ -114,17 +114,25 @@ updateCell model value cid =
                         Ok {model | graphics = newGraphics }
                     )
                 _ -> Err "Incorrect number of dimensions for graphics channel array (requires 2)"
-        _ -> Err "Cannot output a boolean to the graphics array"
+        Boolval _ ->  Err "Cannot output boolean to a pixel"
+        Array _ -> Err "Cannot output array to a pixel"
+        Any -> Err "Trying to output value which has not been set yet to a pixel"
 
 updateCoord : Int -> Int -> Int -> Graphics -> Result String Graphics
 updateCoord n x y graphics =
     let
-        newcol = case head (drop (x-1) graphics) of
-            Just somecol -> Ok ((take (x-1) somecol) ++ (n :: (drop (x) somecol)))
-            _ -> Err "Graphics y-coordinate out of bounds"
+        newcol =
+            if (0 <= x) && (x < List.length graphics) then
+                case head (drop x graphics) of
+                    Just somecol ->
+                        if (0 <= y) && (y < List.length graphics) then
+                            Ok ((take y somecol) ++ (n :: (drop (y+1) somecol)))
+                        else
+                            Err "Graphics y-coordinate out of bounds"
+                    _ -> Err "Graphics x-coordinate out of bounds"
+            else
+                Err "Graphics x-coordinate out of bounds"
     in
         newcol |> Result.andThen (\col ->
-            if (0 <= x) && (x < (List.length graphics)) then
-                Ok ((take (x-1) graphics) ++ (col :: (drop (x) graphics)))
-            else Err "Graphics x-coordinate out of bounds"
+            Ok ((take x graphics) ++ (col :: (drop (x+1) graphics)))
         )

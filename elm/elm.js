@@ -5270,12 +5270,12 @@ var $author$project$Model$freshGraphics = A2(
 	$elm$core$List$repeat,
 	32,
 	A2($elm$core$List$range, 0, 31));
-var $author$project$StateUtils$ChanSingle = function (a) {
+var $author$project$State$ChanSingle = function (a) {
 	return {$: 'ChanSingle', a: a};
 };
-var $author$project$State$displaychanname = 'DISPLAY';
-var $author$project$StateUtils$Any = {$: 'Any'};
-var $author$project$StateUtils$freshChannel = {isFull: false, value: $author$project$StateUtils$Any};
+var $author$project$StateUtils$displaychanname = 'DISPLAY';
+var $author$project$State$Any = {$: 'Any'};
+var $author$project$State$freshChannel = {isFull: false, value: $author$project$State$Any};
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5385,16 +5385,16 @@ var $elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
-var $author$project$State$keyboardchanname = 'KEYBOARD';
-var $author$project$State$freshState = {
+var $author$project$StateUtils$keyboardchanname = 'KEYBOARD';
+var $author$project$StateUtils$freshState = {
 	chans: A3(
 		$elm$core$Dict$insert,
-		$author$project$State$keyboardchanname,
-		$author$project$StateUtils$ChanSingle($author$project$StateUtils$freshChannel),
+		$author$project$StateUtils$keyboardchanname,
+		$author$project$State$ChanSingle($author$project$State$freshChannel),
 		A3(
 			$elm$core$Dict$insert,
-			$author$project$State$displaychanname,
-			$author$project$StateUtils$ChanSingle($author$project$StateUtils$freshChannel),
+			$author$project$StateUtils$displaychanname,
+			$author$project$State$ChanSingle($author$project$State$freshChannel),
 			$elm$core$Dict$empty)),
 	vars: $elm$core$Dict$empty
 };
@@ -5407,7 +5407,7 @@ var $author$project$Model$freshModel = {
 	randomGenerator: {fulfilment: $elm$core$Maybe$Nothing, request: $elm$core$Maybe$Nothing},
 	randomSeed: $elm$core$Maybe$Nothing,
 	running: _List_Nil,
-	state: $author$project$State$freshState,
+	state: $author$project$StateUtils$freshState,
 	waiting: _List_Nil
 };
 var $elm$core$Basics$negate = function (n) {
@@ -6412,10 +6412,10 @@ var $author$project$Compile$Unrolled = F2(
 	function (a, b) {
 		return {$: 'Unrolled', a: a, b: b};
 	});
-var $author$project$StateUtils$Array = function (a) {
+var $author$project$State$Array = function (a) {
 	return {$: 'Array', a: a};
 };
-var $author$project$StateUtils$derefAndUpdateVariable = F4(
+var $author$project$State$derefAndUpdateVariable = F4(
 	function (val, str, dims, state) {
 		var dAUArray = F4(
 			function (v, d, ds, dict) {
@@ -6429,7 +6429,7 @@ var $author$project$StateUtils$derefAndUpdateVariable = F4(
 							return $elm$core$Result$Ok(
 								_Utils_Tuple2(
 									oldvalue,
-									$author$project$StateUtils$Array(
+									$author$project$State$Array(
 										A3($elm$core$Dict$insert, d, v, dict))));
 						}
 					} else {
@@ -6450,7 +6450,7 @@ var $author$project$StateUtils$derefAndUpdateVariable = F4(
 									return $elm$core$Result$Ok(
 										_Utils_Tuple2(
 											oldvalue,
-											$author$project$StateUtils$Array(
+											$author$project$State$Array(
 												A3($elm$core$Dict$insert, d, newstruct, dict))));
 								},
 								A4(dAUArray, v, i, is, dict2));
@@ -6507,6 +6507,13 @@ var $author$project$StateUtils$derefAndUpdateVariable = F4(
 			}
 		}
 	});
+var $author$project$State$Boolval = function (a) {
+	return {$: 'Boolval', a: a};
+};
+var $author$project$State$Number = function (a) {
+	return {$: 'Number', a: a};
+};
+var $elm$core$Basics$ge = _Utils_ge;
 var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
@@ -6528,7 +6535,7 @@ var $elm$core$List$intersperse = F2(
 			return A2($elm$core$List$cons, hd, spersed);
 		}
 	});
-var $author$project$StateUtils$ruleToString = function (r) {
+var $author$project$State$ruleToString = function (r) {
 	switch (r.$) {
 		case 'Skip':
 			return 'Skip';
@@ -6578,7 +6585,7 @@ var $author$project$StateUtils$ruleToString = function (r) {
 			return 'LBop';
 	}
 };
-var $author$project$StateUtils$printTree = function (t) {
+var $author$project$State$printTree = function (t) {
 	if (t.$ === 'Leaf') {
 		if (t.a.$ === 'Ident') {
 			var i = t.a.a;
@@ -6590,95 +6597,297 @@ var $author$project$StateUtils$printTree = function (t) {
 	} else {
 		var rule = t.a;
 		var xs = t.b;
-		return $author$project$StateUtils$ruleToString(rule) + ('[' + ($elm$core$String$concat(
+		return $author$project$State$ruleToString(rule) + ('[' + ($elm$core$String$concat(
 			A2(
 				$elm$core$List$intersperse,
 				', ',
-				A2($elm$core$List$map, $author$project$StateUtils$printTree, xs))) + ']'));
+				A2($elm$core$List$map, $author$project$State$printTree, xs))) + ']'));
 	}
 };
-var $author$project$StateUtils$treeToDimsList = function (ds) {
-	if (!ds.b) {
-		return _List_Nil;
-	} else {
-		if ((ds.a.$ === 'Leaf') && (ds.a.a.$ === 'Num')) {
-			var n = ds.a.a.a;
-			var xs = ds.b;
-			return A2(
-				$elm$core$List$cons,
-				n,
-				$author$project$StateUtils$treeToDimsList(xs));
-		} else {
-			return _List_fromArray(
-				[-11111]);
-		}
-	}
-};
-var $author$project$StateUtils$treeToId = function (tree) {
-	_v0$3:
-	while (true) {
-		if ((tree.$ === 'Branch') && tree.b.b) {
-			if (tree.b.a.$ === 'Leaf') {
-				if ((((((tree.a.$ === 'Id') && (tree.b.a.a.$ === 'Ident')) && tree.b.b.b) && (tree.b.b.a.$ === 'Branch')) && (tree.b.b.a.a.$ === 'Dimensions')) && (!tree.b.b.b.b)) {
-					var _v1 = tree.a;
-					var _v2 = tree.b;
-					var i = _v2.a.a.a;
-					var _v3 = _v2.b;
-					var _v4 = _v3.a;
-					var _v5 = _v4.a;
-					var ds = _v4.b;
-					return $elm$core$Result$Ok(
-						{
-							dims: $author$project$StateUtils$treeToDimsList(ds),
-							str: i
-						});
-				} else {
-					break _v0$3;
-				}
-			} else {
-				if (((((tree.b.a.a.$ === 'Dimensions') && tree.b.b.b) && (tree.b.b.a.$ === 'Leaf')) && (tree.b.b.a.a.$ === 'Ident')) && (!tree.b.b.b.b)) {
-					switch (tree.a.$) {
-						case 'DeclareChannel':
-							var _v6 = tree.a;
-							var _v7 = tree.b;
-							var _v8 = _v7.a;
-							var _v9 = _v8.a;
-							var ds = _v8.b;
-							var _v10 = _v7.b;
-							var i = _v10.a.a.a;
-							return $elm$core$Result$Ok(
-								{
-									dims: $author$project$StateUtils$treeToDimsList(ds),
-									str: i
-								});
-						case 'DeclareVariable':
-							var _v11 = tree.a;
-							var _v12 = tree.b;
-							var _v13 = _v12.a;
-							var _v14 = _v13.a;
-							var ds = _v13.b;
-							var _v15 = _v12.b;
-							var i = _v15.a.a.a;
-							return $elm$core$Result$Ok(
-								{
-									dims: $author$project$StateUtils$treeToDimsList(ds),
-									str: i
-								});
-						default:
-							break _v0$3;
+var $author$project$State$arithEval = F4(
+	function (op, x, y, state) {
+		return A2(
+			$elm$core$Result$andThen,
+			function (v1) {
+				return A2(
+					$elm$core$Result$andThen,
+					function (v2) {
+						var _v39 = _Utils_Tuple2(v1, v2);
+						if ((_v39.a.$ === 'Number') && (_v39.b.$ === 'Number')) {
+							var n1 = _v39.a.a;
+							var n2 = _v39.b.a;
+							switch (op.$) {
+								case 'Plus':
+									return $elm$core$Result$Ok(
+										$author$project$State$Number(n1 + n2));
+								case 'Minus':
+									return $elm$core$Result$Ok(
+										$author$project$State$Number(n1 - n2));
+								case 'Times':
+									return $elm$core$Result$Ok(
+										$author$project$State$Number(n1 * n2));
+								case 'Div':
+									return $elm$core$Result$Ok(
+										$author$project$State$Number((n1 / n2) | 0));
+								case 'Eq':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_eq(n1, n2)));
+								case 'Gt':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) > 0));
+								case 'Lt':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) < 0));
+								case 'Ge':
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) > -1));
+								default:
+									return $elm$core$Result$Ok(
+										$author$project$State$Boolval(
+											_Utils_cmp(n1, n2) < 1));
+							}
+						} else {
+							return $elm$core$Result$Err('Invalid arguments for this operator');
+						}
+					},
+					A2($author$project$State$eval, y, state));
+			},
+			A2($author$project$State$eval, x, state));
+	});
+var $author$project$State$eval = F2(
+	function (t, state) {
+		_v22$2:
+		while (true) {
+			_v22$6:
+			while (true) {
+				if (t.$ === 'Leaf') {
+					if (t.a.$ === 'Num') {
+						var n = t.a.a;
+						return $elm$core$Result$Ok(
+							$author$project$State$Number(n));
+					} else {
+						break _v22$6;
 					}
 				} else {
-					break _v0$3;
+					switch (t.a.$) {
+						case 'Id':
+							if (((((((t.b.b && (t.b.a.$ === 'Leaf')) && (t.b.a.a.$ === 'Ident')) && t.b.b.b) && (t.b.b.a.$ === 'Branch')) && (t.b.b.a.a.$ === 'Dimensions')) && (!t.b.b.a.b.b)) && (!t.b.b.b.b)) {
+								switch (t.b.a.a.a) {
+									case 'TRUE':
+										var _v23 = t.a;
+										var _v24 = t.b;
+										var _v25 = _v24.b;
+										var _v26 = _v25.a;
+										var _v27 = _v26.a;
+										return $elm$core$Result$Ok(
+											$author$project$State$Boolval(true));
+									case 'FALSE':
+										var _v28 = t.a;
+										var _v29 = t.b;
+										var _v30 = _v29.b;
+										var _v31 = _v30.a;
+										var _v32 = _v31.a;
+										return $elm$core$Result$Ok(
+											$author$project$State$Boolval(false));
+									default:
+										break _v22$2;
+								}
+							} else {
+								break _v22$2;
+							}
+						case 'ABinop':
+							if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
+								var b = t.a.a;
+								var _v35 = t.b;
+								var x = _v35.a;
+								var _v36 = _v35.b;
+								var y = _v36.a;
+								return A4($author$project$State$arithEval, b, x, y, state);
+							} else {
+								break _v22$6;
+							}
+						case 'LBinop':
+							if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
+								var b = t.a.a;
+								var _v37 = t.b;
+								var x = _v37.a;
+								var _v38 = _v37.b;
+								var y = _v38.a;
+								return A4($author$project$State$logicEval, b, x, y, state);
+							} else {
+								break _v22$6;
+							}
+						default:
+							break _v22$6;
+					}
 				}
 			}
-		} else {
-			break _v0$3;
+			return $elm$core$Result$Err('not a valid value');
 		}
-	}
-	return $elm$core$Result$Err(
-		'problem parsing ident with tree ' + $author$project$StateUtils$printTree(tree));
-};
-var $author$project$State$assignVar = F3(
+		var _v33 = t.a;
+		return A2(
+			$elm$core$Result$andThen,
+			function (varid) {
+				return A2(
+					$elm$core$Result$andThen,
+					function (_v34) {
+						var val = _v34.a;
+						return $elm$core$Result$Ok(val);
+					},
+					A4($author$project$State$derefAndUpdateVariable, $author$project$State$Any, varid.str, varid.dims, state));
+			},
+			A2($author$project$State$treeToId, state, t));
+	});
+var $author$project$State$idMaker = F3(
+	function (state, i, ds) {
+		return A2(
+			$elm$core$Result$andThen,
+			function (result) {
+				return $elm$core$Result$Ok(
+					{dims: result, str: i});
+			},
+			A2($author$project$State$treeToDimsList, state, ds));
+	});
+var $author$project$State$logicEval = F4(
+	function (op, x, y, state) {
+		return A2(
+			$elm$core$Result$andThen,
+			function (v1) {
+				return A2(
+					$elm$core$Result$andThen,
+					function (v2) {
+						var _v20 = _Utils_Tuple2(v1, v2);
+						if ((_v20.a.$ === 'Boolval') && (_v20.b.$ === 'Boolval')) {
+							var b1 = _v20.a.a;
+							var b2 = _v20.b.a;
+							if (op.$ === 'And') {
+								return $elm$core$Result$Ok(
+									$author$project$State$Boolval(b1 && b2));
+							} else {
+								return $elm$core$Result$Ok(
+									$author$project$State$Boolval(b1 || b2));
+							}
+						} else {
+							return $elm$core$Result$Err('Invalid arguments for this operator');
+						}
+					},
+					A2($author$project$State$eval, y, state));
+			},
+			A2($author$project$State$eval, x, state));
+	});
+var $author$project$State$treeToDimsList = F2(
+	function (state, ds) {
+		_v16$3:
+		while (true) {
+			if (!ds.b) {
+				return $elm$core$Result$Ok(_List_Nil);
+			} else {
+				if (ds.a.$ === 'Leaf') {
+					if (ds.a.a.$ === 'Num') {
+						var n = ds.a.a.a;
+						var xs = ds.b;
+						return A2(
+							$elm$core$Result$andThen,
+							function (ys) {
+								return $elm$core$Result$Ok(
+									A2($elm$core$List$cons, n, ys));
+							},
+							A2($author$project$State$treeToDimsList, state, xs));
+					} else {
+						break _v16$3;
+					}
+				} else {
+					if (ds.a.a.$ === 'Id') {
+						var _v17 = ds.a;
+						var _v18 = _v17.a;
+						var is = _v17.b;
+						var xs = ds.b;
+						return A2(
+							$elm$core$Result$andThen,
+							function (val) {
+								if (val.$ === 'Number') {
+									var n = val.a;
+									return A2(
+										$elm$core$Result$andThen,
+										function (ys) {
+											return $elm$core$Result$Ok(
+												A2($elm$core$List$cons, n, ys));
+										},
+										A2($author$project$State$treeToDimsList, state, xs));
+								} else {
+									return $elm$core$Result$Err('Dimension must be a number');
+								}
+							},
+							A2(
+								$author$project$State$eval,
+								A2($author$project$Readfile$Branch, $author$project$Readfile$Id, is),
+								state));
+					} else {
+						break _v16$3;
+					}
+				}
+			}
+		}
+		return $elm$core$Result$Err('Issue evaluating dimensions!');
+	});
+var $author$project$State$treeToId = F2(
+	function (state, tree) {
+		_v0$3:
+		while (true) {
+			if ((tree.$ === 'Branch') && tree.b.b) {
+				if (tree.b.a.$ === 'Leaf') {
+					if ((((((tree.a.$ === 'Id') && (tree.b.a.a.$ === 'Ident')) && tree.b.b.b) && (tree.b.b.a.$ === 'Branch')) && (tree.b.b.a.a.$ === 'Dimensions')) && (!tree.b.b.b.b)) {
+						var _v1 = tree.a;
+						var _v2 = tree.b;
+						var i = _v2.a.a.a;
+						var _v3 = _v2.b;
+						var _v4 = _v3.a;
+						var _v5 = _v4.a;
+						var ds = _v4.b;
+						return A3($author$project$State$idMaker, state, i, ds);
+					} else {
+						break _v0$3;
+					}
+				} else {
+					if (((((tree.b.a.a.$ === 'Dimensions') && tree.b.b.b) && (tree.b.b.a.$ === 'Leaf')) && (tree.b.b.a.a.$ === 'Ident')) && (!tree.b.b.b.b)) {
+						switch (tree.a.$) {
+							case 'DeclareChannel':
+								var _v6 = tree.a;
+								var _v7 = tree.b;
+								var _v8 = _v7.a;
+								var _v9 = _v8.a;
+								var ds = _v8.b;
+								var _v10 = _v7.b;
+								var i = _v10.a.a.a;
+								return A3($author$project$State$idMaker, state, i, ds);
+							case 'DeclareVariable':
+								var _v11 = tree.a;
+								var _v12 = tree.b;
+								var _v13 = _v12.a;
+								var _v14 = _v13.a;
+								var ds = _v13.b;
+								var _v15 = _v12.b;
+								var i = _v15.a.a.a;
+								return A3($author$project$State$idMaker, state, i, ds);
+							default:
+								break _v0$3;
+						}
+					} else {
+						break _v0$3;
+					}
+				}
+			} else {
+				break _v0$3;
+			}
+		}
+		return $elm$core$Result$Err(
+			'problem parsing ident with tree ' + $author$project$State$printTree(tree));
+	});
+var $author$project$StateUtils$assignVar = F3(
 	function (state, _var, val) {
 		return A2(
 			$elm$core$Result$andThen,
@@ -6690,9 +6899,9 @@ var $author$project$State$assignVar = F3(
 						var newstate = _v0.b;
 						return $elm$core$Result$Ok(newstate);
 					},
-					A4($author$project$StateUtils$derefAndUpdateVariable, val, id.str, id.dims, state));
+					A4($author$project$State$derefAndUpdateVariable, val, id.str, id.dims, state));
 			},
-			$author$project$StateUtils$treeToId(_var));
+			A2($author$project$State$treeToId, state, _var));
 	});
 var $author$project$Model$block = F2(
 	function (xs, m) {
@@ -6702,10 +6911,10 @@ var $author$project$Model$block = F2(
 				waiting: _Utils_ap(xs, m.waiting)
 			});
 	});
-var $author$project$StateUtils$ChanArray = function (a) {
+var $author$project$State$ChanArray = function (a) {
 	return {$: 'ChanArray', a: a};
 };
-var $author$project$StateUtils$derefAndUpdateChannel = F4(
+var $author$project$State$derefAndUpdateChannel = F4(
 	function (ch, str, dims, state) {
 		var dAUArray = F3(
 			function (d, ds, dict) {
@@ -6719,11 +6928,11 @@ var $author$project$StateUtils$derefAndUpdateChannel = F4(
 							return $elm$core$Result$Ok(
 								_Utils_Tuple2(
 									oldchan,
-									$author$project$StateUtils$ChanArray(
+									$author$project$State$ChanArray(
 										A3(
 											$elm$core$Dict$insert,
 											d,
-											$author$project$StateUtils$ChanSingle(ch),
+											$author$project$State$ChanSingle(ch),
 											dict))));
 						}
 					} else {
@@ -6744,7 +6953,7 @@ var $author$project$StateUtils$derefAndUpdateChannel = F4(
 									return $elm$core$Result$Ok(
 										_Utils_Tuple2(
 											oldchan,
-											$author$project$StateUtils$ChanArray(
+											$author$project$State$ChanArray(
 												A3($elm$core$Dict$insert, d, newstruct, dict))));
 								},
 								A3(dAUArray, i, is, dict2));
@@ -6795,7 +7004,7 @@ var $author$project$StateUtils$derefAndUpdateChannel = F4(
 									chans: A3(
 										$elm$core$Dict$insert,
 										str,
-										$author$project$StateUtils$ChanSingle(ch),
+										$author$project$State$ChanSingle(ch),
 										state.chans)
 								})));
 				} else {
@@ -6804,8 +7013,8 @@ var $author$project$StateUtils$derefAndUpdateChannel = F4(
 			}
 		}
 	});
-var $author$project$State$dummyChannel = $author$project$StateUtils$freshChannel;
-var $author$project$State$accessChannel = F2(
+var $author$project$StateUtils$dummyChannel = $author$project$State$freshChannel;
+var $author$project$StateUtils$accessChannel = F2(
 	function (chanid, state) {
 		return A2(
 			$elm$core$Result$andThen,
@@ -6813,9 +7022,9 @@ var $author$project$State$accessChannel = F2(
 				var oldchan = _v0.a;
 				return $elm$core$Result$Ok(oldchan);
 			},
-			A4($author$project$StateUtils$derefAndUpdateChannel, $author$project$State$dummyChannel, chanid.str, chanid.dims, state));
+			A4($author$project$State$derefAndUpdateChannel, $author$project$StateUtils$dummyChannel, chanid.str, chanid.dims, state));
 	});
-var $author$project$State$checkFull = F2(
+var $author$project$StateUtils$checkFull = F2(
 	function (state, _var) {
 		return A2(
 			$elm$core$Result$andThen,
@@ -6825,17 +7034,17 @@ var $author$project$State$checkFull = F2(
 					function (ch) {
 						return $elm$core$Result$Ok(ch.isFull);
 					},
-					A2($author$project$State$accessChannel, id, state));
+					A2($author$project$StateUtils$accessChannel, id, state));
 			},
-			$author$project$StateUtils$treeToId(_var));
+			A2($author$project$State$treeToId, state, _var));
 	});
 var $author$project$StateUtils$makeChanArray = function (dimensions) {
 	if (!dimensions.b) {
-		return $author$project$StateUtils$ChanSingle($author$project$StateUtils$freshChannel);
+		return $author$project$State$ChanSingle($author$project$State$freshChannel);
 	} else {
 		var x = dimensions.a;
 		var xs = dimensions.b;
-		return $author$project$StateUtils$ChanArray(
+		return $author$project$State$ChanArray(
 			A3(
 				$elm$core$List$foldr,
 				function (d) {
@@ -6848,7 +7057,7 @@ var $author$project$StateUtils$makeChanArray = function (dimensions) {
 				A2($elm$core$List$range, 0, x - 1)));
 	}
 };
-var $author$project$State$declareChan = F2(
+var $author$project$StateUtils$declareChan = F2(
 	function (state, _var) {
 		return A2(
 			$elm$core$Result$andThen,
@@ -6869,15 +7078,15 @@ var $author$project$State$declareChan = F2(
 					}
 				}
 			},
-			$author$project$StateUtils$treeToId(_var));
+			A2($author$project$State$treeToId, state, _var));
 	});
 var $author$project$StateUtils$makeVarArray = function (dimensions) {
 	if (!dimensions.b) {
-		return $author$project$StateUtils$Any;
+		return $author$project$State$Any;
 	} else {
 		var x = dimensions.a;
 		var xs = dimensions.b;
-		return $author$project$StateUtils$Array(
+		return $author$project$State$Array(
 			A3(
 				$elm$core$List$foldr,
 				function (d) {
@@ -6890,7 +7099,7 @@ var $author$project$StateUtils$makeVarArray = function (dimensions) {
 				A2($elm$core$List$range, 0, x - 1)));
 	}
 };
-var $author$project$State$declareVar = F2(
+var $author$project$StateUtils$declareVar = F2(
 	function (state, _var) {
 		return A2(
 			$elm$core$Result$andThen,
@@ -6911,181 +7120,9 @@ var $author$project$State$declareVar = F2(
 					}
 				}
 			},
-			$author$project$StateUtils$treeToId(_var));
+			A2($author$project$State$treeToId, state, _var));
 	});
-var $author$project$StateUtils$Boolval = function (a) {
-	return {$: 'Boolval', a: a};
-};
-var $author$project$StateUtils$Number = function (a) {
-	return {$: 'Number', a: a};
-};
-var $elm$core$Basics$ge = _Utils_ge;
-var $author$project$Eval$arithEval = F4(
-	function (op, x, y, state) {
-		return A2(
-			$elm$core$Result$andThen,
-			function (v1) {
-				return A2(
-					$elm$core$Result$andThen,
-					function (v2) {
-						var _v19 = _Utils_Tuple2(v1, v2);
-						if ((_v19.a.$ === 'Number') && (_v19.b.$ === 'Number')) {
-							var n1 = _v19.a.a;
-							var n2 = _v19.b.a;
-							switch (op.$) {
-								case 'Plus':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Number(n1 + n2));
-								case 'Minus':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Number(n1 - n2));
-								case 'Times':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Number(n1 * n2));
-								case 'Div':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Number((n1 / n2) | 0));
-								case 'Eq':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Boolval(
-											_Utils_eq(n1, n2)));
-								case 'Gt':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Boolval(
-											_Utils_cmp(n1, n2) > 0));
-								case 'Lt':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Boolval(
-											_Utils_cmp(n1, n2) < 0));
-								case 'Ge':
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Boolval(
-											_Utils_cmp(n1, n2) > -1));
-								default:
-									return $elm$core$Result$Ok(
-										$author$project$StateUtils$Boolval(
-											_Utils_cmp(n1, n2) < 1));
-							}
-						} else {
-							return $elm$core$Result$Err('Invalid arguments for this operator');
-						}
-					},
-					A2($author$project$Eval$eval, y, state));
-			},
-			A2($author$project$Eval$eval, x, state));
-	});
-var $author$project$Eval$eval = F2(
-	function (t, state) {
-		_v2$2:
-		while (true) {
-			_v2$6:
-			while (true) {
-				if (t.$ === 'Leaf') {
-					if (t.a.$ === 'Num') {
-						var n = t.a.a;
-						return $elm$core$Result$Ok(
-							$author$project$StateUtils$Number(n));
-					} else {
-						break _v2$6;
-					}
-				} else {
-					switch (t.a.$) {
-						case 'Id':
-							if (((((((t.b.b && (t.b.a.$ === 'Leaf')) && (t.b.a.a.$ === 'Ident')) && t.b.b.b) && (t.b.b.a.$ === 'Branch')) && (t.b.b.a.a.$ === 'Dimensions')) && (!t.b.b.a.b.b)) && (!t.b.b.b.b)) {
-								switch (t.b.a.a.a) {
-									case 'TRUE':
-										var _v3 = t.a;
-										var _v4 = t.b;
-										var _v5 = _v4.b;
-										var _v6 = _v5.a;
-										var _v7 = _v6.a;
-										return $elm$core$Result$Ok(
-											$author$project$StateUtils$Boolval(true));
-									case 'FALSE':
-										var _v8 = t.a;
-										var _v9 = t.b;
-										var _v10 = _v9.b;
-										var _v11 = _v10.a;
-										var _v12 = _v11.a;
-										return $elm$core$Result$Ok(
-											$author$project$StateUtils$Boolval(false));
-									default:
-										break _v2$2;
-								}
-							} else {
-								break _v2$2;
-							}
-						case 'ABinop':
-							if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
-								var b = t.a.a;
-								var _v15 = t.b;
-								var x = _v15.a;
-								var _v16 = _v15.b;
-								var y = _v16.a;
-								return A4($author$project$Eval$arithEval, b, x, y, state);
-							} else {
-								break _v2$6;
-							}
-						case 'LBinop':
-							if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
-								var b = t.a.a;
-								var _v17 = t.b;
-								var x = _v17.a;
-								var _v18 = _v17.b;
-								var y = _v18.a;
-								return A4($author$project$Eval$logicEval, b, x, y, state);
-							} else {
-								break _v2$6;
-							}
-						default:
-							break _v2$6;
-					}
-				}
-			}
-			return $elm$core$Result$Err('not a valid value');
-		}
-		var _v13 = t.a;
-		return A2(
-			$elm$core$Result$andThen,
-			function (varid) {
-				return A2(
-					$elm$core$Result$andThen,
-					function (_v14) {
-						var val = _v14.a;
-						return $elm$core$Result$Ok(val);
-					},
-					A4($author$project$StateUtils$derefAndUpdateVariable, $author$project$StateUtils$Any, varid.str, varid.dims, state));
-			},
-			$author$project$StateUtils$treeToId(t));
-	});
-var $author$project$Eval$logicEval = F4(
-	function (op, x, y, state) {
-		return A2(
-			$elm$core$Result$andThen,
-			function (v1) {
-				return A2(
-					$elm$core$Result$andThen,
-					function (v2) {
-						var _v0 = _Utils_Tuple2(v1, v2);
-						if ((_v0.a.$ === 'Boolval') && (_v0.b.$ === 'Boolval')) {
-							var b1 = _v0.a.a;
-							var b2 = _v0.b.a;
-							if (op.$ === 'And') {
-								return $elm$core$Result$Ok(
-									$author$project$StateUtils$Boolval(b1 && b2));
-							} else {
-								return $elm$core$Result$Ok(
-									$author$project$StateUtils$Boolval(b1 || b2));
-							}
-						} else {
-							return $elm$core$Result$Err('Invalid arguments for this operator');
-						}
-					},
-					A2($author$project$Eval$eval, y, state));
-			},
-			A2($author$project$Eval$eval, x, state));
-	});
-var $author$project$State$graphicschanname = 'GRAPHICS';
+var $author$project$StateUtils$graphicschanname = 'GRAPHICS';
 var $author$project$Utils$pickValidBranches = F2(
 	function (alts, state) {
 		var flattenAlt = function (ys) {
@@ -7167,7 +7204,7 @@ var $author$project$Utils$pickValidBranches = F2(
 							var input = _v22.a;
 							var _v23 = _v18.b;
 							var proc = _v23.a;
-							var _v24 = A2($author$project$Eval$eval, bool, state);
+							var _v24 = A2($author$project$State$eval, bool, state);
 							if (_v24.$ === 'Ok') {
 								if (_v24.a.$ === 'Boolval') {
 									if (_v24.a.a) {
@@ -7188,7 +7225,7 @@ var $author$project$Utils$pickValidBranches = F2(
 																	return f ? $elm$core$Result$Ok(
 																		A2($elm$core$List$cons, x, therest)) : $elm$core$Result$Ok(therest);
 																},
-																A2($author$project$State$checkFull, state, chan));
+																A2($author$project$StateUtils$checkFull, state, chan));
 														} else {
 															break _v25$2;
 														}
@@ -7282,7 +7319,7 @@ var $author$project$Compile$channelEmptied = F3(
 					[pid]));
 		}
 	});
-var $author$project$State$getValueAndEmptyChannel = F2(
+var $author$project$StateUtils$getValueAndEmptyChannel = F2(
 	function (chanid, state) {
 		return A2(
 			$elm$core$Result$andThen,
@@ -7292,7 +7329,7 @@ var $author$project$State$getValueAndEmptyChannel = F2(
 				return $elm$core$Result$Ok(
 					_Utils_Tuple2(oldchan.value, newstate));
 			},
-			A4($author$project$StateUtils$derefAndUpdateChannel, $author$project$StateUtils$freshChannel, chanid.str, chanid.dims, state));
+			A4($author$project$State$derefAndUpdateChannel, $author$project$State$freshChannel, chanid.str, chanid.dims, state));
 	});
 var $elm$core$Result$withDefault = F2(
 	function (def, result) {
@@ -7305,15 +7342,15 @@ var $elm$core$Result$withDefault = F2(
 	});
 var $author$project$Compile$receiveOnChan = F4(
 	function (chan, _var, pid, m) {
-		var _v0 = $author$project$StateUtils$treeToId(chan);
+		var _v0 = A2($author$project$State$treeToId, m.state, chan);
 		if (_v0.$ === 'Ok') {
 			var chanid = _v0.a;
-			var _v1 = A2($author$project$State$getValueAndEmptyChannel, chanid, m.state);
+			var _v1 = A2($author$project$StateUtils$getValueAndEmptyChannel, chanid, m.state);
 			if (_v1.$ === 'Ok') {
 				var _v2 = _v1.a;
 				var receivedValue = _v2.a;
 				var stateChanEmptied = _v2.b;
-				var _v3 = A3($author$project$State$assignVar, stateChanEmptied, _var, receivedValue);
+				var _v3 = A3($author$project$StateUtils$assignVar, stateChanEmptied, _var, receivedValue);
 				if (_v3.$ === 'Ok') {
 					var stateChanEmptiedAssigned = _v3.a;
 					if (receivedValue.$ === 'Number') {
@@ -7332,7 +7369,7 @@ var $author$project$Compile$receiveOnChan = F4(
 										function (id) {
 											return $elm$core$Result$Ok(id.str);
 										},
-										$author$project$StateUtils$treeToId(_var))))),
+										A2($author$project$State$treeToId, stateChanEmptiedAssigned, _var))))),
 								_Utils_update(
 									m,
 									{state: stateChanEmptiedAssigned})));
@@ -7431,7 +7468,7 @@ var $author$project$Compile$channelFilled = F3(
 			return $author$project$Compile$Blocked(m);
 		}
 	});
-var $author$project$State$fillChannel = F3(
+var $author$project$StateUtils$fillChannel = F3(
 	function (val, chanid, state) {
 		var filledchan = {isFull: true, value: val};
 		return A2(
@@ -7440,7 +7477,7 @@ var $author$project$State$fillChannel = F3(
 				var newstate = _v0.b;
 				return $elm$core$Result$Ok(newstate);
 			},
-			A4($author$project$StateUtils$derefAndUpdateChannel, filledchan, chanid.str, chanid.dims, state));
+			A4($author$project$State$derefAndUpdateChannel, filledchan, chanid.str, chanid.dims, state));
 	});
 var $author$project$Model$update = F2(
 	function (s, m) {
@@ -7452,7 +7489,7 @@ var $author$project$Compile$sendOnChan = F4(
 	function (chanid, val, pid, m) {
 		if (val.$ === 'Number') {
 			var n = val.a;
-			var _v1 = A3($author$project$State$fillChannel, val, chanid, m.state);
+			var _v1 = A3($author$project$StateUtils$fillChannel, val, chanid, m.state);
 			if (_v1.$ === 'Ok') {
 				var updatedState = _v1.a;
 				return A3(
@@ -7792,8 +7829,8 @@ var $author$project$Compile$step = F2(
 											var _v17 = xs.b;
 											var proc = _v17.a;
 											var _v18 = _Utils_Tuple2(
-												A2($author$project$Eval$eval, e1, state),
-												A2($author$project$Eval$eval, e2, state));
+												A2($author$project$State$eval, e1, state),
+												A2($author$project$State$eval, e2, state));
 											if ((((_v18.a.$ === 'Ok') && (_v18.a.a.$ === 'Number')) && (_v18.b.$ === 'Ok')) && (_v18.b.a.$ === 'Number')) {
 												var k = _v18.a.a.a;
 												var l = _v18.b.a.a;
@@ -7847,12 +7884,12 @@ var $author$project$Compile$step = F2(
 							var chan = _v20.a;
 							var _v21 = _v20.b;
 							var _var = _v21.a;
-							var _v22 = A2($author$project$State$checkFull, state, chan);
+							var _v22 = A2($author$project$StateUtils$checkFull, state, chan);
 							if (_v22.$ === 'Ok') {
 								if (_v22.a) {
 									return A4($author$project$Compile$receiveOnChan, chan, _var, pid, m);
 								} else {
-									var _v23 = $author$project$StateUtils$treeToId(chan);
+									var _v23 = A2($author$project$State$treeToId, state, chan);
 									if (_v23.$ === 'Ok') {
 										var chanid = _v23.a;
 										return $author$project$Compile$Blocked(
@@ -7885,13 +7922,13 @@ var $author$project$Compile$step = F2(
 							var chan = _v25.a;
 							var _v26 = _v25.b;
 							var expr = _v26.a;
-							var _v27 = A2($author$project$Eval$eval, expr, state);
+							var _v27 = A2($author$project$State$eval, expr, state);
 							if (_v27.$ === 'Ok') {
 								var n = _v27.a;
-								var _v28 = $author$project$StateUtils$treeToId(chan);
+								var _v28 = A2($author$project$State$treeToId, state, chan);
 								if (_v28.$ === 'Ok') {
 									var chanid = _v28.a;
-									if (_Utils_eq(chanid.str, $author$project$State$graphicschanname)) {
+									if (_Utils_eq(chanid.str, $author$project$StateUtils$graphicschanname)) {
 										var _v29 = A3($author$project$Utils$updateCell, m, n, chanid);
 										if (_v29.$ === 'Ok') {
 											var updatedModel = _v29.a;
@@ -7901,7 +7938,7 @@ var $author$project$Compile$step = F2(
 											return $author$project$Compile$RunErr(msg);
 										}
 									} else {
-										var _v30 = A2($author$project$State$checkFull, state, chan);
+										var _v30 = A2($author$project$StateUtils$checkFull, state, chan);
 										if (_v30.$ === 'Ok') {
 											if (_v30.a) {
 												return $author$project$Compile$RunErr('Occam doesn\'t allow more than one parallel process to output to the same channel');
@@ -8057,10 +8094,10 @@ var $author$project$Compile$step = F2(
 							var id = _v53.a;
 							var _v54 = _v53.b;
 							var e1 = _v54.a;
-							var _v55 = A2($author$project$Eval$eval, e1, state);
+							var _v55 = A2($author$project$State$eval, e1, state);
 							if (_v55.$ === 'Ok') {
 								var v = _v55.a;
-								var _v56 = A3($author$project$State$assignVar, state, id, v);
+								var _v56 = A3($author$project$StateUtils$assignVar, state, id, v);
 								if (_v56.$ === 'Ok') {
 									var s = _v56.a;
 									return ranMe(
@@ -8083,7 +8120,7 @@ var $author$project$Compile$step = F2(
 							var cond = _v58.a;
 							var _v59 = _v58.b;
 							var body = _v59.a;
-							var _v60 = A2($author$project$Eval$eval, cond, state);
+							var _v60 = A2($author$project$State$eval, cond, state);
 							if ((_v60.$ === 'Ok') && (_v60.a.$ === 'Boolval')) {
 								if (_v60.a.a) {
 									return unrolledMe(
@@ -8174,7 +8211,7 @@ var $author$project$Compile$step = F2(
 											var _v80 = _v79.b;
 											var proc = _v80.a;
 											var ys = _v76.b;
-											var _v81 = A2($author$project$Eval$eval, cond, state);
+											var _v81 = A2($author$project$State$eval, cond, state);
 											if (_v81.$ === 'Ok') {
 												if (_v81.a.$ === 'Boolval') {
 													if (_v81.a.a) {
@@ -8227,7 +8264,7 @@ var $author$project$Compile$step = F2(
 						}
 					case 'DeclareVariable':
 						var _v82 = _v0.a;
-						var _v83 = A2($author$project$State$declareVar, state, e.code);
+						var _v83 = A2($author$project$StateUtils$declareVar, state, e.code);
 						if (_v83.$ === 'Ok') {
 							var state2 = _v83.a;
 							return ranMe(
@@ -8238,7 +8275,7 @@ var $author$project$Compile$step = F2(
 						}
 					case 'DeclareChannel':
 						var _v84 = _v0.a;
-						var _v85 = A2($author$project$State$declareChan, state, e.code);
+						var _v85 = A2($author$project$StateUtils$declareChan, state, e.code);
 						if (_v85.$ === 'Ok') {
 							var state2 = _v85.a;
 							return ranMe(
@@ -8419,10 +8456,10 @@ var $author$project$Model$display = F2(
 				display: A2($elm$core$List$cons, n, m.display)
 			});
 	});
-var $author$project$State$displaychanid = {dims: _List_Nil, str: $author$project$State$displaychanname};
+var $author$project$StateUtils$displaychanid = {dims: _List_Nil, str: $author$project$StateUtils$displaychanname};
 var $author$project$Compile$updateDisplay = function (m) {
 	var _v0 = A2(
-		$author$project$State$checkFull,
+		$author$project$StateUtils$checkFull,
 		m.state,
 		A2(
 			$author$project$Readfile$Branch,
@@ -8430,12 +8467,12 @@ var $author$project$Compile$updateDisplay = function (m) {
 			_List_fromArray(
 				[
 					$author$project$Readfile$Leaf(
-					$author$project$Readfile$Ident($author$project$State$displaychanname)),
+					$author$project$Readfile$Ident($author$project$StateUtils$displaychanname)),
 					A2($author$project$Readfile$Branch, $author$project$Readfile$Dimensions, _List_Nil)
 				])));
 	if (_v0.$ === 'Ok') {
 		if (_v0.a) {
-			var _v1 = A2($author$project$State$getValueAndEmptyChannel, $author$project$State$displaychanid, m.state);
+			var _v1 = A2($author$project$StateUtils$getValueAndEmptyChannel, $author$project$StateUtils$displaychanid, m.state);
 			if (_v1.$ === 'Ok') {
 				var _v2 = _v1.a;
 				var value = _v2.a;
@@ -8444,7 +8481,7 @@ var $author$project$Compile$updateDisplay = function (m) {
 					var n = value.a;
 					return A3(
 						$author$project$Compile$channelEmptied,
-						$author$project$State$displaychanname,
+						$author$project$StateUtils$displaychanname,
 						-1,
 						A2(
 							$author$project$Model$update,
@@ -8494,11 +8531,11 @@ var $author$project$Model$deqKeypress = function (m) {
 var $author$project$Utils$dirToValue = function (dir) {
 	switch (dir.$) {
 		case 'Left':
-			return $author$project$StateUtils$Number(0);
+			return $author$project$State$Number(0);
 		case 'Right':
-			return $author$project$StateUtils$Number(1);
+			return $author$project$State$Number(1);
 		default:
-			return $author$project$StateUtils$Number(2);
+			return $author$project$State$Number(2);
 	}
 };
 var $author$project$Compile$updateKeyboard = function (m) {
@@ -8508,17 +8545,17 @@ var $author$project$Compile$updateKeyboard = function (m) {
 		var dir = _v1.a;
 		var m2 = _v1.b;
 		var _v2 = A2(
-			$author$project$State$checkFull,
+			$author$project$StateUtils$checkFull,
 			m2.state,
 			$author$project$Readfile$Leaf(
-				$author$project$Readfile$Ident($author$project$State$keyboardchanname)));
+				$author$project$Readfile$Ident($author$project$StateUtils$keyboardchanname)));
 		if (_v2.$ === 'Ok') {
 			if (_v2.a) {
 				return A2($author$project$Compile$Ran, m, _List_Nil);
 			} else {
 				return A4(
 					$author$project$Compile$sendOnChan,
-					$author$project$State$displaychanid,
+					$author$project$StateUtils$displaychanid,
 					$author$project$Utils$dirToValue(dir),
 					-2,
 					m2);
@@ -8932,7 +8969,7 @@ var $elm$json$Json$Encode$dict = F3(
 	});
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$int = _Json_wrap;
-var $author$project$State$jsonValues = function (val) {
+var $author$project$StateUtils$jsonValues = function (val) {
 	switch (val.$) {
 		case 'Number':
 			var n = val.a;
@@ -8947,11 +8984,11 @@ var $author$project$State$jsonValues = function (val) {
 			return $elm$json$Json$Encode$string('ANY');
 	}
 };
-var $author$project$State$toJson = function (state) {
+var $author$project$StateUtils$toJson = function (state) {
 	return A2(
 		$elm$json$Json$Encode$encode,
 		4,
-		A3($elm$json$Json$Encode$dict, $elm$core$Basics$identity, $author$project$State$jsonValues, state.vars));
+		A3($elm$json$Json$Encode$dict, $elm$core$Basics$identity, $author$project$StateUtils$jsonValues, state.vars));
 };
 var $author$project$Main$view = function (model) {
 	return A2(
@@ -9023,7 +9060,7 @@ var $author$project$Main$view = function (model) {
 						$elm$html$Html$div,
 						_List_Nil,
 						$author$project$Main$printout(
-							$author$project$State$toJson(model.state))),
+							$author$project$StateUtils$toJson(model.state))),
 						A2(
 						$elm$html$Html$div,
 						_List_Nil,

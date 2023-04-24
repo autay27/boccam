@@ -3,8 +3,8 @@ module Model exposing (..)
 import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
-import StateUtils exposing (State)
-import State exposing (freshState)
+import State exposing (State)
+import StateUtils exposing (freshState)
 import KeyboardInput exposing (Direction(..))
 
 type alias Id = Int

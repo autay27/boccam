@@ -45,13 +45,13 @@ accessChannel chanid state =
 
 checkFull : State -> Tree -> Result String Bool
 checkFull state var =
-    treeToId var |> andThen (\id ->
+    treeToId state var |> andThen (\id ->
             accessChannel id state |> andThen (\ch -> Ok ch.isFull)
         )
 
 assignVar : State -> Tree -> Value -> Result String State
 assignVar state var val =
-    treeToId var |> andThen (\id ->
+    treeToId state var |> andThen (\id ->
             if Dict.member id.str state.chans then Err "tried to assign to a channel"
             else derefAndUpdateVariable val id.str id.dims state |> andThen (\(ov, newstate) ->
                     Ok newstate)
@@ -60,7 +60,7 @@ assignVar state var val =
 
 declareVar : State -> Tree -> Result String State
 declareVar state var =
-    treeToId var |> andThen (\id ->
+    treeToId state var |> andThen (\id ->
         if Dict.member id.str state.vars then
             Err ("declared a variable " ++ id.str ++ " that already exists")
         else if Dict.member id.str state.chans then
@@ -71,7 +71,7 @@ declareVar state var =
 
 declareChan : State -> Tree -> Result String State
 declareChan state var =
-    treeToId var |> andThen (\id ->
+    treeToId state var |> andThen (\id ->
         if Dict.member id.str state.vars then
             Err ("tried to declare " ++ id.str ++ " as a channel, but it is already a variable")
         else if Dict.member id.str state.chans then

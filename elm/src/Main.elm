@@ -11,7 +11,7 @@ import Json.Decode
 import Readfile exposing (Tree, treeDecoder, Rule(..))
 import Compile exposing (run)
 import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, isBlocked, freshModel, updateSeed)
-import State exposing (toJson)
+import StateUtils
 import KeyboardInput exposing (keyDecoder, Direction)
 import Utils exposing (printgraphics)
 
@@ -124,6 +124,6 @@ view model =
       ),
     div []
       (
-        [ div [] [ printgraphics model.graphics ], div [] [text "State:"], div [] (printout (State.toJson model.state)), div [] [text "DisplayLog:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
+        [ div [] [ printgraphics model.graphics ], div [] [text "State:"], div [] (printout (StateUtils.toJson model.state)), div [] [text "DisplayLog:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
       )
   ]

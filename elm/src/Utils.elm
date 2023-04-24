@@ -7,9 +7,8 @@ import Svg.Attributes exposing (width, height, viewBox, x, y, fill)
 
 
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
-import Eval exposing (eval)
-import StateUtils exposing (State, Value(..), Identifier)
-import State exposing (checkFull)
+import State exposing (State, Value(..), Identifier, eval)
+import StateUtils exposing (checkFull)
 import KeyboardInput exposing (Direction(..))
 import Model exposing (Model, Graphics)
 

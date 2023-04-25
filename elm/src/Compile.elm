@@ -5,9 +5,8 @@ import List exposing (head, take, drop, map, filter)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..), ABop(..))
 import Model exposing (..)
 import State exposing (..)
-import StateUtils exposing (Value(..), State, Identifier, treeToId, freshChannel)
-import Eval exposing (eval)
-import Utils exposing (replaceSubtree, pickValidBranches, dirToValue)
+import StateUtils exposing (..)
+import Utils exposing (replaceSubtree, pickValidBranches, dirToValue, updateCell)
 import KeyboardInput exposing (Direction(..))
 import Html exposing (b)
 import Result exposing (andThen)
@@ -119,30 +118,36 @@ step e m =
             case checkFull state chan of
                 Ok True -> receiveOnChan chan var pid m
                 Ok False ->
-                    case treeToId chan of
+                    case treeToId state chan of
                         Ok chanid ->
                             Blocked (block [{ proc = e, waitCond = FilledChan chanid.str }] m)
                         Err msg -> RunErr msg
                 Err msg -> RunErr ("tried to get input but " ++ msg)
 
         Branch Out (chan::expr::[]) -> 
-            case checkFull state chan of
-                Ok True -> 
-                    RunErr ("Occam doesn't allow more than one parallel process to output to the same channel")
+            case eval expr state of
+                Ok n ->
+                    case treeToId state chan of
+                        Ok chanid ->
+                            if chanid.str == graphicschanname then
+                                case updateCell m n chanid of
+                                    Ok updatedModel -> ranMe updatedModel
+                                    Err msg -> RunErr msg
+                            else
+                                case checkFull state chan of
+                                    Ok True ->
+                                        RunErr ("Occam doesn't allow more than one parallel process to output to the same channel")
 
-                Ok False -> 
-                    case eval expr state of
-                        Ok n -> 
-                            case treeToId chan of
-                                Ok chanid ->
-                                    let
-                                        waiting = { proc = e, waitCond = EmptiedChan chanid.str }
-                                    in
-                                        sendOnChan chanid n pid (block [waiting] m)
-                                Err msg -> RunErr msg
-                        Err msg -> RunErr ("tried to output a value but " ++ msg)
+                                    Ok False ->
+                                        let
+                                            waiting = { proc = e, waitCond = EmptiedChan chanid.str }
+                                        in
+                                            sendOnChan chanid n pid (block [waiting] m)
+                                    Err msg -> RunErr ("tried to output to a channel but " ++ msg)
+                        Err msg -> RunErr ("tried to output to a channel but " ++ msg)
+                Err msg -> RunErr ("tried to output a value but " ++ msg)
 
-                Err msg -> RunErr ("tried to output to a channel but " ++ msg)
+
 
 
         Branch Alt (x::[]) ->
@@ -230,7 +235,7 @@ step e m =
 
 receiveOnChan : Tree -> Tree -> Id -> Model -> Outcome
 receiveOnChan chan var pid m = 
-    case treeToId chan of
+    case treeToId m.state chan of
         Ok chanid ->
             case getValueAndEmptyChannel chanid m.state of
 
@@ -238,7 +243,7 @@ receiveOnChan chan var pid m =
 
                     Ok stateChanEmptiedAssigned -> case receivedValue of
 
-                        Number n -> channelEmptied chanid.str pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (treeToId var |> Result.andThen (\id -> Ok id.str)))) 
+                        Number n -> channelEmptied chanid.str pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (treeToId stateChanEmptiedAssigned var |> Result.andThen (\id -> Ok id.str)))) 
                             { m | state = stateChanEmptiedAssigned })
 
                         _ -> RunErr "unexpected, input was not a number"

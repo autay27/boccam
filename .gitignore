@@ -2,4 +2,8 @@
 
 elm/elm-stuff/**
 
+elm/elm.js
+
 node_modules/**
+
+report.pdf

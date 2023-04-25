@@ -5,6 +5,7 @@
 - EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such. Either fix it or make it unfindable.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 - Not all tests pass right now, I didn't implement AND, OR, or some of the replicators yet.
+- Change DISPLAY channel to SERIAL.
 
 ## goals - code
 

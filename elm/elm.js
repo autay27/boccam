@@ -6612,10 +6612,10 @@ var $author$project$State$arithEval = F4(
 				return A2(
 					$elm$core$Result$andThen,
 					function (v2) {
-						var _v39 = _Utils_Tuple2(v1, v2);
-						if ((_v39.a.$ === 'Number') && (_v39.b.$ === 'Number')) {
-							var n1 = _v39.a.a;
-							var n2 = _v39.b.a;
+						var _v37 = _Utils_Tuple2(v1, v2);
+						if ((_v37.a.$ === 'Number') && (_v37.b.$ === 'Number')) {
+							var n1 = _v37.a.a;
+							var n2 = _v37.b.a;
 							switch (op.$) {
 								case 'Plus':
 									return $elm$core$Result$Ok(
@@ -6660,9 +6660,9 @@ var $author$project$State$arithEval = F4(
 	});
 var $author$project$State$eval = F2(
 	function (t, state) {
-		_v22$2:
+		_v20$2:
 		while (true) {
-			_v22$6:
+			_v20$6:
 			while (true) {
 				if (t.$ === 'Leaf') {
 					if (t.a.$ === 'Num') {
@@ -6670,7 +6670,7 @@ var $author$project$State$eval = F2(
 						return $elm$core$Result$Ok(
 							$author$project$State$Number(n));
 					} else {
-						break _v22$6;
+						break _v20$6;
 					}
 				} else {
 					switch (t.a.$) {
@@ -6678,64 +6678,64 @@ var $author$project$State$eval = F2(
 							if (((((((t.b.b && (t.b.a.$ === 'Leaf')) && (t.b.a.a.$ === 'Ident')) && t.b.b.b) && (t.b.b.a.$ === 'Branch')) && (t.b.b.a.a.$ === 'Dimensions')) && (!t.b.b.a.b.b)) && (!t.b.b.b.b)) {
 								switch (t.b.a.a.a) {
 									case 'TRUE':
-										var _v23 = t.a;
-										var _v24 = t.b;
-										var _v25 = _v24.b;
-										var _v26 = _v25.a;
-										var _v27 = _v26.a;
+										var _v21 = t.a;
+										var _v22 = t.b;
+										var _v23 = _v22.b;
+										var _v24 = _v23.a;
+										var _v25 = _v24.a;
 										return $elm$core$Result$Ok(
 											$author$project$State$Boolval(true));
 									case 'FALSE':
-										var _v28 = t.a;
-										var _v29 = t.b;
-										var _v30 = _v29.b;
-										var _v31 = _v30.a;
-										var _v32 = _v31.a;
+										var _v26 = t.a;
+										var _v27 = t.b;
+										var _v28 = _v27.b;
+										var _v29 = _v28.a;
+										var _v30 = _v29.a;
 										return $elm$core$Result$Ok(
 											$author$project$State$Boolval(false));
 									default:
-										break _v22$2;
+										break _v20$2;
 								}
 							} else {
-								break _v22$2;
+								break _v20$2;
 							}
 						case 'ABinop':
+							if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
+								var b = t.a.a;
+								var _v33 = t.b;
+								var x = _v33.a;
+								var _v34 = _v33.b;
+								var y = _v34.a;
+								return A4($author$project$State$arithEval, b, x, y, state);
+							} else {
+								break _v20$6;
+							}
+						case 'LBinop':
 							if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
 								var b = t.a.a;
 								var _v35 = t.b;
 								var x = _v35.a;
 								var _v36 = _v35.b;
 								var y = _v36.a;
-								return A4($author$project$State$arithEval, b, x, y, state);
-							} else {
-								break _v22$6;
-							}
-						case 'LBinop':
-							if ((t.b.b && t.b.b.b) && (!t.b.b.b.b)) {
-								var b = t.a.a;
-								var _v37 = t.b;
-								var x = _v37.a;
-								var _v38 = _v37.b;
-								var y = _v38.a;
 								return A4($author$project$State$logicEval, b, x, y, state);
 							} else {
-								break _v22$6;
+								break _v20$6;
 							}
 						default:
-							break _v22$6;
+							break _v20$6;
 					}
 				}
 			}
 			return $elm$core$Result$Err('not a valid value');
 		}
-		var _v33 = t.a;
+		var _v31 = t.a;
 		return A2(
 			$elm$core$Result$andThen,
 			function (varid) {
 				return A2(
 					$elm$core$Result$andThen,
-					function (_v34) {
-						var val = _v34.a;
+					function (_v32) {
+						var val = _v32.a;
 						return $elm$core$Result$Ok(val);
 					},
 					A4($author$project$State$derefAndUpdateVariable, $author$project$State$Any, varid.str, varid.dims, state));
@@ -6760,10 +6760,10 @@ var $author$project$State$logicEval = F4(
 				return A2(
 					$elm$core$Result$andThen,
 					function (v2) {
-						var _v20 = _Utils_Tuple2(v1, v2);
-						if ((_v20.a.$ === 'Boolval') && (_v20.b.$ === 'Boolval')) {
-							var b1 = _v20.a.a;
-							var b2 = _v20.b.a;
+						var _v18 = _Utils_Tuple2(v1, v2);
+						if ((_v18.a.$ === 'Boolval') && (_v18.b.$ === 'Boolval')) {
+							var b1 = _v18.a.a;
+							var b2 = _v18.b.a;
 							if (op.$ === 'And') {
 								return $elm$core$Result$Ok(
 									$author$project$State$Boolval(b1 && b2));
@@ -6781,15 +6781,16 @@ var $author$project$State$logicEval = F4(
 	});
 var $author$project$State$treeToDimsList = F2(
 	function (state, ds) {
-		_v16$3:
-		while (true) {
-			if (!ds.b) {
-				return $elm$core$Result$Ok(_List_Nil);
-			} else {
-				if (ds.a.$ === 'Leaf') {
-					if (ds.a.a.$ === 'Num') {
-						var n = ds.a.a.a;
-						var xs = ds.b;
+		if (!ds.b) {
+			return $elm$core$Result$Ok(_List_Nil);
+		} else {
+			var t = ds.a;
+			var xs = ds.b;
+			return A2(
+				$elm$core$Result$andThen,
+				function (val) {
+					if (val.$ === 'Number') {
+						var n = val.a;
 						return A2(
 							$elm$core$Result$andThen,
 							function (ys) {
@@ -6798,41 +6799,11 @@ var $author$project$State$treeToDimsList = F2(
 							},
 							A2($author$project$State$treeToDimsList, state, xs));
 					} else {
-						break _v16$3;
+						return $elm$core$Result$Err('Dimension must be a number');
 					}
-				} else {
-					if (ds.a.a.$ === 'Id') {
-						var _v17 = ds.a;
-						var _v18 = _v17.a;
-						var is = _v17.b;
-						var xs = ds.b;
-						return A2(
-							$elm$core$Result$andThen,
-							function (val) {
-								if (val.$ === 'Number') {
-									var n = val.a;
-									return A2(
-										$elm$core$Result$andThen,
-										function (ys) {
-											return $elm$core$Result$Ok(
-												A2($elm$core$List$cons, n, ys));
-										},
-										A2($author$project$State$treeToDimsList, state, xs));
-								} else {
-									return $elm$core$Result$Err('Dimension must be a number');
-								}
-							},
-							A2(
-								$author$project$State$eval,
-								A2($author$project$Readfile$Branch, $author$project$Readfile$Id, is),
-								state));
-					} else {
-						break _v16$3;
-					}
-				}
-			}
+				},
+				A2($author$project$State$eval, t, state));
 		}
-		return $elm$core$Result$Err('Issue evaluating dimensions!');
 	});
 var $author$project$State$treeToId = F2(
 	function (state, tree) {

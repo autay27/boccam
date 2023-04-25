@@ -34,12 +34,10 @@ treeToDimsList : State -> List Tree -> Result String (List Int)
 treeToDimsList state ds =
     case ds of
         [] -> Ok []
-        ((Leaf (Num n))::xs) -> (treeToDimsList state xs) |> andThen (\ys -> Ok (n::ys))
-        ((Branch Id is)::xs) -> eval (Branch Id is) state |> andThen (\val -> case val of
+        (t::xs) -> eval t state |> andThen (\val -> case val of
                 Number n -> (treeToDimsList state xs) |> andThen (\ys -> Ok (n::ys))
                 _ -> Err "Dimension must be a number"
             )
-        _ -> Err "Issue evaluating dimensions!"
 
 ruleToString : Rule -> String
 ruleToString r = case r of

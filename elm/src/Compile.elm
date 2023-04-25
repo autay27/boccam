@@ -91,10 +91,21 @@ step e m =
         unrolledMe model = Unrolled model pid
     in case e.code of
 
-        Branch Par (x::[]) ->
-            case x of
-                Branch ProcList ys -> unrolledMe (spawn ys pid aid m) 
-                _ -> RunErr "PAR rule must be followed by process list only"
+        Branch Par xs ->
+            case xs of
+                [Branch ProcList ys] -> unrolledMe (spawn ys pid aid m)
+                [Branch Replicator [v1, e1, e2], proc] ->
+                    case (eval e1 state, eval e2 state) of
+                        (Ok (Number k), Ok (Number l)) ->
+                            if k > l then ranMe m
+                            else
+                                let
+                                    replaceWithNumber n = replaceSubtree v1 (Leaf (Num n)) proc
+                                    allReplaced = List.map replaceWithNumber (List.range k l)
+                                in
+                                    unrolledMe (spawn allReplaced pid aid m)
+                        _ -> RunErr "Error evaluating replicator"
+                _ -> RunErr "PAR rule must be followed by process list or replicator only"
 
         Branch Seq xs ->
             case xs of 

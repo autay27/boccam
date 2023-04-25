@@ -7744,43 +7744,91 @@ var $author$project$Compile$step = F2(
 			} else {
 				switch (_v0.a.$) {
 					case 'Par':
-						if (_v0.b.b && (!_v0.b.b.b)) {
-							var _v1 = _v0.a;
-							var _v2 = _v0.b;
-							var x = _v2.a;
-							if ((x.$ === 'Branch') && (x.a.$ === 'ProcList')) {
-								var _v4 = x.a;
-								var ys = x.b;
-								return unrolledMe(
-									A4($author$project$Model$spawn, ys, pid, aid, m));
-							} else {
-								return $author$project$Compile$RunErr('PAR rule must be followed by process list only');
-							}
-						} else {
-							break _v0$12;
-						}
-					case 'Seq':
-						var _v5 = _v0.a;
+						var _v1 = _v0.a;
 						var xs = _v0.b;
-						_v6$3:
+						_v2$2:
+						while (true) {
+							if (xs.b && (xs.a.$ === 'Branch')) {
+								if (!xs.b.b) {
+									if (xs.a.a.$ === 'ProcList') {
+										var _v3 = xs.a;
+										var _v4 = _v3.a;
+										var ys = _v3.b;
+										return unrolledMe(
+											A4($author$project$Model$spawn, ys, pid, aid, m));
+									} else {
+										break _v2$2;
+									}
+								} else {
+									if ((((((xs.a.a.$ === 'Replicator') && xs.a.b.b) && xs.a.b.b.b) && xs.a.b.b.b.b) && (!xs.a.b.b.b.b.b)) && (!xs.b.b.b)) {
+										var _v5 = xs.a;
+										var _v6 = _v5.a;
+										var _v7 = _v5.b;
+										var v1 = _v7.a;
+										var _v8 = _v7.b;
+										var e1 = _v8.a;
+										var _v9 = _v8.b;
+										var e2 = _v9.a;
+										var _v10 = xs.b;
+										var proc = _v10.a;
+										var _v11 = _Utils_Tuple2(
+											A2($author$project$State$eval, e1, state),
+											A2($author$project$State$eval, e2, state));
+										if ((((_v11.a.$ === 'Ok') && (_v11.a.a.$ === 'Number')) && (_v11.b.$ === 'Ok')) && (_v11.b.a.$ === 'Number')) {
+											var k = _v11.a.a.a;
+											var l = _v11.b.a.a;
+											if (_Utils_cmp(k, l) > 0) {
+												return ranMe(m);
+											} else {
+												var replaceWithNumber = function (n) {
+													return A3(
+														$author$project$Utils$replaceSubtree,
+														v1,
+														$author$project$Readfile$Leaf(
+															$author$project$Readfile$Num(n)),
+														proc);
+												};
+												var allReplaced = A2(
+													$elm$core$List$map,
+													replaceWithNumber,
+													A2($elm$core$List$range, k, l));
+												return unrolledMe(
+													A4($author$project$Model$spawn, allReplaced, pid, aid, m));
+											}
+										} else {
+											return $author$project$Compile$RunErr('Error evaluating replicator');
+										}
+									} else {
+										break _v2$2;
+									}
+								}
+							} else {
+								break _v2$2;
+							}
+						}
+						return $author$project$Compile$RunErr('PAR rule must be followed by process list or replicator only');
+					case 'Seq':
+						var _v12 = _v0.a;
+						var xs = _v0.b;
+						_v13$3:
 						while (true) {
 							if (xs.b && (xs.a.$ === 'Branch')) {
 								if (!xs.a.b.b) {
 									if ((xs.a.a.$ === 'ProcList') && (!xs.b.b)) {
-										var _v7 = xs.a;
-										var _v8 = _v7.a;
+										var _v14 = xs.a;
+										var _v15 = _v14.a;
 										return ranMe(m);
 									} else {
-										break _v6$3;
+										break _v13$3;
 									}
 								} else {
 									if (!xs.b.b) {
 										if (xs.a.a.$ === 'ProcList') {
-											var _v9 = xs.a;
-											var _v10 = _v9.a;
-											var _v11 = _v9.b;
-											var y = _v11.a;
-											var ys = _v11.b;
+											var _v16 = xs.a;
+											var _v17 = _v16.a;
+											var _v18 = _v16.b;
+											var y = _v18.a;
+											var ys = _v18.b;
 											return unrolledMe(
 												A5(
 													$author$project$Model$spawnAndWait,
@@ -7796,26 +7844,26 @@ var $author$project$Compile$step = F2(
 													aid,
 													m));
 										} else {
-											break _v6$3;
+											break _v13$3;
 										}
 									} else {
 										if (((((xs.a.a.$ === 'Replicator') && xs.a.b.b.b) && xs.a.b.b.b.b) && (!xs.a.b.b.b.b.b)) && (!xs.b.b.b)) {
-											var _v12 = xs.a;
-											var _v13 = _v12.a;
-											var _v14 = _v12.b;
-											var v1 = _v14.a;
-											var _v15 = _v14.b;
-											var e1 = _v15.a;
-											var _v16 = _v15.b;
-											var e2 = _v16.a;
-											var _v17 = xs.b;
-											var proc = _v17.a;
-											var _v18 = _Utils_Tuple2(
+											var _v19 = xs.a;
+											var _v20 = _v19.a;
+											var _v21 = _v19.b;
+											var v1 = _v21.a;
+											var _v22 = _v21.b;
+											var e1 = _v22.a;
+											var _v23 = _v22.b;
+											var e2 = _v23.a;
+											var _v24 = xs.b;
+											var proc = _v24.a;
+											var _v25 = _Utils_Tuple2(
 												A2($author$project$State$eval, e1, state),
 												A2($author$project$State$eval, e2, state));
-											if ((((_v18.a.$ === 'Ok') && (_v18.a.a.$ === 'Number')) && (_v18.b.$ === 'Ok')) && (_v18.b.a.$ === 'Number')) {
-												var k = _v18.a.a.a;
-												var l = _v18.b.a.a;
+											if ((((_v25.a.$ === 'Ok') && (_v25.a.a.$ === 'Number')) && (_v25.b.$ === 'Ok')) && (_v25.b.a.$ === 'Number')) {
+												var k = _v25.a.a.a;
+												var l = _v25.b.a.a;
 												if (_Utils_cmp(k, l) > 0) {
 													return ranMe(m);
 												} else {
@@ -7850,30 +7898,30 @@ var $author$project$Compile$step = F2(
 												return $author$project$Compile$RunErr('Error evaluating replicator');
 											}
 										} else {
-											break _v6$3;
+											break _v13$3;
 										}
 									}
 								}
 							} else {
-								break _v6$3;
+								break _v13$3;
 							}
 						}
 						return $author$project$Compile$RunErr('SEQ rule must be followed by process list or replicator only');
 					case 'In':
 						if ((_v0.b.b && _v0.b.b.b) && (!_v0.b.b.b.b)) {
-							var _v19 = _v0.a;
-							var _v20 = _v0.b;
-							var chan = _v20.a;
-							var _v21 = _v20.b;
-							var _var = _v21.a;
-							var _v22 = A2($author$project$StateUtils$checkFull, state, chan);
-							if (_v22.$ === 'Ok') {
-								if (_v22.a) {
+							var _v26 = _v0.a;
+							var _v27 = _v0.b;
+							var chan = _v27.a;
+							var _v28 = _v27.b;
+							var _var = _v28.a;
+							var _v29 = A2($author$project$StateUtils$checkFull, state, chan);
+							if (_v29.$ === 'Ok') {
+								if (_v29.a) {
 									return A4($author$project$Compile$receiveOnChan, chan, _var, pid, m);
 								} else {
-									var _v23 = A2($author$project$State$treeToId, state, chan);
-									if (_v23.$ === 'Ok') {
-										var chanid = _v23.a;
+									var _v30 = A2($author$project$State$treeToId, state, chan);
+									if (_v30.$ === 'Ok') {
+										var chanid = _v30.a;
 										return $author$project$Compile$Blocked(
 											A2(
 												$author$project$Model$block,
@@ -7886,12 +7934,12 @@ var $author$project$Compile$step = F2(
 													]),
 												m));
 									} else {
-										var msg = _v23.a;
+										var msg = _v30.a;
 										return $author$project$Compile$RunErr(msg);
 									}
 								}
 							} else {
-								var msg = _v22.a;
+								var msg = _v29.a;
 								return $author$project$Compile$RunErr('tried to get input but ' + msg);
 							}
 						} else {
@@ -7899,30 +7947,30 @@ var $author$project$Compile$step = F2(
 						}
 					case 'Out':
 						if ((_v0.b.b && _v0.b.b.b) && (!_v0.b.b.b.b)) {
-							var _v24 = _v0.a;
-							var _v25 = _v0.b;
-							var chan = _v25.a;
-							var _v26 = _v25.b;
-							var expr = _v26.a;
-							var _v27 = A2($author$project$State$eval, expr, state);
-							if (_v27.$ === 'Ok') {
-								var n = _v27.a;
-								var _v28 = A2($author$project$State$treeToId, state, chan);
-								if (_v28.$ === 'Ok') {
-									var chanid = _v28.a;
+							var _v31 = _v0.a;
+							var _v32 = _v0.b;
+							var chan = _v32.a;
+							var _v33 = _v32.b;
+							var expr = _v33.a;
+							var _v34 = A2($author$project$State$eval, expr, state);
+							if (_v34.$ === 'Ok') {
+								var n = _v34.a;
+								var _v35 = A2($author$project$State$treeToId, state, chan);
+								if (_v35.$ === 'Ok') {
+									var chanid = _v35.a;
 									if (_Utils_eq(chanid.str, $author$project$StateUtils$graphicschanname)) {
-										var _v29 = A3($author$project$Utils$updateCell, m, n, chanid);
-										if (_v29.$ === 'Ok') {
-											var updatedModel = _v29.a;
+										var _v36 = A3($author$project$Utils$updateCell, m, n, chanid);
+										if (_v36.$ === 'Ok') {
+											var updatedModel = _v36.a;
 											return ranMe(updatedModel);
 										} else {
-											var msg = _v29.a;
+											var msg = _v36.a;
 											return $author$project$Compile$RunErr(msg);
 										}
 									} else {
-										var _v30 = A2($author$project$StateUtils$checkFull, state, chan);
-										if (_v30.$ === 'Ok') {
-											if (_v30.a) {
+										var _v37 = A2($author$project$StateUtils$checkFull, state, chan);
+										if (_v37.$ === 'Ok') {
+											if (_v37.a) {
 												return $author$project$Compile$RunErr('Occam doesn\'t allow more than one parallel process to output to the same channel');
 											} else {
 												var waiting = {
@@ -7941,16 +7989,16 @@ var $author$project$Compile$step = F2(
 														m));
 											}
 										} else {
-											var msg = _v30.a;
+											var msg = _v37.a;
 											return $author$project$Compile$RunErr('tried to output to a channel but ' + msg);
 										}
 									}
 								} else {
-									var msg = _v28.a;
+									var msg = _v35.a;
 									return $author$project$Compile$RunErr('tried to output to a channel but ' + msg);
 								}
 							} else {
-								var msg = _v27.a;
+								var msg = _v34.a;
 								return $author$project$Compile$RunErr('tried to output a value but ' + msg);
 							}
 						} else {
@@ -7958,36 +8006,36 @@ var $author$project$Compile$step = F2(
 						}
 					case 'Alt':
 						if (_v0.b.b && (!_v0.b.b.b)) {
-							var _v31 = _v0.a;
-							var _v32 = _v0.b;
-							var x = _v32.a;
+							var _v38 = _v0.a;
+							var _v39 = _v0.b;
+							var x = _v39.a;
 							if ((x.$ === 'Branch') && (x.a.$ === 'AltList')) {
-								var _v34 = x.a;
+								var _v41 = x.a;
 								var xs = x.b;
 								var enactAlternative = F2(
 									function (a, model) {
 										if ((((((((((a.$ === 'Branch') && (a.a.$ === 'Alternative')) && a.b.b) && (a.b.a.$ === 'Branch')) && (a.b.a.a.$ === 'Guard')) && a.b.a.b.b) && a.b.a.b.b.b) && (!a.b.a.b.b.b.b)) && a.b.b.b) && (!a.b.b.b.b)) {
-											var _v40 = a.a;
-											var _v41 = a.b;
-											var _v42 = _v41.a;
-											var _v43 = _v42.a;
-											var _v44 = _v42.b;
-											var bool = _v44.a;
-											var _v45 = _v44.b;
-											var action = _v45.a;
-											var _v46 = _v41.b;
-											var proc = _v46.a;
-											_v47$2:
+											var _v47 = a.a;
+											var _v48 = a.b;
+											var _v49 = _v48.a;
+											var _v50 = _v49.a;
+											var _v51 = _v49.b;
+											var bool = _v51.a;
+											var _v52 = _v51.b;
+											var action = _v52.a;
+											var _v53 = _v48.b;
+											var proc = _v53.a;
+											_v54$2:
 											while (true) {
 												if (action.$ === 'Branch') {
 													switch (action.a.$) {
 														case 'In':
 															if ((action.b.b && action.b.b.b) && (!action.b.b.b.b)) {
-																var _v48 = action.a;
-																var _v49 = action.b;
-																var chan = _v49.a;
-																var _v50 = _v49.b;
-																var _var = _v50.a;
+																var _v55 = action.a;
+																var _v56 = action.b;
+																var chan = _v56.a;
+																var _v57 = _v56.b;
+																var _var = _v57.a;
 																return A4(
 																	$author$project$Compile$receiveOnChan,
 																	chan,
@@ -8001,10 +8049,10 @@ var $author$project$Compile$step = F2(
 																		aid,
 																		model));
 															} else {
-																break _v47$2;
+																break _v54$2;
 															}
 														case 'Skip':
-															var _v51 = action.a;
+															var _v58 = action.a;
 															return ranMe(
 																A4(
 																	$author$project$Model$spawn,
@@ -8014,10 +8062,10 @@ var $author$project$Compile$step = F2(
 																	aid,
 																	model));
 														default:
-															break _v47$2;
+															break _v54$2;
 													}
 												} else {
-													break _v47$2;
+													break _v54$2;
 												}
 											}
 											return $author$project$Compile$RunErr('Invalid alt guard');
@@ -8025,16 +8073,16 @@ var $author$project$Compile$step = F2(
 											return $author$project$Compile$RunErr('Invalid alt branch');
 										}
 									});
-								var _v35 = A2($author$project$Utils$pickValidBranches, xs, state);
-								if (_v35.$ === 'Ok') {
-									if (!_v35.a.b) {
+								var _v42 = A2($author$project$Utils$pickValidBranches, xs, state);
+								if (_v42.$ === 'Ok') {
+									if (!_v42.a.b) {
 										return ranMe(m);
 									} else {
-										var ys = _v35.a;
-										var _v36 = $author$project$Model$takeFulfilled(m);
-										if (_v36.b.$ === 'Nothing') {
-											var model = _v36.a;
-											var _v37 = _v36.b;
+										var ys = _v42.a;
+										var _v43 = $author$project$Model$takeFulfilled(m);
+										if (_v43.b.$ === 'Nothing') {
+											var model = _v43.a;
+											var _v44 = _v43.b;
 											return $author$project$Compile$Requesting(
 												A2(
 													$author$project$Model$requestRandomUpTo,
@@ -8045,12 +8093,12 @@ var $author$project$Compile$step = F2(
 															$elm$core$List$length(ys)),
 														model)));
 										} else {
-											var model = _v36.a;
-											var rand = _v36.b.a;
-											var _v38 = $elm$core$List$head(
+											var model = _v43.a;
+											var rand = _v43.b.a;
+											var _v45 = $elm$core$List$head(
 												A2($elm$core$List$drop, rand, ys));
-											if (_v38.$ === 'Just') {
-												var a = _v38.a;
+											if (_v45.$ === 'Just') {
+												var a = _v45.a;
 												return A2(enactAlternative, a, model);
 											} else {
 												return $author$project$Compile$RunErr(
@@ -8060,7 +8108,7 @@ var $author$project$Compile$step = F2(
 										}
 									}
 								} else {
-									var msg = _v35.a;
+									var msg = _v42.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							} else {
@@ -8071,25 +8119,25 @@ var $author$project$Compile$step = F2(
 						}
 					case 'AssignExpr':
 						if ((_v0.b.b && _v0.b.b.b) && (!_v0.b.b.b.b)) {
-							var _v52 = _v0.a;
-							var _v53 = _v0.b;
-							var id = _v53.a;
-							var _v54 = _v53.b;
-							var e1 = _v54.a;
-							var _v55 = A2($author$project$State$eval, e1, state);
-							if (_v55.$ === 'Ok') {
-								var v = _v55.a;
-								var _v56 = A3($author$project$StateUtils$assignVar, state, id, v);
-								if (_v56.$ === 'Ok') {
-									var s = _v56.a;
+							var _v59 = _v0.a;
+							var _v60 = _v0.b;
+							var id = _v60.a;
+							var _v61 = _v60.b;
+							var e1 = _v61.a;
+							var _v62 = A2($author$project$State$eval, e1, state);
+							if (_v62.$ === 'Ok') {
+								var v = _v62.a;
+								var _v63 = A3($author$project$StateUtils$assignVar, state, id, v);
+								if (_v63.$ === 'Ok') {
+									var s = _v63.a;
 									return ranMe(
 										A2($author$project$Model$update, s, m));
 								} else {
-									var msg = _v56.a;
+									var msg = _v63.a;
 									return $author$project$Compile$RunErr(msg);
 								}
 							} else {
-								var msg = _v55.a;
+								var msg = _v62.a;
 								return $author$project$Compile$RunErr(msg);
 							}
 						} else {
@@ -8097,14 +8145,14 @@ var $author$project$Compile$step = F2(
 						}
 					case 'While':
 						if ((_v0.b.b && _v0.b.b.b) && (!_v0.b.b.b.b)) {
-							var _v57 = _v0.a;
-							var _v58 = _v0.b;
-							var cond = _v58.a;
-							var _v59 = _v58.b;
-							var body = _v59.a;
-							var _v60 = A2($author$project$State$eval, cond, state);
-							if ((_v60.$ === 'Ok') && (_v60.a.$ === 'Boolval')) {
-								if (_v60.a.a) {
+							var _v64 = _v0.a;
+							var _v65 = _v0.b;
+							var cond = _v65.a;
+							var _v66 = _v65.b;
+							var body = _v66.a;
+							var _v67 = A2($author$project$State$eval, cond, state);
+							if ((_v67.$ === 'Ok') && (_v67.a.$ === 'Boolval')) {
+								if (_v67.a.a) {
 									return unrolledMe(
 										A5($author$project$Model$spawnAndWait, body, e.code, pid, aid, m));
 								} else {
@@ -8118,35 +8166,35 @@ var $author$project$Compile$step = F2(
 						}
 					case 'Cond':
 						if (_v0.b.b && (!_v0.b.b.b)) {
-							var _v61 = _v0.a;
-							var _v62 = _v0.b;
-							var choicelist = _v62.a;
+							var _v68 = _v0.a;
+							var _v69 = _v0.b;
+							var choicelist = _v69.a;
 							var getFirstRestChoices = function (ys) {
 								if (!ys.b) {
 									return $elm$core$Result$Err('No choices left');
 								} else {
 									var z = ys.a;
 									var zs = ys.b;
-									_v64$2:
+									_v71$2:
 									while (true) {
 										if (z.$ === 'Branch') {
 											switch (z.a.$) {
 												case 'GuardedChoice':
-													var _v65 = z.a;
+													var _v72 = z.a;
 													return $elm$core$Result$Ok(
 														_Utils_Tuple2(z, zs));
 												case 'Cond':
 													if (((z.b.b && (z.b.a.$ === 'Branch')) && (z.b.a.a.$ === 'ChoiceList')) && (!z.b.b.b)) {
-														var _v66 = z.a;
-														var _v67 = z.b;
-														var _v68 = _v67.a;
-														var _v69 = _v68.a;
-														var qs = _v68.b;
+														var _v73 = z.a;
+														var _v74 = z.b;
+														var _v75 = _v74.a;
+														var _v76 = _v75.a;
+														var qs = _v75.b;
 														return A2(
 															$elm$core$Result$andThen,
-															function (_v70) {
-																var first = _v70.a;
-																var rest = _v70.b;
+															function (_v77) {
+																var first = _v77.a;
+																var rest = _v77.b;
 																if (!rest.b) {
 																	return $elm$core$Result$Ok(
 																		_Utils_Tuple2(first, zs));
@@ -8163,13 +8211,13 @@ var $author$project$Compile$step = F2(
 															},
 															getFirstRestChoices(qs));
 													} else {
-														break _v64$2;
+														break _v71$2;
 													}
 												default:
-													break _v64$2;
+													break _v71$2;
 											}
 										} else {
-											break _v64$2;
+											break _v71$2;
 										}
 									}
 									return $elm$core$Result$Err('Invalid IF branch');
@@ -8177,26 +8225,26 @@ var $author$project$Compile$step = F2(
 							};
 							if ((choicelist.$ === 'Branch') && (choicelist.a.$ === 'ChoiceList')) {
 								if (!choicelist.b.b) {
-									var _v73 = choicelist.a;
+									var _v80 = choicelist.a;
 									return ranMe(m);
 								} else {
-									var _v74 = choicelist.a;
+									var _v81 = choicelist.a;
 									var xs = choicelist.b;
-									var _v75 = getFirstRestChoices(xs);
-									if (_v75.$ === 'Ok') {
-										if (((((_v75.a.a.$ === 'Branch') && (_v75.a.a.a.$ === 'GuardedChoice')) && _v75.a.a.b.b) && _v75.a.a.b.b.b) && (!_v75.a.a.b.b.b.b)) {
-											var _v76 = _v75.a;
-											var _v77 = _v76.a;
-											var _v78 = _v77.a;
-											var _v79 = _v77.b;
-											var cond = _v79.a;
-											var _v80 = _v79.b;
-											var proc = _v80.a;
-											var ys = _v76.b;
-											var _v81 = A2($author$project$State$eval, cond, state);
-											if (_v81.$ === 'Ok') {
-												if (_v81.a.$ === 'Boolval') {
-													if (_v81.a.a) {
+									var _v82 = getFirstRestChoices(xs);
+									if (_v82.$ === 'Ok') {
+										if (((((_v82.a.a.$ === 'Branch') && (_v82.a.a.a.$ === 'GuardedChoice')) && _v82.a.a.b.b) && _v82.a.a.b.b.b) && (!_v82.a.a.b.b.b.b)) {
+											var _v83 = _v82.a;
+											var _v84 = _v83.a;
+											var _v85 = _v84.a;
+											var _v86 = _v84.b;
+											var cond = _v86.a;
+											var _v87 = _v86.b;
+											var proc = _v87.a;
+											var ys = _v83.b;
+											var _v88 = A2($author$project$State$eval, cond, state);
+											if (_v88.$ === 'Ok') {
+												if (_v88.a.$ === 'Boolval') {
+													if (_v88.a.a) {
 														return ranMe(
 															A4(
 																$author$project$Model$spawn,
@@ -8227,14 +8275,14 @@ var $author$project$Compile$step = F2(
 													return $author$project$Compile$RunErr('problem evaluating if condition');
 												}
 											} else {
-												var msg = _v81.a;
+												var msg = _v88.a;
 												return $author$project$Compile$RunErr('Failed to evaluate if condition: ' + msg);
 											}
 										} else {
 											return $author$project$Compile$RunErr('problem evaluating IF');
 										}
 									} else {
-										var msg = _v75.a;
+										var msg = _v82.a;
 										return $author$project$Compile$RunErr('couldn\'t evaluate IF: ' + msg);
 									}
 								}
@@ -8245,30 +8293,30 @@ var $author$project$Compile$step = F2(
 							break _v0$12;
 						}
 					case 'DeclareVariable':
-						var _v82 = _v0.a;
-						var _v83 = A2($author$project$StateUtils$declareVar, state, e.code);
-						if (_v83.$ === 'Ok') {
-							var state2 = _v83.a;
+						var _v89 = _v0.a;
+						var _v90 = A2($author$project$StateUtils$declareVar, state, e.code);
+						if (_v90.$ === 'Ok') {
+							var state2 = _v90.a;
 							return ranMe(
 								A2($author$project$Model$update, state2, m));
 						} else {
-							var msg = _v83.a;
+							var msg = _v90.a;
 							return $author$project$Compile$RunErr(msg);
 						}
 					case 'DeclareChannel':
-						var _v84 = _v0.a;
-						var _v85 = A2($author$project$StateUtils$declareChan, state, e.code);
-						if (_v85.$ === 'Ok') {
-							var state2 = _v85.a;
+						var _v91 = _v0.a;
+						var _v92 = A2($author$project$StateUtils$declareChan, state, e.code);
+						if (_v92.$ === 'Ok') {
+							var state2 = _v92.a;
 							return ranMe(
 								A2($author$project$Model$update, state2, m));
 						} else {
-							var msg = _v85.a;
+							var msg = _v92.a;
 							return $author$project$Compile$RunErr(msg);
 						}
 					case 'Skip':
 						if (!_v0.b.b) {
-							var _v86 = _v0.a;
+							var _v93 = _v0.a;
 							return ranMe(m);
 						} else {
 							break _v0$12;

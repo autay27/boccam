@@ -30,6 +30,8 @@ proc
         { $$ = $input }
     | PAR proc_block
         { $$ = ["par", $proc_block] }
+    | PAR replicator INDENT proc DEDENT
+        { $$ = ["par", $replicator, $proc] }
     | SEQ proc_block
         { $$ = ["seq", $proc_block] }
     | SEQ replicator INDENT proc DEDENT

@@ -9009,7 +9009,7 @@ var $author$project$StateUtils$jsonValues = function (val) {
 			return $elm$json$Json$Encode$bool(b);
 		case 'Array':
 			var xs = val.a;
-			return $elm$json$Json$Encode$string('Array - not printed yet');
+			return A3($elm$json$Json$Encode$dict, $elm$core$String$fromInt, $author$project$StateUtils$jsonValues, xs);
 		default:
 			return $elm$json$Json$Encode$string('ANY');
 	}

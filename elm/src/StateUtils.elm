@@ -91,7 +91,7 @@ jsonValues val =
     case val of
         Number n -> Json.Encode.int n
         Boolval b -> Json.Encode.bool b
-        Array xs -> Json.Encode.string "Array - not printed yet"
+        Array xs -> Json.Encode.dict String.fromInt jsonValues xs
         Any -> Json.Encode.string "ANY"
 
 

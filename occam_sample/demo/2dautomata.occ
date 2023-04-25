@@ -22,22 +22,22 @@ SEQ
             yCoord[0] := 0
             WHILE yCoord[0] < 32
                 SEQ
+                    GRAPHICS[0][yCoord[0]] ! 3*me[0]+3
                     left[0] ! me[0]
                     left[31] ? myLeft[0]
                     right[31] ! me[0]
                     right[0] ? myRight[0]
                     me[0] := rule[myLeft[0]][me[0]][myRight[0]]
-                    GRAPHICS[0][yCoord[0]] ! me[0]
                     yCoord[0] := yCoord[0] + 1
         PAR i = [1 FOR 31]
             SEQ
                 yCoord[i] := 0
                 WHILE yCoord[i] < 32
                     SEQ
+                        GRAPHICS[i][yCoord[i]] ! 3*me[i]+3
                         left[i-1] ? myLeft[i]
                         left[i] ! me[i]
                         right[i] ? myRight[i]
                         right[i-1] ! me[i]
                         me[i] := rule[myLeft[i]][me[i]][myRight[i]]
-                        GRAPHICS[i][yCoord[i]] ! me[i]
                         yCoord[i] := yCoord[i] + 1

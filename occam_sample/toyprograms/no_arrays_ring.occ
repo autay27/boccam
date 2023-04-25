@@ -1,0 +1,24 @@
+SEQ
+    INT x:
+    INT y:
+    INT z:
+    x := 0
+    y := 1
+    z := 2
+    INT xl:
+    INT yl:
+    INT zl:
+    CHAN OF INT xleft:
+    CHAN OF INT yleft:
+    CHAN OF INT zleft:
+    PAR
+        SEQ
+            yleft ! x
+            xleft ? xl
+        SEQ
+            yleft ? yl
+            zleft ! y
+        SEQ
+            zleft ? zl
+            xleft ! z
+

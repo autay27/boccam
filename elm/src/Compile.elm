@@ -131,7 +131,7 @@ step e m =
                 Ok False ->
                     case treeToId state chan of
                         Ok chanid ->
-                            Blocked (block [{ proc = e, waitCond = FilledChan chanid.str }] m)
+                            Blocked (block [{ proc = e, waitCond = FilledChan chanid }] m)
                         Err msg -> RunErr msg
                 Err msg -> RunErr ("tried to get input but " ++ msg)
 
@@ -151,7 +151,7 @@ step e m =
 
                                     Ok False ->
                                         let
-                                            waiting = { proc = e, waitCond = EmptiedChan chanid.str }
+                                            waiting = { proc = e, waitCond = EmptiedChan chanid }
                                         in
                                             sendOnChan chanid n pid (block [waiting] m)
                                     Err msg -> RunErr ("tried to output to a channel but " ++ msg)
@@ -254,10 +254,11 @@ receiveOnChan chan var pid m =
 
                     Ok stateChanEmptiedAssigned -> case receivedValue of
 
-                        Number n -> channelEmptied chanid.str pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (treeToId stateChanEmptiedAssigned var |> Result.andThen (\id -> Ok id.str)))) 
+                        Number n -> channelEmptied chanid pid (print ("inputted " ++ String.fromInt n ++ " to " ++ (Result.withDefault "receiveOnChan ERROR" (treeToId stateChanEmptiedAssigned var |> Result.andThen (\id -> Ok id.str)))) 
                             { m | state = stateChanEmptiedAssigned })
 
-                        _ -> RunErr "unexpected, input was not a number"
+                        Any -> RunErr "bug - receiving from an empty channel"
+                        _ -> RunErr "input to channel was not a number"
 
                     Err msg -> RunErr msg
 
@@ -280,7 +281,8 @@ channelFilled : Identifier -> Id -> Model -> Outcome
 channelFilled chanid pid m =
     let 
         (mayUnblock, stillBlocking) = List.partition (\wp ->
-                wp.waitCond == FilledChan chanid.str
+                wp.waitCond == FilledChan chanid
+                -- Here's a problem! The wait condition should really have not just the str but the whole identifier.
             ) m.waiting
     in
         case mayUnblock of 
@@ -296,7 +298,7 @@ channelFilled chanid pid m =
             [] -> Blocked m
             -- no thread was waiting to receive my value; block
 
-channelEmptied : String -> Id -> Model -> Outcome
+channelEmptied : Identifier -> Id -> Model -> Outcome
 channelEmptied chanid pid m =
     let
         (mayUnblock, stillBlocking) = List.partition (\wp ->
@@ -340,7 +342,7 @@ updateDisplay m =
             case getValueAndEmptyChannel displaychanid m.state of
                 Ok (value, newState) ->
                     case value of 
-                        Number n -> channelEmptied displaychanname (-1) (update newState (display n m))
+                        Number n -> channelEmptied displaychanid (-1) (update newState (display n m))
 
                         _ -> RunErr "Invalid output to the display (currently requires a number)"
                 Err msg -> RunErr msg

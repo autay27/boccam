@@ -5269,7 +5269,7 @@ var $elm$core$List$repeat = F2(
 var $author$project$Model$freshGraphics = A2(
 	$elm$core$List$repeat,
 	32,
-	A2($elm$core$List$range, 0, 31));
+	A2($elm$core$List$repeat, 32, 0));
 var $author$project$State$ChanSingle = function (a) {
 	return {$: 'ChanSingle', a: a};
 };
@@ -7297,8 +7297,13 @@ var $author$project$StateUtils$getValueAndEmptyChannel = F2(
 			function (_v0) {
 				var oldchan = _v0.a;
 				var newstate = _v0.b;
-				return $elm$core$Result$Ok(
-					_Utils_Tuple2(oldchan.value, newstate));
+				var _v1 = oldchan.isFull;
+				if (_v1) {
+					return $elm$core$Result$Ok(
+						_Utils_Tuple2(oldchan.value, newstate));
+				} else {
+					return $elm$core$Result$Err('Tried to get value and empty channel, but channel is already empty');
+				}
 			},
 			A4($author$project$State$derefAndUpdateChannel, $author$project$State$freshChannel, chanid.str, chanid.dims, state));
 	});
@@ -7324,28 +7329,31 @@ var $author$project$Compile$receiveOnChan = F4(
 				var _v3 = A3($author$project$StateUtils$assignVar, stateChanEmptied, _var, receivedValue);
 				if (_v3.$ === 'Ok') {
 					var stateChanEmptiedAssigned = _v3.a;
-					if (receivedValue.$ === 'Number') {
-						var n = receivedValue.a;
-						return A3(
-							$author$project$Compile$channelEmptied,
-							chanid.str,
-							pid,
-							A2(
-								$author$project$Model$print,
-								'inputted ' + ($elm$core$String$fromInt(n) + (' to ' + A2(
-									$elm$core$Result$withDefault,
-									'receiveOnChan ERROR',
-									A2(
-										$elm$core$Result$andThen,
-										function (id) {
-											return $elm$core$Result$Ok(id.str);
-										},
-										A2($author$project$State$treeToId, stateChanEmptiedAssigned, _var))))),
-								_Utils_update(
-									m,
-									{state: stateChanEmptiedAssigned})));
-					} else {
-						return $author$project$Compile$RunErr('unexpected, input was not a number');
+					switch (receivedValue.$) {
+						case 'Number':
+							var n = receivedValue.a;
+							return A3(
+								$author$project$Compile$channelEmptied,
+								chanid,
+								pid,
+								A2(
+									$author$project$Model$print,
+									'inputted ' + ($elm$core$String$fromInt(n) + (' to ' + A2(
+										$elm$core$Result$withDefault,
+										'receiveOnChan ERROR',
+										A2(
+											$elm$core$Result$andThen,
+											function (id) {
+												return $elm$core$Result$Ok(id.str);
+											},
+											A2($author$project$State$treeToId, stateChanEmptiedAssigned, _var))))),
+									_Utils_update(
+										m,
+										{state: stateChanEmptiedAssigned})));
+						case 'Any':
+							return $author$project$Compile$RunErr('bug - receiving from an empty channel');
+						default:
+							return $author$project$Compile$RunErr('input to channel was not a number');
 					}
 				} else {
 					var msg = _v3.a;
@@ -7399,7 +7407,7 @@ var $author$project$Compile$channelFilled = F3(
 			function (wp) {
 				return _Utils_eq(
 					wp.waitCond,
-					$author$project$Model$FilledChan(chanid.str));
+					$author$project$Model$FilledChan(chanid));
 			},
 			m.waiting);
 		var mayUnblock = _v0.a;
@@ -7929,7 +7937,7 @@ var $author$project$Compile$step = F2(
 													[
 														{
 														proc: e,
-														waitCond: $author$project$Model$FilledChan(chanid.str)
+														waitCond: $author$project$Model$FilledChan(chanid)
 													}
 													]),
 												m));
@@ -7975,7 +7983,7 @@ var $author$project$Compile$step = F2(
 											} else {
 												var waiting = {
 													proc: e,
-													waitCond: $author$project$Model$EmptiedChan(chanid.str)
+													waitCond: $author$project$Model$EmptiedChan(chanid)
 												};
 												return A4(
 													$author$project$Compile$sendOnChan,
@@ -8511,7 +8519,7 @@ var $author$project$Compile$updateDisplay = function (m) {
 					var n = value.a;
 					return A3(
 						$author$project$Compile$channelEmptied,
-						$author$project$StateUtils$displaychanname,
+						$author$project$StateUtils$displaychanid,
 						-1,
 						A2(
 							$author$project$Model$update,

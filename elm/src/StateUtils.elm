@@ -36,7 +36,9 @@ fillChannel val chanid state =
 getValueAndEmptyChannel : Identifier -> State -> Result String (Value, State)
 getValueAndEmptyChannel chanid state =
     derefAndUpdateChannel freshChannel chanid.str chanid.dims state |> andThen (\(oldchan, newstate) ->
-        Ok (oldchan.value, newstate)
+        case oldchan.isFull of
+            True -> Ok (oldchan.value, newstate)
+            False -> Err "Tried to get value and empty channel, but channel is already empty"
     )
 
 accessChannel : Identifier -> State -> Result String Chan

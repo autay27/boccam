@@ -3,7 +3,7 @@ module Model exposing (..)
 import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
-import State exposing (State)
+import State exposing (State, Identifier)
 import StateUtils exposing (freshState)
 import KeyboardInput exposing (Direction(..))
 
@@ -11,7 +11,7 @@ type alias Id = Int
 type alias IdTracker = Dict Id Bool
 
 type alias Proc = {code: Tree, id: Id, ancestorId: Maybe Id}
-type WaitCond = Terminated (List Id) | FilledChan String | EmptiedChan String
+type WaitCond = Terminated (List Id) | FilledChan Identifier | EmptiedChan Identifier
 type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Graphics = List (List Int)
@@ -31,7 +31,7 @@ freshModel =
     keyboardBuffer = []
     }
 
-freshGraphics = List.repeat 32 (List.range 0 31)
+freshGraphics = List.repeat 32 (List.repeat 32 0)
 
 print : String -> Model -> Model
 print s m = { m | output = m.output ++ s ++ "\n" }

@@ -1,0 +1,15 @@
+SEQ
+    [32]INT me:
+    SEQ i = [0 FOR 31]
+        me[i] := 0
+    me[16] := 1
+    [32]INT myLeft:
+    [32]CHAN OF INT left:
+    PAR
+        SEQ
+            left[0] ! me[0]
+            left[31] ? myLeft[0]
+        PAR i = [1 FOR 31]
+            SEQ
+                left[i-1] ? myLeft[i]
+                left[i] ! me[i]

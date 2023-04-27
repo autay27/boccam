@@ -12,13 +12,13 @@ title: "An interpreter for occam in the browser"
 
 ## History of occam
 
-occam is a high-level procedural programming language designed to support concurrent applications. One of the earliest concurrent languages designed for industrial use, it was first released in 1983 by David May and others at Inmos, advised by Tony Hoare; it was intended for use on the transputer, an early microprocessor from Inmos which was designed for parallel computing (source). Transputers were used in large networks, with each having integrated memory and serial communication links, rather than the network needing a central bus or RAM.
+occam is a high-level procedural programming language designed to support concurrent applications. One of the earliest concurrent languages designed for industrial use, it was first released in 1983 by David May and others at Inmos, advised by Tony Hoare. It was intended for use on the transputer, an early microprocessor from Inmos which was designed for parallel computing (source). Transputers were used in large networks, with each having integrated memory and serial communication links, rather than the network needing a central bus or RAM.
 
 occam's design is based on the Communicating Sequential Processes (CSP) process algebra created by Tony Hoare, meaning that its programs are expressed in terms of concurrent _processes_ which communicate exclusively by passing messages via _channels_ [@oc1]. There are algebraic laws proving equivalence between different expressions in occam, allowing for formal proofs of the correctness of programs [@laws].
 
 While it is no longer in active use due to the transputer's failure to catch on, it has inspired the languages occam-pi [@occampi] and Ease [@ease] and shares features with other concurrent languages influenced by CSP, such as Go [@go] and Erlang [@erlang], both of which are currently popular in industry. occam and occam-pi have been used to teach concurrency and concurrent programming on Computer Science courses at various British universities (don't know how to cite this - I have an anecdote from my professor who learned it at Oxford, and some online comments).
 
-occam retains interest as a teaching tool. It is suitable for an introduction to practical concurrent programming, as it natively supports concurrent processes and represents them clearly and intuitively as adjacent blocks of code, placed in a hierarchy by the use of whitespace. The use of channels makes the connections between processes explicit. It may also be useful for teaching theoretical computer science - its strong resemblance to CSP makes it a possible alternative to trace refinement checking tools for gaining intuition of how processes interact in a message-passing paradigm.
+occam retains interest as a teaching tool. It is suitable for an introduction to practical concurrent programming, as it natively supports concurrent processes and represents them clearly and intuitively as adjacent blocks of code, placed in a hierarchy by the use of significant whitespace (i.e. indentation changes the meaning of code). The use of channels makes the connections between processes explicit. It may also be useful for teaching theoretical computer science - its strong resemblance to CSP makes it a possible alternative to trace refinement checking tools for gaining intuition of how processes interact in a message-passing paradigm.
 
 ## Description of Occam
 
@@ -82,7 +82,7 @@ Here is a non-exhaustive list of occam 1 features which were implemented in the 
 
 We extended occam 1 to simulate input/output (IO) to hardware, and allow for displaying graphics in the browser. These would allow learners to create interactive and appealing programs such as games, simulations, calculators and visual artworks. This is a design philosophy also seen on the BBC micro:bit, a device designed for computer education, which provides input/outputs including two buttons, a serial connection and a "screen" consisting of a 5x5 LED matrix [@microbit]. Emphasis is also placed on visual outputs in the educational programming languages Logo, with its 'turtle graphics' [@logo], and Scratch, with its 'stage area' [@scratch].
 
-Graphical applications are also uniquely suited to concurrent programming, due to the large number of similar calculations needed to render each pixel to produce a single image. And conversely, due to the concurrent nature of human vision - able to view images 'as a whole', rather than bit by bit - visuals are excellent for displaying concurrent behaviours of processes in an intuitive way. **example of this - some kind of propagating across a grid to take the maximum across many processes? would make a nice demo too. Look it up from the conc.prog problem sheets**
+Graphical applications are also uniquely suited to concurrent programming, due to the large number of similar calculations needed to render each pixel to produce a single image. And conversely, due to the concurrent nature of human vision - able to view images 'as a whole', rather than bit by bit - visuals are excellent for displaying concurrent behaviours of processes in an intuitive way. **example of this - some kind of propagating across a grid to take the maximum across many processes? would make a nice demo too. Look it up from the conc.prog problem sheets** **AR suggests concurrent bouncing balls**
 
 To facilitate pixel-based graphics, the language is extended with n-dimensional arrays of variables and channels, as described in the occam 2.1 reference manual [@oc21]. The displayed pixels are set using a two-dimensional array, but more dimensions may still be useful. For example, one can imagine a 3-dimensional array which stores additional information about each 2d coordinate, used when calculating its colour, along the third dimension.
 
@@ -102,7 +102,7 @@ Due to the educational purpose of the interpreter and the target audience of mor
 
 ## User interface
 
-The interpreter is designed to run in the browser. This is convenient for teachers, and lowers the entry barrier for learners because they do not have to install anything to run their code.
+The interpreter is designed to run in the browser. This is convenient for teachers, and lowers the entry barrier for learners because they do not have to install anything to run their code. This means that the interpreter must be built using only tools that compile to a language which can be run in the browser (i.e. Javascript).
 
 We adopt the layout of code text box on the left, output on the right, which is used in other browser-based coding such as Codecademy [@codecademy].
 
@@ -114,11 +114,13 @@ We adopt the layout of code text box on the left, output on the right, which is 
 
 After the user inputs code to the browser, the package Jison is used for converting it into an abstract syntax tree. Jison-Lex is a lexer generator included in the package, while Jison itself is a parser generator. The two are based on the widely used Flex and Bison, and have a similar API to them. The key difference is that Jison generates Javascript lexers and parsers, which can be run in the browser, and produce an output in the form of a Javascript array which can easily be processed further. [@jison] [@jisonlex]
 
-Jison-Lex is a regular expression-based lexer generator; it generates a program that can break text down into a list of tokens, the 'words' of a programming language, including predefined keywords as well as user-defined names and values. Because Occam is a language with significant whitespace - indentation changes the meaning of code - the default Jison-Lex tokeniser had to be extended to correctly tokenise indents, dedents and newlines. The example indent/dedent scanner provided as part of the documentation [@whitespace] was adapted for this purpose.
+Jison-Lex is a regular expression-based lexer generator; it generates a program that can break text down into a list of tokens, the 'words' of a programming language, including predefined keywords as well as user-defined names and values. Because occam is a language with significant whitespace, the default Jison-Lex tokeniser had to be extended to correctly tokenise indents, dedents and newlines. The example indent/dedent scanner provided as part of the documentation [@whitespace] was adapted for this purpose.
 
 Jison is a shift-reduce parser generator; it generates a program that takes the list of tokens produced by the lexer, and repeatedly 'shifts' the first few tokens onto its stack, then 'reduces' them according to the rules of a context-free grammar, to arrive at the end result of an abstract syntax tree (AST). Encoding the grammar of occam went smoothly, thanks to the list of rules provided in Appendix H of the occam 2.1 Reference Manual [@oc21].
 
 ## Interpreting
+
+Elm is a functional programming language which compiles to Javascript, so it can be run in the browser. It is inspired by Haskell, but geared towards interactive uses, so I/O and other side effects are easy to use and cleanly separated out as part of Elm's program architecture. Elm also has functional languages' characteristic pattern matching capabilities, lack of runtime errors, and ease of handling user-defined exceptions. This makes it well suited for writing an interpreter.
 
 The AST produced by Jison is converted into JSON format using Javascript, in order for Elm to be able to convert the tree into a native Elm datatype. Then, it becomes the first element in the 'list of running processes' used when constructing the Elm model of the program.
 
@@ -218,11 +220,40 @@ I think I will do 2d automata because it creates pretty patterns and is a little
 
 Opportunity to include lots of colorful pictures of it in use!
 
-## User Evaluation
+## Evaluation
 
-Self assessment, send it to my friends.
+### Self-evaluation
 
-# Reflection
+Following the heuristics given in [@benyonturner]
+
+1. Visibility 7. Feedback
+2. Consistency 8. Recovery
+3. Familiarity 9. Constraints
+4. Affordance 10. Flexibility
+5. Navigation 11. Style
+6. Control 12. Conviviality
+
+
+
+
+how could this project be extended, what flaws could be fixed up. endless list...
+
+- Execution is a little slow, not unbearably so but e.g. drawing to every pixel on the screen does take a while. (I also want to know.... why that is.)
+- Minor details of occam 1 (see checklist) esp. processes
+- Enforcement of rules at compile time, such as processes not sharing channels / no variable shadowing / etc.
+- Boolean datatype for control structures variables
+- Strings/characters datatype for interactivity
+- Screen that isn't pixel based but instead can draw shapes/lines/etc directly (requires more data types at the very least)
+- Good automated testing
+- Code linting, automatic indentation
+- Line numbers for error messages; clearer and helpful error messages in the style of Elm
+- Using codemirror
+
+### User testing
+
+send it to my friends.
+
+# Conclusions & Future Work
 
 your experience/ what you learned / challenges and mistakes
 
@@ -234,19 +265,6 @@ your experience/ what you learned / challenges and mistakes
 - Elm is awesome but it's SO strict about always needing to handle errors perfectly, I really felt the downside of functional programming and strict typing systems when trying to develop the prototype quickly. At the same time, these errors were useful because you could nearly always trace back to the exact bit of code where something failed.
 - Testing was so hard, because Elm is really only set up to test functions _without_ side effects, but my thing needs to have either side effects or a simulation of them, for the nondeterminism.
 - Well, need to do the user evaluation thing, then I'll have a lot more to say..
-
-how could this project be extended, what flaws could be fixed up. endless list...
-
-- Minor details of occam 1 (see checklist) esp. processes
-- Enforcement of rules at compile time, such as processes not sharing channels / no variable shadowing / etc.
-- Boolean datatype for control structures variables
-- Strings/characters datatype for interactivity
-- Screen that isn't pixel based but instead can draw shapes/lines/etc directly (requires more data types at the very least)
-- Good automated testing
-- Code linting, automatic indentation
-- Line numbers for error messages; clearer and helpful error messages in the style of Elm
-- Using codemirror
-
 
 ## Future work
 what directions could a further full student project go

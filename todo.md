@@ -2,7 +2,6 @@
 
 ## issues
 
-- EOF-related parsing/lexing problem. Actually there seem to be a lot of problems here related to trailing spaces and such. Either fix it or make it unfindable.
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 - Not all tests pass right now, I didn't implement AND, OR, or some of the replicators yet.
 - Change DISPLAY channel to SERIAL.
@@ -32,10 +31,17 @@ For the graphics,  a pixelated screen and set the color of each brick by a numbe
 
 - Testing
     - Parser - 10 code snippets with/without erros etc.
-    - AST generator/ error checker
-    - Interpreter - test first n things coming out of display(?) with det. seed / Could even dump the state and somehow check against it . (would also be good to printout the state for teaching purpose....) Just mention that you could examine state etc and do cafv but it's not within the scope of small educational project.
 
-- Evaluation - Do what you would do at a bigger scale  for ~2 people - i.e. get test subjects, ask thm to do a task, Designing INteractive Systems, Benyon Turner Turner - Evaluation chapter
+
+Evaluation checklist
+- Design and implement a better UI
+- Improve error handling
+- Implement the 'run forever with a time delay' button
+- Read the Evaluation chapter
+- Design the user evaluation test
+- Do self evaluation
+
+- Do what you would do at a bigger scale  for ~2 people - i.e. get test subjects, ask thm to do a task, Designing INteractive Systems, Benyon Turner Turner - Evaluation chapter
 
 ## unsure
 

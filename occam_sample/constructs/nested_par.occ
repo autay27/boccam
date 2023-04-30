@@ -1,0 +1,5 @@
+PAR
+    PAR i = [0 FOR 31]
+        DISPLAY ! i
+    PAR i = [0 FOR 31]
+        DISPLAY ! (100+i)

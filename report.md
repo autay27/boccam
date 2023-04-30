@@ -82,7 +82,7 @@ Here is a non-exhaustive list of occam 1 features which were implemented in the 
 
 We extended occam 1 to simulate input/output (IO) to hardware, and allow for displaying graphics in the browser. These would allow learners to create interactive and appealing programs such as games, simulations, calculators and visual artworks. This is a design philosophy also seen on the BBC micro:bit, a device designed for computer education, which provides input/outputs including two buttons, a serial connection and a "screen" consisting of a 5x5 LED matrix [@microbit]. Emphasis is also placed on visual outputs in the educational programming languages Logo, with its 'turtle graphics' [@logo], and Scratch, with its 'stage area' [@scratch].
 
-Graphical applications are also uniquely suited to concurrent programming, due to the large number of similar calculations needed to render each pixel to produce a single image. And conversely, due to the concurrent nature of human vision - able to view images 'as a whole', rather than bit by bit - visuals are excellent for displaying concurrent behaviours of processes in an intuitive way. **example of this - some kind of propagating across a grid to take the maximum across many processes? would make a nice demo too. Look it up from the conc.prog problem sheets** **AR suggests concurrent bouncing balls**
+Graphical applications are also uniquely suited to concurrent programming, due to the large number of similar calculations needed to render each pixel to produce a single image. And conversely, due to the concurrent nature of human vision - able to view images 'as a whole', rather than bit by bit - visuals are excellent for displaying concurrent behaviours of processes in an intuitive way. **example of this - some kind of propagating across a grid to take the maximum across many processes? would make a nice demo too. sheet 3.4** **AR suggests concurrent bouncing balls**
 
 To facilitate pixel-based graphics, the language is extended with n-dimensional arrays of variables and channels, as described in the occam 2.1 reference manual [@oc21]. The displayed pixels are set using a two-dimensional array, but more dimensions may still be useful. For example, one can imagine a 3-dimensional array which stores additional information about each 2d coordinate, used when calculating its colour, along the third dimension.
 
@@ -209,6 +209,7 @@ Invariants tested for:
 - Arrays of variables and channels can be accessed and assigned to
 - Messages passed along a channel are not lost or duplicated
 - Messages from different processes are interleaved correctly
+- Parallel and sequential blocks are executed as expected, including when nested
 
 **I suppose I should put the programs in the appendix?**
 

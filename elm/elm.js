@@ -5815,17 +5815,17 @@ var $author$project$Main$ReceivedKeyboardInput = function (a) {
 	return {$: 'ReceivedKeyboardInput', a: a};
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $author$project$KeyboardInput$Left = {$: 'Left'};
-var $author$project$KeyboardInput$Other = {$: 'Other'};
-var $author$project$KeyboardInput$Right = {$: 'Right'};
+var $author$project$KeyboardInput$Key1 = {$: 'Key1'};
+var $author$project$KeyboardInput$Key2 = {$: 'Key2'};
+var $author$project$KeyboardInput$Key3 = {$: 'Key3'};
 var $author$project$KeyboardInput$toDirection = function (string) {
 	switch (string) {
-		case 'ArrowLeft':
-			return $author$project$KeyboardInput$Left;
-		case 'ArrowRight':
-			return $author$project$KeyboardInput$Right;
+		case '1':
+			return $author$project$KeyboardInput$Key1;
+		case '2':
+			return $author$project$KeyboardInput$Key2;
 		default:
-			return $author$project$KeyboardInput$Other;
+			return $author$project$KeyboardInput$Key3;
 	}
 };
 var $author$project$KeyboardInput$keyDecoder = A2(
@@ -8568,14 +8568,29 @@ var $author$project$Model$deqKeypress = function (m) {
 };
 var $author$project$Utils$dirToValue = function (dir) {
 	switch (dir.$) {
-		case 'Left':
-			return $author$project$State$Number(0);
-		case 'Right':
+		case 'Key1':
 			return $author$project$State$Number(1);
-		default:
+		case 'Key2':
 			return $author$project$State$Number(2);
+		case 'Key3':
+			return $author$project$State$Number(3);
+		case 'Key4':
+			return $author$project$State$Number(4);
+		case 'Key5':
+			return $author$project$State$Number(5);
+		case 'Key6':
+			return $author$project$State$Number(6);
+		case 'Key7':
+			return $author$project$State$Number(7);
+		case 'Key8':
+			return $author$project$State$Number(8);
+		case 'Key9':
+			return $author$project$State$Number(9);
+		default:
+			return $author$project$State$Number(0);
 	}
 };
+var $author$project$StateUtils$keyboardchanid = {dims: _List_Nil, str: $author$project$StateUtils$keyboardchanname};
 var $author$project$Compile$updateKeyboard = function (m) {
 	var _v0 = $author$project$Model$deqKeypress(m);
 	if (_v0.$ === 'Just') {
@@ -8585,15 +8600,22 @@ var $author$project$Compile$updateKeyboard = function (m) {
 		var _v2 = A2(
 			$author$project$StateUtils$checkFull,
 			m2.state,
-			$author$project$Readfile$Leaf(
-				$author$project$Readfile$Ident($author$project$StateUtils$keyboardchanname)));
+			A2(
+				$author$project$Readfile$Branch,
+				$author$project$Readfile$Id,
+				_List_fromArray(
+					[
+						$author$project$Readfile$Leaf(
+						$author$project$Readfile$Ident($author$project$StateUtils$keyboardchanname)),
+						A2($author$project$Readfile$Branch, $author$project$Readfile$Dimensions, _List_Nil)
+					])));
 		if (_v2.$ === 'Ok') {
 			if (_v2.a) {
 				return A2($author$project$Compile$Ran, m, _List_Nil);
 			} else {
 				return A4(
 					$author$project$Compile$sendOnChan,
-					$author$project$StateUtils$displaychanid,
+					$author$project$StateUtils$keyboardchanid,
 					$author$project$Utils$dirToValue(dir),
 					-2,
 					m2);

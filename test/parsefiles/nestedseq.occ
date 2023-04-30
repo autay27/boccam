@@ -1,0 +1,12 @@
+SEQ
+    CHAN OF INT myChan:
+    INT x:
+    PAR
+        SEQ i = [0 FOR 31]
+            SEQ
+                GRAPHICS[i][0] ! 3
+                myChan ! 1
+        SEQ i = [0 FOR 31]
+            SEQ
+                GRAPHICS[i][0] ! 7
+                myChan ? x

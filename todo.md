@@ -6,6 +6,8 @@
 - Not all tests pass right now, I didn't implement AND, OR, or some of the replicators yet.
 - Change DISPLAY channel to SERIAL.
 
+- Why does run 50 steps say 'Terminated' when it should say 'blocked' (and step says  'blocked' as it should) on exercise example. Meanwhile step should say 'Terminated' sometimes and doesn't. Is it just because I gave them different error messages.
+
 ## goals - code
 
 - hook up with codemirror
@@ -45,6 +47,7 @@ Evaluation checklist
 
 ## unsure
 
+- At the moment, if you put one PAR of 99 proceses in parallel with one SEQ of 99 processes, you will pick one of the PAR processes 99% of the time... is this what the user expects? is this a good behaviour?
 - change the det.seed to always 1 instead of always n because I don't think that was really what AR meant.
 - to implement the type system from occam 2.1 so that users can easily work with strings and chars. > Enough to be able to draw primitves to the screen (maybe even have sounds) so users can make graphics easily 
 - changle Unrolled handling to get true uniform dist. between threads

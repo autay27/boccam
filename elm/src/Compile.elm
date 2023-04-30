@@ -7,7 +7,7 @@ import Model exposing (..)
 import State exposing (..)
 import StateUtils exposing (..)
 import Utils exposing (replaceSubtree, pickValidBranches, dirToValue, updateCell)
-import KeyboardInput exposing (Direction(..))
+import KeyboardInput exposing (Keypress(..))
 import Html exposing (b)
 import Result exposing (andThen)
 
@@ -352,9 +352,9 @@ updateDisplay m =
 updateKeyboard : Model -> Outcome
 updateKeyboard m = 
     case deqKeypress m of
-        Just (dir, m2) -> case checkFull m2.state (Leaf (Ident keyboardchanname)) of 
+        Just (dir, m2) -> case checkFull m2.state (Branch Id [(Leaf (Ident keyboardchanname)), Branch Dimensions []]) of
             Ok True -> Ran m []
-            Ok False -> sendOnChan displaychanid (dirToValue dir) (-2) m2
+            Ok False -> sendOnChan keyboardchanid (dirToValue dir) (-2) m2
             Err msg -> RunErr ("tried to update keyboard, but " ++ msg)
         Nothing -> Ran m []
 

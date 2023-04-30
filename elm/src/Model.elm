@@ -5,7 +5,7 @@ import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
 import State exposing (State, Identifier)
 import StateUtils exposing (freshState)
-import KeyboardInput exposing (Direction(..))
+import KeyboardInput exposing (Keypress(..))
 
 type alias Id = Int
 type alias IdTracker = Dict Id Bool
@@ -16,7 +16,7 @@ type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Graphics = List (List Int)
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, graphics: Graphics, keyboardBuffer: (List Direction) }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, graphics: Graphics, keyboardBuffer: (List Keypress) }
 
 freshModel =
     { output = "",
@@ -95,10 +95,10 @@ block xs m = { m | waiting = xs ++ m.waiting }
 display : Int -> Model -> Model
 display n m = { m | display = n::m.display }
 
-enqKeypress : Direction -> Model -> Model
+enqKeypress : Keypress -> Model -> Model
 enqKeypress dir m  = { m | keyboardBuffer = dir::m.keyboardBuffer }
 
-deqKeypress : Model -> Maybe (Direction, Model)
+deqKeypress : Model -> Maybe (Keypress, Model)
 deqKeypress m =
     let 
         len = List.length (m.keyboardBuffer)

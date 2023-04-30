@@ -9,7 +9,7 @@ import Svg.Attributes exposing (width, height, viewBox, x, y, fill)
 import Readfile exposing (Tree(..), TreeValue(..), Rule(..))
 import State exposing (State, Value(..), Identifier, eval)
 import StateUtils exposing (checkFull)
-import KeyboardInput exposing (Direction(..))
+import KeyboardInput exposing (Keypress(..))
 import Model exposing (Model, Graphics)
 
 replaceSubtree : Tree -> Tree -> Tree -> Tree
@@ -56,12 +56,19 @@ pickValidBranches alts state =
     in
         flattenAlt alts |> Result.andThen filterByGuard
 
-dirToValue : Direction -> Value
+dirToValue : Keypress -> Value
 dirToValue dir =
     case dir of
-        Left -> Number 0
-        Right -> Number 1
-        Other -> Number 2
+        Key1 -> Number 1
+        Key2 -> Number 2
+        Key3 -> Number 3
+        Key4 -> Number 4
+        Key5 -> Number 5
+        Key6 -> Number 6
+        Key7 -> Number 7
+        Key8 -> Number 8
+        Key9 -> Number 9
+        Key0 -> Number 0
 
 numberToColor : Int -> String
 numberToColor n = case n of

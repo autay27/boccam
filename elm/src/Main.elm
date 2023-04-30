@@ -12,7 +12,7 @@ import Readfile exposing (Tree, treeDecoder, Rule(..))
 import Compile exposing (run)
 import Model exposing (Model, Proc, WaitingProc, spawn, print, enqKeypress, fulfilRandom, isBlocked, freshModel, updateSeed)
 import StateUtils
-import KeyboardInput exposing (keyDecoder, Direction)
+import KeyboardInput exposing (keyDecoder, Keypress)
 import Utils exposing (printgraphics)
 
 import Dict exposing (Dict, empty)
@@ -39,7 +39,7 @@ init json =
 -- UPDATE
 
 type Msg
-  = Step | Thread Int | RunUntil Int | RunThread Int Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Direction
+  = Step | Thread Int | RunUntil Int | RunThread Int Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Keypress
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =

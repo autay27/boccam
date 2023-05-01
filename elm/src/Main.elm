@@ -132,7 +132,7 @@ subscriptions _ =
 
 -- VIEW
 
-printout s = List.intersperse (br [] []) (List.map text (String.lines s))
+printout s = List.intersperse (br [] []) (List.map text s)
 
 printdisplay display = 
   let 
@@ -141,18 +141,18 @@ printdisplay display =
       Just n -> String.fromInt n 
   in text str
 
-runovertimebtn model = if model.runFlag then button [ onClick (StopRunning) ] [ text "Stop running" ] else button [ onClick (RunOverTime) ] [ text "Run" ]
+runovertimebtn model = if model.runFlag then button [ onClick (StopRunning) ] [ text "Pause" ] else button [ onClick (RunOverTime) ] [ text "Run" ]
 
 view : Model -> Html Msg
 view model =
   div [class "twopanel"] [
     div []
       ( 
-        [ div [] [ printdisplay model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "50 Steps" ], runovertimebtn model, br [] []] ++
+        [ button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "50 Steps" ], runovertimebtn model, hr [] [], div [] [text "Channel Activity:"]] ++
         (printout model.output)
       ),
     div []
       (
-        [ div [] [ printgraphics model.graphics ], div [] [text "State:"], div [] (printout (StateUtils.toJson model.state)), div [] [text "DisplayLog:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
+        [ div [] [ printgraphics model.graphics ], div [] [text "State:"], div [] (printout [(StateUtils.toJson model.state)]), div [] [text "Serial Log:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
       )
   ]

@@ -16,10 +16,10 @@ type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Graphics = List (List Int)
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, graphics: Graphics, keyboardBuffer: (List Keypress), runFlag: Bool }
+type alias Model = { output: List String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, graphics: Graphics, keyboardBuffer: (List Keypress), runFlag: Bool }
 
 freshModel =
-    { output = "",
+    { output = [],
     running = [],
     waiting = [],
     state = freshState,
@@ -35,7 +35,7 @@ freshModel =
 freshGraphics = List.repeat 32 (List.repeat 32 0)
 
 print : String -> Model -> Model
-print s m = { m | output = m.output ++ s ++ "\n" }
+print s m = { m | output = s :: m.output }
 
 update : State -> Model -> Model 
 update s m = { m | state = s }

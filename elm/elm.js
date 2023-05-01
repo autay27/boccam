@@ -5403,7 +5403,7 @@ var $author$project$Model$freshModel = {
 	graphics: $author$project$Model$freshGraphics,
 	ids: $elm$core$Dict$empty,
 	keyboardBuffer: _List_Nil,
-	output: '',
+	output: _List_Nil,
 	randomGenerator: {fulfilment: $elm$core$Maybe$Nothing, request: $elm$core$Maybe$Nothing},
 	randomSeed: $elm$core$Maybe$Nothing,
 	runFlag: false,
@@ -5420,7 +5420,9 @@ var $author$project$Model$print = F2(
 	function (s, m) {
 		return _Utils_update(
 			m,
-			{output: m.output + (s + '\n')});
+			{
+				output: A2($elm$core$List$cons, s, m.output)
+			});
 	});
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
@@ -9084,7 +9086,6 @@ var $author$project$Main$update = F2(
 			}
 		}
 	});
-var $elm$html$Html$br = _VirtualDom_node('br');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -9113,20 +9114,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$html$Html$Events$on,
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
-};
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$printdisplay = function (display) {
-	var str = function () {
-		var _v0 = $elm$core$List$head(display);
-		if (_v0.$ === 'Nothing') {
-			return '';
-		} else {
-			var n = _v0.a;
-			return $elm$core$String$fromInt(n);
-		}
-	}();
-	return $elm$html$Html$text(str);
 };
 var $elm$core$List$append = F2(
 	function (xs, ys) {
@@ -9250,15 +9237,14 @@ var $author$project$Utils$printgraphics = function (graphics) {
 			$author$project$Utils$itemToRect,
 			$author$project$Utils$graphicsAddCoords(graphics)));
 };
-var $elm$core$String$lines = _String_lines;
+var $elm$html$Html$br = _VirtualDom_node('br');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$printout = function (s) {
 	return A2(
 		$elm$core$List$intersperse,
 		A2($elm$html$Html$br, _List_Nil, _List_Nil),
-		A2(
-			$elm$core$List$map,
-			$elm$html$Html$text,
-			$elm$core$String$lines(s)));
+		A2($elm$core$List$map, $elm$html$Html$text, s));
 };
 var $author$project$Main$RunOverTime = {$: 'RunOverTime'};
 var $author$project$Main$runovertimebtn = function (model) {
@@ -9270,7 +9256,7 @@ var $author$project$Main$runovertimebtn = function (model) {
 			]),
 		_List_fromArray(
 			[
-				$elm$html$Html$text('Stop running')
+				$elm$html$Html$text('Pause')
 			])) : A2(
 		$elm$html$Html$button,
 		_List_fromArray(
@@ -9337,14 +9323,6 @@ var $author$project$Main$view = function (model) {
 					_List_fromArray(
 						[
 							A2(
-							$elm$html$Html$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$author$project$Main$printdisplay(model.display)
-								])),
-							A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-							A2(
 							$elm$html$Html$button,
 							_List_fromArray(
 								[
@@ -9366,7 +9344,14 @@ var $author$project$Main$view = function (model) {
 									$elm$html$Html$text('50 Steps')
 								])),
 							$author$project$Main$runovertimebtn(model),
-							A2($elm$html$Html$br, _List_Nil, _List_Nil)
+							A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('Channel Activity:')
+								]))
 						]),
 					$author$project$Main$printout(model.output))),
 				A2(
@@ -9392,13 +9377,16 @@ var $author$project$Main$view = function (model) {
 						$elm$html$Html$div,
 						_List_Nil,
 						$author$project$Main$printout(
-							$author$project$StateUtils$toJson(model.state))),
+							_List_fromArray(
+								[
+									$author$project$StateUtils$toJson(model.state)
+								]))),
 						A2(
 						$elm$html$Html$div,
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('DisplayLog:')
+								$elm$html$Html$text('Serial Log:')
 							])),
 						A2(
 						$elm$html$Html$div,

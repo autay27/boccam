@@ -16,7 +16,7 @@ type alias WaitingProc = { proc: Proc, waitCond: WaitCond }
 
 type alias Graphics = List (List Int)
 
-type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, graphics: Graphics, keyboardBuffer: (List Keypress) }
+type alias Model = { output: String, running: (List Proc), waiting: (List WaitingProc), state: State, ids: IdTracker, randomSeed: Maybe Int, randomGenerator: { request: Maybe Int, fulfilment: Maybe Int }, display: List Int, graphics: Graphics, keyboardBuffer: (List Keypress), runFlag: Bool }
 
 freshModel =
     { output = "",
@@ -28,7 +28,8 @@ freshModel =
     randomGenerator = { request = Nothing, fulfilment = Nothing },
     display = [],
     graphics = freshGraphics,
-    keyboardBuffer = []
+    keyboardBuffer = [],
+    runFlag = False
     }
 
 freshGraphics = List.repeat 32 (List.repeat 32 0)
@@ -121,3 +122,9 @@ takeFulfilled m = ({ m | randomGenerator = {request = Nothing, fulfilment = Noth
 
 isBlocked : Model -> Bool
 isBlocked m = List.isEmpty m.running
+
+isFinished m = (isBlocked m) && (List.isEmpty m.waiting)
+
+setRunFlag m = { m | runFlag = True }
+
+unsetRunFlag m = { m | runFlag = False }

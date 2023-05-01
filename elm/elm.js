@@ -4373,43 +4373,6 @@ function _Browser_load(url)
 
 
 
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-
-
-
 function _Time_now(millisToPosix)
 {
 	return _Scheduler_binding(function(callback)
@@ -4453,6 +4416,43 @@ function _Time_getZoneName()
 		callback(_Scheduler_succeed(name));
 	});
 }
+
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5406,6 +5406,7 @@ var $author$project$Model$freshModel = {
 	output: '',
 	randomGenerator: {fulfilment: $elm$core$Maybe$Nothing, request: $elm$core$Maybe$Nothing},
 	randomSeed: $elm$core$Maybe$Nothing,
+	runFlag: false,
 	running: _List_Nil,
 	state: $author$project$StateUtils$freshState,
 	waiting: _List_Nil
@@ -5814,65 +5815,41 @@ var $author$project$Main$ReceivedDataFromJS = function (a) {
 var $author$project$Main$ReceivedKeyboardInput = function (a) {
 	return {$: 'ReceivedKeyboardInput', a: a};
 };
+var $author$project$Main$Tick = function (a) {
+	return {$: 'Tick', a: a};
+};
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $author$project$KeyboardInput$Key1 = {$: 'Key1'};
-var $author$project$KeyboardInput$Key2 = {$: 'Key2'};
-var $author$project$KeyboardInput$Key3 = {$: 'Key3'};
-var $author$project$KeyboardInput$toDirection = function (string) {
-	switch (string) {
-		case '1':
-			return $author$project$KeyboardInput$Key1;
-		case '2':
-			return $author$project$KeyboardInput$Key2;
-		default:
-			return $author$project$KeyboardInput$Key3;
-	}
-};
-var $author$project$KeyboardInput$keyDecoder = A2(
-	$elm$json$Json$Decode$map,
-	$author$project$KeyboardInput$toDirection,
-	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
-var $elm$json$Json$Decode$value = _Json_decodeValue;
-var $author$project$Main$messageReceiver = _Platform_incomingPort('messageReceiver', $elm$json$Json$Decode$value);
-var $elm$browser$Browser$Events$Document = {$: 'Document'};
-var $elm$browser$Browser$Events$MySub = F3(
-	function (a, b, c) {
-		return {$: 'MySub', a: a, b: b, c: c};
+var $elm$time$Time$Every = F2(
+	function (a, b) {
+		return {$: 'Every', a: a, b: b};
 	});
-var $elm$browser$Browser$Events$State = F2(
-	function (subs, pids) {
-		return {pids: pids, subs: subs};
+var $elm$time$Time$State = F2(
+	function (taggers, processes) {
+		return {processes: processes, taggers: taggers};
 	});
-var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
-	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
-var $elm$browser$Browser$Events$nodeToKey = function (node) {
-	if (node.$ === 'Document') {
-		return 'd_';
-	} else {
-		return 'w_';
-	}
-};
-var $elm$browser$Browser$Events$addKey = function (sub) {
-	var node = sub.a;
-	var name = sub.b;
-	return _Utils_Tuple2(
-		_Utils_ap(
-			$elm$browser$Browser$Events$nodeToKey(node),
-			name),
-		sub);
-};
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
+var $elm$time$Time$init = $elm$core$Task$succeed(
+	A2($elm$time$Time$State, $elm$core$Dict$empty, $elm$core$Dict$empty));
+var $elm$time$Time$addMySub = F2(
+	function (_v0, state) {
+		var interval = _v0.a;
+		var tagger = _v0.b;
+		var _v1 = A2($elm$core$Dict$get, interval, state);
+		if (_v1.$ === 'Nothing') {
+			return A3(
+				$elm$core$Dict$insert,
+				interval,
+				_List_fromArray(
+					[tagger]),
+				state);
+		} else {
+			var taggers = _v1.a;
+			return A3(
+				$elm$core$Dict$insert,
+				interval,
+				A2($elm$core$List$cons, tagger, taggers),
+				state);
+		}
+	});
 var $elm$core$Process$kill = _Scheduler_kill;
 var $elm$core$Dict$foldl = F3(
 	function (func, acc, dict) {
@@ -5960,11 +5937,223 @@ var $elm$core$Dict$merge = F6(
 			intermediateResult,
 			leftovers);
 	});
+var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
+};
+var $elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
+};
+var $elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
+	});
+var $elm$time$Time$customZone = $elm$time$Time$Zone;
+var $elm$time$Time$setInterval = _Time_setInterval;
+var $elm$core$Process$spawn = _Scheduler_spawn;
+var $elm$time$Time$spawnHelp = F3(
+	function (router, intervals, processes) {
+		if (!intervals.b) {
+			return $elm$core$Task$succeed(processes);
+		} else {
+			var interval = intervals.a;
+			var rest = intervals.b;
+			var spawnTimer = $elm$core$Process$spawn(
+				A2(
+					$elm$time$Time$setInterval,
+					interval,
+					A2($elm$core$Platform$sendToSelf, router, interval)));
+			var spawnRest = function (id) {
+				return A3(
+					$elm$time$Time$spawnHelp,
+					router,
+					rest,
+					A3($elm$core$Dict$insert, interval, id, processes));
+			};
+			return A2($elm$core$Task$andThen, spawnRest, spawnTimer);
+		}
+	});
+var $elm$time$Time$onEffects = F3(
+	function (router, subs, _v0) {
+		var processes = _v0.processes;
+		var rightStep = F3(
+			function (_v6, id, _v7) {
+				var spawns = _v7.a;
+				var existing = _v7.b;
+				var kills = _v7.c;
+				return _Utils_Tuple3(
+					spawns,
+					existing,
+					A2(
+						$elm$core$Task$andThen,
+						function (_v5) {
+							return kills;
+						},
+						$elm$core$Process$kill(id)));
+			});
+		var newTaggers = A3($elm$core$List$foldl, $elm$time$Time$addMySub, $elm$core$Dict$empty, subs);
+		var leftStep = F3(
+			function (interval, taggers, _v4) {
+				var spawns = _v4.a;
+				var existing = _v4.b;
+				var kills = _v4.c;
+				return _Utils_Tuple3(
+					A2($elm$core$List$cons, interval, spawns),
+					existing,
+					kills);
+			});
+		var bothStep = F4(
+			function (interval, taggers, id, _v3) {
+				var spawns = _v3.a;
+				var existing = _v3.b;
+				var kills = _v3.c;
+				return _Utils_Tuple3(
+					spawns,
+					A3($elm$core$Dict$insert, interval, id, existing),
+					kills);
+			});
+		var _v1 = A6(
+			$elm$core$Dict$merge,
+			leftStep,
+			bothStep,
+			rightStep,
+			newTaggers,
+			processes,
+			_Utils_Tuple3(
+				_List_Nil,
+				$elm$core$Dict$empty,
+				$elm$core$Task$succeed(_Utils_Tuple0)));
+		var spawnList = _v1.a;
+		var existingDict = _v1.b;
+		var killTask = _v1.c;
+		return A2(
+			$elm$core$Task$andThen,
+			function (newProcesses) {
+				return $elm$core$Task$succeed(
+					A2($elm$time$Time$State, newTaggers, newProcesses));
+			},
+			A2(
+				$elm$core$Task$andThen,
+				function (_v2) {
+					return A3($elm$time$Time$spawnHelp, router, spawnList, existingDict);
+				},
+				killTask));
+	});
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
+var $elm$time$Time$onSelfMsg = F3(
+	function (router, interval, state) {
+		var _v0 = A2($elm$core$Dict$get, interval, state.taggers);
+		if (_v0.$ === 'Nothing') {
+			return $elm$core$Task$succeed(state);
+		} else {
+			var taggers = _v0.a;
+			var tellTaggers = function (time) {
+				return $elm$core$Task$sequence(
+					A2(
+						$elm$core$List$map,
+						function (tagger) {
+							return A2(
+								$elm$core$Platform$sendToApp,
+								router,
+								tagger(time));
+						},
+						taggers));
+			};
+			return A2(
+				$elm$core$Task$andThen,
+				function (_v1) {
+					return $elm$core$Task$succeed(state);
+				},
+				A2($elm$core$Task$andThen, tellTaggers, $elm$time$Time$now));
+		}
+	});
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$time$Time$subMap = F2(
+	function (f, _v0) {
+		var interval = _v0.a;
+		var tagger = _v0.b;
+		return A2(
+			$elm$time$Time$Every,
+			interval,
+			A2($elm$core$Basics$composeL, f, tagger));
+	});
+_Platform_effectManagers['Time'] = _Platform_createManager($elm$time$Time$init, $elm$time$Time$onEffects, $elm$time$Time$onSelfMsg, 0, $elm$time$Time$subMap);
+var $elm$time$Time$subscription = _Platform_leaf('Time');
+var $elm$time$Time$every = F2(
+	function (interval, tagger) {
+		return $elm$time$Time$subscription(
+			A2($elm$time$Time$Every, interval, tagger));
+	});
+var $author$project$KeyboardInput$Key1 = {$: 'Key1'};
+var $author$project$KeyboardInput$Key2 = {$: 'Key2'};
+var $author$project$KeyboardInput$Key3 = {$: 'Key3'};
+var $author$project$KeyboardInput$toDirection = function (string) {
+	switch (string) {
+		case '1':
+			return $author$project$KeyboardInput$Key1;
+		case '2':
+			return $author$project$KeyboardInput$Key2;
+		default:
+			return $author$project$KeyboardInput$Key3;
+	}
+};
+var $author$project$KeyboardInput$keyDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$author$project$KeyboardInput$toDirection,
+	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Main$messageReceiver = _Platform_incomingPort('messageReceiver', $elm$json$Json$Decode$value);
+var $elm$browser$Browser$Events$Document = {$: 'Document'};
+var $elm$browser$Browser$Events$MySub = F3(
+	function (a, b, c) {
+		return {$: 'MySub', a: a, b: b, c: c};
+	});
+var $elm$browser$Browser$Events$State = F2(
+	function (subs, pids) {
+		return {pids: pids, subs: subs};
+	});
+var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
+	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
+var $elm$browser$Browser$Events$nodeToKey = function (node) {
+	if (node.$ === 'Document') {
+		return 'd_';
+	} else {
+		return 'w_';
+	}
+};
+var $elm$browser$Browser$Events$addKey = function (sub) {
+	var node = sub.a;
+	var name = sub.b;
+	return _Utils_Tuple2(
+		_Utils_ap(
+			$elm$browser$Browser$Events$nodeToKey(node),
+			name),
+		sub);
+};
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
 var $elm$browser$Browser$Events$Event = F2(
 	function (key, event) {
 		return {event: event, key: key};
 	});
-var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
 var $elm$browser$Browser$Events$spawn = F3(
 	function (router, key, _v0) {
 		var node = _v0.a;
@@ -6130,7 +6319,8 @@ var $author$project$Main$subscriptions = function (_v0) {
 			[
 				$author$project$Main$messageReceiver($author$project$Main$ReceivedDataFromJS),
 				$elm$browser$Browser$Events$onKeyDown(
-				A2($elm$json$Json$Decode$map, $author$project$Main$ReceivedKeyboardInput, $author$project$KeyboardInput$keyDecoder))
+				A2($elm$json$Json$Decode$map, $author$project$Main$ReceivedKeyboardInput, $author$project$KeyboardInput$keyDecoder)),
+				A2($elm$time$Time$every, 20, $author$project$Main$Tick)
 			]));
 };
 var $author$project$Main$Fulfilment = F2(
@@ -6144,6 +6334,8 @@ var $author$project$Main$RunThread = F2(
 var $author$project$Main$RunUntil = function (a) {
 	return {$: 'RunUntil', a: a};
 };
+var $author$project$Main$Step = {$: 'Step'};
+var $author$project$Main$StopRunning = {$: 'StopRunning'};
 var $author$project$Main$Thread = function (a) {
 	return {$: 'Thread', a: a};
 };
@@ -6176,6 +6368,9 @@ var $elm$core$List$isEmpty = function (xs) {
 var $author$project$Model$isBlocked = function (m) {
 	return $elm$core$List$isEmpty(m.running);
 };
+var $author$project$Model$isFinished = function (m) {
+	return $author$project$Model$isBlocked(m) && $elm$core$List$isEmpty(m.waiting);
+};
 var $elm$random$Random$Generator = function (a) {
 	return {$: 'Generator', a: a};
 };
@@ -6207,22 +6402,6 @@ var $elm$random$Random$initialSeed = function (x) {
 	return $elm$random$Random$next(
 		A2($elm$random$Random$Seed, state2, incr));
 };
-var $elm$time$Time$Name = function (a) {
-	return {$: 'Name', a: a};
-};
-var $elm$time$Time$Offset = function (a) {
-	return {$: 'Offset', a: a};
-};
-var $elm$time$Time$Zone = F2(
-	function (a, b) {
-		return {$: 'Zone', a: a, b: b};
-	});
-var $elm$time$Time$customZone = $elm$time$Time$Zone;
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
 var $elm$time$Time$posixToMillis = function (_v0) {
 	var millis = _v0.a;
 	return millis;
@@ -8688,6 +8867,16 @@ var $author$project$Compile$run = F2(
 				return $elm$core$Result$Err(msg);
 		}
 	});
+var $author$project$Model$setRunFlag = function (m) {
+	return _Utils_update(
+		m,
+		{runFlag: true});
+};
+var $author$project$Model$unsetRunFlag = function (m) {
+	return _Utils_update(
+		m,
+		{runFlag: false});
+};
 var $author$project$Model$updateSeed = F2(
 	function (seed, model) {
 		return _Utils_update(
@@ -8700,16 +8889,32 @@ var $author$project$Main$update = F2(
 		while (true) {
 			switch (msg.$) {
 				case 'Step':
-					var _v1 = A3(
-						$author$project$Main$randomBelow,
-						model.randomSeed,
-						$author$project$Main$Thread,
-						$elm$core$List$length(model.running));
-					var cmdmsg = _v1.a;
-					var seed = _v1.b;
-					return _Utils_Tuple2(
-						A2($author$project$Model$updateSeed, seed, model),
-						cmdmsg);
+					if ($author$project$Model$isBlocked(model)) {
+						if ($author$project$Model$isFinished(model)) {
+							var $temp$msg = $author$project$Main$StopRunning,
+								$temp$model = A2($author$project$Model$print, 'Program finished', model);
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						} else {
+							var $temp$msg = $author$project$Main$StopRunning,
+								$temp$model = A2($author$project$Model$print, 'Program blocked', model);
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						}
+					} else {
+						var _v1 = A3(
+							$author$project$Main$randomBelow,
+							model.randomSeed,
+							$author$project$Main$Thread,
+							$elm$core$List$length(model.running));
+						var cmdmsg = _v1.a;
+						var seed = _v1.b;
+						return _Utils_Tuple2(
+							A2($author$project$Model$updateSeed, seed, model),
+							cmdmsg);
+					}
 				case 'Thread':
 					var n = msg.a;
 					var _v2 = A2($author$project$Compile$run, model, n);
@@ -8749,9 +8954,19 @@ var $author$project$Main$update = F2(
 				case 'RunUntil':
 					var n = msg.a;
 					if ($author$project$Model$isBlocked(model)) {
-						return _Utils_Tuple2(
-							A2($author$project$Model$print, 'Terminated', model),
-							$elm$core$Platform$Cmd$none);
+						if ($author$project$Model$isFinished(model)) {
+							var $temp$msg = $author$project$Main$StopRunning,
+								$temp$model = A2($author$project$Model$print, 'Program finished', model);
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						} else {
+							var $temp$msg = $author$project$Main$StopRunning,
+								$temp$model = A2($author$project$Model$print, 'Program blocked', model);
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						}
 					} else {
 						if (!n) {
 							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -8826,15 +9041,49 @@ var $author$project$Main$update = F2(
 								$author$project$Model$freshModel),
 							$elm$core$Platform$Cmd$none);
 					}
-				default:
+				case 'ReceivedKeyboardInput':
 					var dir = msg.a;
 					return _Utils_Tuple2(
 						A2($author$project$Model$enqKeypress, dir, model),
 						$elm$core$Platform$Cmd$none);
+				case 'RunOverTime':
+					return _Utils_Tuple2(
+						$author$project$Model$setRunFlag(model),
+						$elm$core$Platform$Cmd$none);
+				case 'StopRunning':
+					return _Utils_Tuple2(
+						$author$project$Model$unsetRunFlag(model),
+						$elm$core$Platform$Cmd$none);
+				default:
+					var posix = msg.a;
+					if (model.runFlag) {
+						if ($author$project$Model$isBlocked(model)) {
+							if ($author$project$Model$isFinished(model)) {
+								var $temp$msg = $author$project$Main$StopRunning,
+									$temp$model = A2($author$project$Model$print, 'Program finished', model);
+								msg = $temp$msg;
+								model = $temp$model;
+								continue update;
+							} else {
+								var $temp$msg = $author$project$Main$StopRunning,
+									$temp$model = A2($author$project$Model$print, 'Program blocked', model);
+								msg = $temp$msg;
+								model = $temp$model;
+								continue update;
+							}
+						} else {
+							var $temp$msg = $author$project$Main$Step,
+								$temp$model = model;
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						}
+					} else {
+						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+					}
 			}
 		}
 	});
-var $author$project$Main$Step = {$: 'Step'};
 var $elm$html$Html$br = _VirtualDom_node('br');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -9011,6 +9260,28 @@ var $author$project$Main$printout = function (s) {
 			$elm$html$Html$text,
 			$elm$core$String$lines(s)));
 };
+var $author$project$Main$RunOverTime = {$: 'RunOverTime'};
+var $author$project$Main$runovertimebtn = function (model) {
+	return model.runFlag ? A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onClick($author$project$Main$StopRunning)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Stop running')
+			])) : A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onClick($author$project$Main$RunOverTime)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('Run')
+			]));
+};
 var $elm$json$Json$Encode$dict = F3(
 	function (toKey, toValue, dictionary) {
 		return _Json_wrap(
@@ -9092,8 +9363,9 @@ var $author$project$Main$view = function (model) {
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('Run 50 steps')
+									$elm$html$Html$text('50 Steps')
 								])),
+							$author$project$Main$runovertimebtn(model),
 							A2($elm$html$Html$br, _List_Nil, _List_Nil)
 						]),
 					$author$project$Main$printout(model.output))),

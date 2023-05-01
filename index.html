@@ -16,11 +16,8 @@
             return tree
 
         } catch (e) {
-                try {
-                    document.getElementById("jsonTree").innerHTML = "Parsing Error: " + e.toString();
-                } catch (e2) {
-                    throw e
-                }
+            document.getElementById("jsonTree").innerHTML = "I couldn't read your code, maybe you have a typo or a missing SEQ? Here is the error:<hr>" + e.message;
+            throw e
             return false
         }
 

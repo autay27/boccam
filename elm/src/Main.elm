@@ -6,6 +6,7 @@ import Html exposing (Html, button, div, text, br, hr)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (class)
 import Json.Decode
+import Time
 
 
 import Readfile exposing (Tree, treeDecoder, Rule(..))
@@ -39,15 +40,21 @@ init json =
 -- UPDATE
 
 type Msg
-  = Step | Thread Int | RunUntil Int | RunThread Int Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Keypress
+  = Step | Thread Int | RunUntil Int | RunThread Int Int | Fulfilment Msg Int | ReceivedDataFromJS Json.Decode.Value | ReceivedKeyboardInput Keypress | Tick Time.Posix | RunOverTime | StopRunning
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
 
     Step ->
-      let (cmdmsg, seed) = randomBelow model.randomSeed Thread (length model.running) in
-        (updateSeed seed model, cmdmsg)
+      if isBlocked model then
+        if Model.isFinished model then
+          update StopRunning (print "Program finished" model)
+        else
+          update StopRunning (print "Program blocked" model)
+      else
+        let (cmdmsg, seed) = randomBelow model.randomSeed Thread (length model.running) in
+          (updateSeed seed model, cmdmsg)
         
     Thread n ->
       case Compile.run model n of 
@@ -63,7 +70,10 @@ update msg model =
 
     RunUntil n -> 
       if isBlocked model then
-        ((print "Terminated" model), Cmd.none)
+        if Model.isFinished model then
+          update StopRunning (print "Program finished" model)
+        else
+          update StopRunning (print "Program blocked" model)
       else
         case n of 
           0 -> (model, Cmd.none)
@@ -87,6 +97,22 @@ update msg model =
 
     ReceivedKeyboardInput dir -> (enqKeypress dir model, Cmd.none)
 
+    RunOverTime -> (Model.setRunFlag model, Cmd.none)
+
+    StopRunning -> (Model.unsetRunFlag model, Cmd.none)
+
+    Tick posix ->
+      if model.runFlag then
+        if isBlocked model then
+          if Model.isFinished model then
+            update StopRunning (print "Program finished" model)
+          else
+            update StopRunning (print "Program blocked" model)
+        else update Step model
+      else
+        (model, Cmd.none)
+
+
 port messageReceiver : (Json.Decode.Value -> msg) -> Sub msg
  
 randomBelow : (Maybe Int) -> (Int -> Msg) -> Int -> (Cmd Msg, Maybe Int)
@@ -101,7 +127,8 @@ randomBelow seed msgmaker n =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
   Sub.batch [ messageReceiver ReceivedDataFromJS, 
-              Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder)]
+              Browser.Events.onKeyDown (Json.Decode.map ReceivedKeyboardInput keyDecoder),
+              Time.every 20 Tick ]
 
 -- VIEW
 
@@ -114,12 +141,14 @@ printdisplay display =
       Just n -> String.fromInt n 
   in text str
 
+runovertimebtn model = if model.runFlag then button [ onClick (StopRunning) ] [ text "Stop running" ] else button [ onClick (RunOverTime) ] [ text "Run" ]
+
 view : Model -> Html Msg
 view model =
   div [class "twopanel"] [
     div []
       ( 
-        [ div [] [ printdisplay model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "Run 50 steps" ], br [] []] ++
+        [ div [] [ printdisplay model.display ], hr [] [], button [ onClick Step ] [ text "Step" ], button [ onClick (RunUntil 50) ] [ text "50 Steps" ], runovertimebtn model, br [] []] ++
         (printout model.output)
       ),
     div []

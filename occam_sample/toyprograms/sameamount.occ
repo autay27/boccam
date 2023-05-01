@@ -14,4 +14,4 @@ SEQ
         WHILE TRUE
             SEQ
                 chan ? x
-                DISPLAY ! x
+                SERIAL ! x

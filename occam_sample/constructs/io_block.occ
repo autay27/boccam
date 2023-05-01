@@ -9,9 +9,9 @@ SEQ
     PAR
         SEQ
             chan ! x
-            DISPLAY ! 0
+            SERIAL ! 0
         SEQ
             chan2 ? x
-            DISPLAY ! 1
-        DISPLAY ! 2
+            SERIAL ! 1
+        SERIAL ! 2
 

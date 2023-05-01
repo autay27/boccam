@@ -8,7 +8,7 @@ import Json.Encode exposing (encode, dict)
 import Html exposing (s)
 import Result exposing (andThen)
 
-displaychanname = "DISPLAY"
+displaychanname = "SERIAL"
 keyboardchanname = "KEYBOARD"
 graphicschanname = "GRAPHICS"
 
@@ -94,7 +94,7 @@ jsonValues val =
         Number n -> Json.Encode.int n
         Boolval b -> Json.Encode.bool b
         Array xs -> Json.Encode.dict String.fromInt jsonValues xs
-        Any -> Json.Encode.string "ANY"
+        Any -> Json.Encode.string "null"
 
 
 makeChanArray : List Int -> ChanStorage

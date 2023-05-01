@@ -7,12 +7,12 @@ SEQ
     INT y:
     SEQ
         y := 5
-        DISPLAY ! x
+        SERIAL ! x
         x := 2
-        DISPLAY ! x
+        SERIAL ! x
         x := 3
-        DISPLAY ! x
+        SERIAL ! x
         x := 4
-        DISPLAY ! x
+        SERIAL ! x
         x := 1
-        DISPLAY ! y
+        SERIAL ! y

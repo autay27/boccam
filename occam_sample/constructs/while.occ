@@ -7,8 +7,8 @@ SEQ
     SEQ
         WHILE x < 5
             x := x + 1
-        DISPLAY ! x
+        SERIAL ! x
         WHILE x >= 1
             x := x - 1
-        DISPLAY ! x
+        SERIAL ! x
 

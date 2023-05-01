@@ -23,6 +23,6 @@ SEQ
         WHILE TRUE
             ALT
                 TRUE & left ? z
-                    DISPLAY ! z
+                    SERIAL ! z
                 right ? z
-                    DISPLAY ! z
+                    SERIAL ! z

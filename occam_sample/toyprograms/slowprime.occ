@@ -12,4 +12,4 @@ SEQ
             c := x
             WHILE c >= 0
                 c := c - i
-            DISPLAY ! c
+            SERIAL ! c

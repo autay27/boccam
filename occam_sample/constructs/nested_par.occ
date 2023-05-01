@@ -1,5 +1,5 @@
 PAR
     PAR i = [0 FOR 31]
-        DISPLAY ! i
+        SERIAL ! i
     PAR i = [0 FOR 31]
-        DISPLAY ! (100+i)
+        SERIAL ! (100+i)

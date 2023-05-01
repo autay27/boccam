@@ -11,8 +11,8 @@ SEQ
             PAR i = [0 FOR 2]
                 chans[i] ? slots[i]
         SEQ
-            DISPLAY ! slots[0]
-            DISPLAY ! slots[1]
-            DISPLAY ! slots[2]
+            SERIAL ! slots[0]
+            SERIAL ! slots[1]
+            SERIAL ! slots[2]
 
 

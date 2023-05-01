@@ -9298,7 +9298,7 @@ var $author$project$StateUtils$jsonValues = function (val) {
 			var xs = val.a;
 			return A3($elm$json$Json$Encode$dict, $elm$core$String$fromInt, $author$project$StateUtils$jsonValues, xs);
 		default:
-			return $elm$json$Json$Encode$string('ANY');
+			return $elm$json$Json$Encode$string('null');
 	}
 };
 var $author$project$StateUtils$toJson = function (state) {
@@ -9371,7 +9371,7 @@ var $author$project$Main$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('State:')
+								$elm$html$Html$text('Variables:')
 							])),
 						A2(
 						$elm$html$Html$div,
@@ -9381,12 +9381,13 @@ var $author$project$Main$view = function (model) {
 								[
 									$author$project$StateUtils$toJson(model.state)
 								]))),
+						A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 						A2(
 						$elm$html$Html$div,
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Serial Log:')
+								$elm$html$Html$text('Serial Output Log:')
 							])),
 						A2(
 						$elm$html$Html$div,

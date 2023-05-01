@@ -2,4 +2,4 @@
 xs = [2,3,4,5]
 ---
 SEQ i = [2 FOR 5]
-    DISPLAY ! i
+    SERIAL ! i

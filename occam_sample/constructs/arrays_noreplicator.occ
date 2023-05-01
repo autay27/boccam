@@ -10,6 +10,6 @@ SEQ
             chans[1] ? slots[0][1]
             chans[2] ? slots[0][2]
         SEQ
-            DISPLAY ! slots[1][0]
-            DISPLAY ! slots[0][1]
-            DISPLAY ! slots[0][2]
+            SERIAL ! slots[1][0]
+            SERIAL ! slots[0][1]
+            SERIAL ! slots[0][2]

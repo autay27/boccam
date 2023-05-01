@@ -153,6 +153,6 @@ view model =
       ),
     div []
       (
-        [ div [] [ printgraphics model.graphics ], div [] [text "State:"], div [] (printout [(StateUtils.toJson model.state)]), div [] [text "Serial Log:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
+        [ div [] [ printgraphics model.graphics ], div [] [text "Variables:"], div [] (printout [(StateUtils.toJson model.state)]), hr [] [], div [] [text "Serial Output Log:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
       )
   ]

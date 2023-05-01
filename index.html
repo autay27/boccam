@@ -1,13 +1,19 @@
 <!doctype html>
 <meta charset=utf8>
-<h3>Browser Occam</h3>
-<!--<script src="editor.bundle.js"></script>-->
+
+<head>
 <script src="jison/occam.js"></script>
 <link rel="stylesheet" type="text/css" href="index.css">
+<script type="text/javascript" src="editor.bundle.js"></script>
+
+</head>
+
+<h3>Browser Occam</h3>
 
 <script>
     function parse () {
-        var input = document.getElementById("editor").value.concat(" ")
+
+        var input = codemirror.getCode().concat(" ")
         
         try {
             var result = occam.parse(input);
@@ -55,23 +61,8 @@
 
 <div style="display: flex; flex-direction: row; column-gap: 10px;">
 
-    <div style="width: 50vw; display:flex; flex-direction: column;">
-        <textarea id="editor" style="min-height: 50vh;">
-SEQ 
-    CHAN OF INT chan:
-    INT x:
-    INT y:
-    x := 0
-    PAR
-        WHILE TRUE
-            SEQ
-                chan ! x
-                x := (x+1)
-        WHILE TRUE
-            SEQ
-                chan ? y
-                DISPLAY ! y
-        </textarea>
+    <div id="editarea" style="width: 50vw; display:flex; flex-direction: column;">
+    <div id="editor"></div>
         <button onclick="sendElm()">begin interpreting</button>
 
         <pre id="jsonTree"></pre>

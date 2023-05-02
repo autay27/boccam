@@ -9118,6 +9118,36 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$maybeSerial = function (model) {
+	return ($elm$core$List$length(model.display) > 0) ? _List_fromArray(
+		[
+			A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+			A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Serial Output Log:')
+				])),
+			A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(
+					A2(
+						$elm$core$String$join,
+						', ',
+						A2($elm$core$List$map, $elm$core$String$fromInt, model.display)))
+				])),
+			A2($elm$html$Html$hr, _List_Nil, _List_Nil)
+		]) : _List_fromArray(
+		[
+			A2($elm$html$Html$hr, _List_Nil, _List_Nil)
+		]);
+};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -9258,8 +9288,6 @@ var $author$project$Utils$printgraphics = function (graphics) {
 			$author$project$Utils$graphicsAddCoords(graphics)));
 };
 var $elm$html$Html$br = _VirtualDom_node('br');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$printout = function (s) {
 	return A2(
 		$elm$core$List$intersperse,
@@ -9377,50 +9405,37 @@ var $author$project$Main$view = function (model) {
 				A2(
 				$elm$html$Html$div,
 				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$author$project$Utils$printgraphics(model.graphics)
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Variables:')
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						$author$project$Main$printout(
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
 							_List_fromArray(
 								[
-									$author$project$StateUtils$toJson(model.state)
-								]))),
-						A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
+									$author$project$Utils$printgraphics(model.graphics)
+								]))
+						]),
+					_Utils_ap(
+						$author$project$Main$maybeSerial(model),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Serial Output Log:')
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(
 								A2(
-									$elm$core$String$join,
-									', ',
-									A2($elm$core$List$map, $elm$core$String$fromInt, model.display)))
-							]))
-					]))
+								$elm$html$Html$div,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Variables:')
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_Nil,
+								$author$project$Main$printout(
+									_List_fromArray(
+										[
+											$author$project$StateUtils$toJson(model.state)
+										])))
+							]))))
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(

@@ -146,6 +146,8 @@ printdisplay display =
 
 runovertimebtn model = if model.runFlag then button [ onClick (StopRunning) ] [ text "Pause" ] else button [ onClick (RunOverTime) ] [ text "Run" ]
 
+maybeSerial model = if (List.length model.display) > 0 then [ hr [] [], div [] [text "Serial Output Log:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))], hr [] [] ] else [ hr [] [] ]
+
 view : Model -> Html Msg
 view model =
   div [class "twopanel"] [
@@ -156,6 +158,6 @@ view model =
       ),
     div []
       (
-        [ div [] [ printgraphics model.graphics ], div [] [text "Variables:"], div [] (printout [(StateUtils.toJson model.state)]), hr [] [], div [] [text "Serial Output Log:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))]]
+        [ div [] [ printgraphics model.graphics ] ] ++ (maybeSerial model) ++ [ div [] [text "Variables:"], div [] (printout [(StateUtils.toJson model.state)])]
       )
   ]

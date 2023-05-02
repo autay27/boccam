@@ -1,18 +1,17 @@
 <!doctype html>
 <meta charset=utf8>
 <head>
+<h3>Browser Occam</h3>
 <script src="editor.bundle.js"></script>
 <script src="jison/occam.js"></script>
 <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 
-<h3>Browser Occam</h3>
-
 <script>
     function parse () {
 
         var input = codemirror.getCode().concat(" ")
-        
+
         try {
             var result = occam.parse(input);
             var tree = (organise(result));
@@ -56,12 +55,15 @@
         }
     }
 </script>
+
+
 <body>
+
 <div style="display: flex; flex-direction: row; column-gap: 10px;">
 
     <div style="width: 50vw; display:flex; flex-direction: column;">
-    <div id="editor"></div>
-        <button onclick="sendElm()">begin interpreting</button>
+        <div id="editor"></div>
+        <button onclick="sendElm()">Submit code</button>
 
         <pre id="jsonTree"></pre>
     </div>
@@ -73,8 +75,9 @@
     <script>
     var app = Elm.Main.init({
         node: document.getElementById("elm-app")
-    });      
+    });
     </script>
 
 </div>
+
 </body>

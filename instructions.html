@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+  <a href="index.html">Browser Occam</a>
+
+    <p>This exercise is meant to help you get used to the Occam 1 programming language and the Browser Occam website. For a full reference of Occam, you can try <a href="https://www.wotug.org/occam/documentation/oc21refman.pdf">this page</a> although it is for a later version of the language. All the features you need to know should be given in the examples.</p>
+<p><strong>Exercise 1.</strong> Take a look at the following code.</p>
+<pre><code>SEQ
+    SEQ i = [<span class="hljs-number">0</span> FOR <span class="hljs-number">31</span>]
+        GRAPHICS[i][<span class="hljs-number">0</span>] ! <span class="hljs-number">3</span>
+    SEQ i = [<span class="hljs-number">0</span> FOR <span class="hljs-number">31</span>]
+        GRAPHICS[i][<span class="hljs-number">0</span>] ! <span class="hljs-number">7</span>
+</code></pre><p>It will be connected to a screen where 3 is the code for red and 7 is the code for blue, so <code>GRAPHICS[i][0] ! 3</code> will draw a red pixel to the screen at position (i,0).</p>
+<p>What do you think the code will do? Paste it into the website&#39;s text box, run it and see if you were correct.</p>
+<p><strong>Exercise 2.</strong> As you may have noticed, the <code>SEQ</code> keyword doesn&#39;t seem to do anything on its own. Unlike, for example, a <code>WHILE</code> statement which runs the code in the body until the condition becomes false, a <code>SEQ</code> statement simply runs each piece of code in the body, one after the other, like in any ordinary programming language.</p>
+<p>However, in <code>occam</code>, executing code in order is not the only option. We can also execute code <em>concurrently</em> with the <code>PAR</code> keyword instead. Each piece of code becomes a separate <em>process</em>.</p>
+<p>Take a look at this version of the code, which has the outer <code>SEQ</code> replaced with <code>PAR</code>. How do you think it will behave?</p>
+<pre><code>PAR
+    SEQ i = [<span class="hljs-number">0</span> FOR <span class="hljs-number">31</span>]
+        GRAPHICS[i][<span class="hljs-number">0</span>] ! <span class="hljs-number">3</span>
+    SEQ i = [<span class="hljs-number">0</span> FOR <span class="hljs-number">31</span>]
+        GRAPHICS[i][<span class="hljs-number">0</span>] ! <span class="hljs-number">7</span>
+</code></pre><p>Try running it in the browser. Were you correct?</p>
+<p><strong>Exercise 3.</strong> <code>occam</code> has a feature called <em>blocking channels</em>. You can send a value on a channel with <code>!</code>, something we have already seen with the <code>GRAPHICS</code> channel array in the examples above. When you send a message to the screen via <code>GRAPHICS</code>, it succeeds instantly because the screen is always waiting to receive more messages.</p>
+<p>However, ordinary processes are not always ready to receive messages. Here is a process that sends <code>1</code> along a channel <code>myChannel</code>:</p>
+<pre><code>myChannel ! <span class="hljs-number">1</span>
+</code></pre><p>You can also receive from the channel into a variable with <code>?</code>. Here is a second process:</p>
+<pre><code><span class="hljs-attribute">myChannel</span> ? x
+</code></pre><p>When using <code>!</code>, the first process has to wait until someone receives its value before moving on. And when using <code>?</code>, the second process has to wait until someone sends it a value before it can move on. We say that a process <em>blocks</em> until the channel communication is successful.</p>
+<p>So, the following code will block forever after drawing a red dot, because we will never move past the sending line <code>myChannel ! 1</code>:</p>
+<pre><code>SEQ
+    CHAN <span class="hljs-keyword">OF</span> INT myChannel:
+    INT x:
+    SEQ
+        SEQ
+            GRAPHICS<span class="hljs-comment">[0]</span><span class="hljs-comment">[0]</span> ! 3
+            myChannel ! 1
+        SEQ
+            myChannel ? x
+            GRAPHICS<span class="hljs-comment">[0]</span><span class="hljs-comment">[0]</span> ! 7
+</code></pre><p>However, if you were to change the second <code>SEQ</code> to a <code>PAR</code>, then the processes sending and receiving on the channel would become concurrent. Whichever used the channel first, would wait until the second one used the channel too, and then they would both succeed simultaneously. After that, the second process would be able to draw a blue dot. Try it for yourself.</p>
+<p>How would you use a channel to modify the code from Exercise 2, so that it behaves the same as the code from Exercise 1? Paste your code into a text file.</p>
+<p><strong>Exercise 4. (Bonus: Dripping paint)</strong> The following code colours the screen blue from top to bottom, with each column of pixels coloured by a different process.</p>
+<pre><code>SEQ
+    <span class="hljs-comment">[32]</span>INT verticalPosition:
+    SEQ i = <span class="hljs-comment">[0 FOR 31]</span>
+        verticalPosition<span class="hljs-comment">[i]</span> := 0
+    PAR i = <span class="hljs-comment">[0 FOR 31]</span>
+        WHILE verticalPosition<span class="hljs-comment">[i]</span> &lt; 32
+            SEQ
+                GRAPHICS<span class="hljs-comment">[i]</span><span class="hljs-comment">[verticalPosition<span class="hljs-comment">[i]</span>]</span> ! 7
+                verticalPosition<span class="hljs-comment">[i]</span> := verticalPosition<span class="hljs-comment">[i]</span>+1
+</code></pre><p>You can receive number key presses, e.g. to a variable <code>x</code> with <code>KEYBOARD ? x</code>. Here is a piece of code which advances a red dot from left to right across the screen as you press the <code>1</code> key.</p>
+<pre><code>SEQ
+    <span class="hljs-built_in">INT</span> <span class="hljs-keyword">me</span>:
+    <span class="hljs-keyword">me</span> := <span class="hljs-number">0</span>
+    <span class="hljs-built_in">INT</span> keypress:
+    <span class="hljs-keyword">WHILE</span> <span class="hljs-keyword">me</span> &lt; <span class="hljs-number">32</span>
+        SEQ
+            GRAPHICS[<span class="hljs-keyword">me</span>][<span class="hljs-number">0</span>] ! <span class="hljs-number">3</span>
+            KEYBOARD ? keypress
+            GRAPHICS[<span class="hljs-keyword">me</span>][<span class="hljs-number">0</span>] ! <span class="hljs-number">0</span>
+            <span class="hljs-keyword">me</span> := <span class="hljs-keyword">me</span>+<span class="hljs-number">1</span>
+</code></pre><p>Try combining those two pieces of code, so that the red dot sets off the blue process in each column that it visits. You will need to use an array of channels, for example declaring a 32-element array as <code>[32]CHAN OF INT visited:</code> Paste your code into a text file.</p>
+
+  </body>
+</html>

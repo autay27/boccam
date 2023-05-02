@@ -4,13 +4,9 @@
 
 - Should have initially defined things like TRUE, FALSE, which are protected values.
 - Not all tests pass right now, I didn't implement AND, OR, or some of the replicators yet.
-- Change DISPLAY channel to SERIAL.
-
-- Why does run 50 steps say 'Terminated' when it should say 'blocked' (and step says  'blocked' as it should) on exercise example. Meanwhile step should say 'Terminated' sometimes and doesn't. Is it just because I gave them different error messages. Pretty much.
 
 ## goals - code
 
-- hook up with codemirror
 - Errors per line number - Give each token a line number, have a syntax analyser step at the start to catch things like multiple output per channel
 
 #### Things the AST checker should do.
@@ -26,30 +22,7 @@
 
 Evaluation checklist
 - Design and implement a better UI
-- Improve error handling
-- Implement the 'run forever with a time delay' button
-
-```
-Get time
-IF time > prevtime + 10ms
-    IF processes are running
-        1 step
-    ELSE
-        IF there are blocked processes remaining
-            IF they are blocking for keyboard input
-                (somehow receive input)
-            ELSE
-                "PROGRAM BLOCKED"
-        ELSE
-            "TERMINATED"
-ELSE
-    Retry
-
-```
-
-
-- Read the Evaluation chapter
-- Design the user evaluation test
+- Do the user evaluation
 - Do self evaluation
 
 - Do what you would do at a bigger scale  for ~2 people - i.e. get test subjects, ask thm to do a task, Designing INteractive Systems, Benyon Turner Turner - Evaluation chapter
@@ -57,8 +30,6 @@ ELSE
 ## unsure
 
 - At the moment, if you put one PAR of 99 proceses in parallel with one SEQ of 99 processes, you will pick one of the PAR processes 99% of the time... is this what the user expects? is this a good behaviour?
-- change the det.seed to always 1 instead of always n because I don't think that was really what AR meant.
-- to implement the type system from occam 2.1 so that users can easily work with strings and chars. > Enough to be able to draw primitves to the screen (maybe even have sounds) so users can make graphics easily 
 - changle Unrolled handling to get true uniform dist. between threads
 - andThen for Outcome - Cleans up the code but it's also kind of creating its own complexity with all the lambdas required
 

@@ -4,7 +4,7 @@ import Dict exposing (Dict, empty, insert)
 import List exposing (take, drop, map, member)
 import Readfile exposing (Tree(..))
 import State exposing (State, Identifier)
-import StateUtils exposing (freshState)
+import StateUtils exposing (freshState, keyboardchanid)
 import KeyboardInput exposing (Keypress(..))
 
 type alias Id = Int
@@ -122,6 +122,15 @@ takeFulfilled m = ({ m | randomGenerator = {request = Nothing, fulfilment = Noth
 
 isBlocked : Model -> Bool
 isBlocked m = List.isEmpty m.running
+
+isWaitingForKeyboard : Model -> Bool
+isWaitingForKeyboard m =
+    let
+        keyboardWaitCond wp = case wp.waitCond of
+            FilledChan identifier -> identifier == keyboardchanid
+            _ -> False
+    in
+        (isBlocked m) && (List.isEmpty (List.filter keyboardWaitCond m.waiting) == False)
 
 isFinished m = (isBlocked m) && (List.isEmpty m.waiting)
 

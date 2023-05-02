@@ -10,7 +10,7 @@
 <script>
     function parse () {
 
-        var input = codemirror.getCode().concat(" ")
+        var input = codemirror.getCode().trim().concat(" ")
 
         try {
             var result = occam.parse(input);

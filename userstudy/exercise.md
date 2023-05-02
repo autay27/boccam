@@ -1,4 +1,4 @@
-This exercise is meant to help you get used to the Occam 1 programming language and the Browser Occam website. For a full reference of Occam, see this page (tba).
+This exercise is meant to help you get used to the Occam 1 programming language and the Browser Occam website. For a full reference of Occam, you can try [this page](https://www.wotug.org/occam/documentation/oc21refman.pdf) although it is for a later version of the language. All the features you need to know should be given in the examples.
 
 **Exercise 1.** Take a look at the following code.
 
@@ -29,18 +29,20 @@ PAR
 
 Try running it in the browser. Were you correct?
 
-**Exercise 3.** `occam` has a feature called _blocking channels_. You can send a value on a channel with `!`, e.g.
+**Exercise 3.** `occam` has a feature called _blocking channels_. You can send a value on a channel with `!`, something we have already seen with the `GRAPHICS` channel array in the examples above. When you send a message to the screen via `GRAPHICS`, it succeeds instantly because the screen is always waiting to receive more messages.
+
+However, ordinary processes are not always ready to receive messages. Here is a process that sends `1` along a channel `myChannel`:
 
 ```
 myChannel ! 1
 ```
-You can also receive from the channel into a variable with `?`:
+You can also receive from the channel into a variable with `?`. Here is a second process:
 
 ```
 myChannel ? x
 ```
 
-However, when using `!`, the process will have to wait until someone receives its value before moving on. And when using `?`, the process will have to wait until someone sends it a value before it can move on. We say that the process _blocks_ until the channel communication is successful. (Note that we do not block when writing to `GRAPHICS` with `!`. Think of the screen as being constantly ready to receive messages.)
+When using `!`, the first process has to wait until someone receives its value before moving on. And when using `?`, the second process has to wait until someone sends it a value before it can move on. We say that a process _blocks_ until the channel communication is successful.
 
 So, the following code will block forever after drawing a red dot, because we will never move past the sending line `myChannel ! 1`:
 
@@ -61,7 +63,7 @@ However, if you were to change the second `SEQ` to a `PAR`, then the processes s
 
 How would you use a channel to modify the code from Exercise 2, so that it behaves the same as the code from Exercise 1? Paste your code into a text file.
 
-**Exercise 4. (Bonus: Making it rain)** The following code colours the screen blue from top to bottom, with each column of pixels coloured by a different process.
+**Exercise 4. (Bonus: Dripping paint)** The following code colours the screen blue from top to bottom, with each column of pixels coloured by a different process.
 
 ```
 SEQ
@@ -82,13 +84,12 @@ SEQ
     INT me:
     me := 0
     INT keypress:
-    WHILE TRUE
+    WHILE me < 32
         SEQ
             GRAPHICS[me][0] ! 3
             KEYBOARD ? keypress
             GRAPHICS[me][0] ! 0
             me := me+1
-
 ```
 
-Try combining those two pieces of code, so that the red dot sets off the blue process in each column that it visits. You will need to use an array of channels, for example declaring them as `[32]CHAN OF INT visited:` Paste your code into a text file.
+Try combining those two pieces of code, so that the red dot sets off the blue process in each column that it visits. You will need to use an array of channels, for example declaring a 32-element array as `[32]CHAN OF INT visited:` Paste your code into a text file.

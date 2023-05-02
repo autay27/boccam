@@ -5273,7 +5273,7 @@ var $author$project$Model$freshGraphics = A2(
 var $author$project$State$ChanSingle = function (a) {
 	return {$: 'ChanSingle', a: a};
 };
-var $author$project$StateUtils$displaychanname = 'DISPLAY';
+var $author$project$StateUtils$displaychanname = 'SERIAL';
 var $author$project$State$Any = {$: 'Any'};
 var $author$project$State$freshChannel = {isFull: false, value: $author$project$State$Any};
 var $elm$core$Dict$Black = {$: 'Black'};
@@ -6372,6 +6372,31 @@ var $author$project$Model$isBlocked = function (m) {
 };
 var $author$project$Model$isFinished = function (m) {
 	return $author$project$Model$isBlocked(m) && $elm$core$List$isEmpty(m.waiting);
+};
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $author$project$StateUtils$keyboardchanid = {dims: _List_Nil, str: $author$project$StateUtils$keyboardchanname};
+var $author$project$Model$isWaitingForKeyboard = function (m) {
+	var keyboardWaitCond = function (wp) {
+		var _v0 = wp.waitCond;
+		if (_v0.$ === 'FilledChan') {
+			var identifier = _v0.a;
+			return _Utils_eq(identifier, $author$project$StateUtils$keyboardchanid);
+		} else {
+			return false;
+		}
+	};
+	return $author$project$Model$isBlocked(m) && (!$elm$core$List$isEmpty(
+		A2($elm$core$List$filter, keyboardWaitCond, m.waiting)));
 };
 var $elm$random$Random$Generator = function (a) {
 	return {$: 'Generator', a: a};
@@ -8539,20 +8564,8 @@ var $author$project$Compile$make_step = F2(
 				return $author$project$Compile$RunErr('Failed to choose a thread - Number out of bounds');
 			}
 		} else {
-			return $author$project$Compile$Blocked(
-				A2($author$project$Model$print, 'blocking...', m));
+			return $author$project$Compile$Blocked(m);
 		}
-	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
 	});
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Compile$unblock = F2(
@@ -8771,7 +8784,6 @@ var $author$project$Utils$dirToValue = function (dir) {
 			return $author$project$State$Number(0);
 	}
 };
-var $author$project$StateUtils$keyboardchanid = {dims: _List_Nil, str: $author$project$StateUtils$keyboardchanname};
 var $author$project$Compile$updateKeyboard = function (m) {
 	var _v0 = $author$project$Model$deqKeypress(m);
 	if (_v0.$ === 'Just') {
@@ -8891,7 +8903,7 @@ var $author$project$Main$update = F2(
 		while (true) {
 			switch (msg.$) {
 				case 'Step':
-					if ($author$project$Model$isBlocked(model)) {
+					if ($author$project$Model$isBlocked(model) && (!$author$project$Model$isWaitingForKeyboard(model))) {
 						if ($author$project$Model$isFinished(model)) {
 							var $temp$msg = $author$project$Main$StopRunning,
 								$temp$model = A2($author$project$Model$print, 'Program finished', model);
@@ -9067,11 +9079,19 @@ var $author$project$Main$update = F2(
 								model = $temp$model;
 								continue update;
 							} else {
-								var $temp$msg = $author$project$Main$StopRunning,
-									$temp$model = A2($author$project$Model$print, 'Program blocked', model);
-								msg = $temp$msg;
-								model = $temp$model;
-								continue update;
+								if ($author$project$Model$isWaitingForKeyboard(model)) {
+									var $temp$msg = $author$project$Main$Step,
+										$temp$model = model;
+									msg = $temp$msg;
+									model = $temp$model;
+									continue update;
+								} else {
+									var $temp$msg = $author$project$Main$StopRunning,
+										$temp$model = A2($author$project$Model$print, 'Program blocked', model);
+									msg = $temp$msg;
+									model = $temp$model;
+									continue update;
+								}
 							}
 						} else {
 							var $temp$msg = $author$project$Main$Step,

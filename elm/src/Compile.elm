@@ -58,7 +58,7 @@ make_step m n =
                         step t m2
                     Nothing -> RunErr "Failed to choose a thread - Number out of bounds"
 
-        [] -> Blocked (print "blocking..." m)
+        [] -> Blocked m
 
 unblock : Model -> List Id -> Result String Model
 unblock model ids = 

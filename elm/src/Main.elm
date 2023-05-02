@@ -47,7 +47,7 @@ update msg model =
   case msg of
 
     Step ->
-      if isBlocked model then
+      if isBlocked model && ((Model.isWaitingForKeyboard model) == False) then
         if Model.isFinished model then
           update StopRunning (print "Program finished" model)
         else
@@ -107,7 +107,10 @@ update msg model =
           if Model.isFinished model then
             update StopRunning (print "Program finished" model)
           else
-            update StopRunning (print "Program blocked" model)
+            if Model.isWaitingForKeyboard model then
+              update Step model
+            else
+              update StopRunning (print "Program blocked" model)
         else update Step model
       else
         (model, Cmd.none)

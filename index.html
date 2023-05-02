@@ -1,22 +1,22 @@
 <!doctype html>
 <meta charset=utf8>
 <head>
+<h3 style="background-color: #dddddd; padding: 15px; margin-bottom: 4px; margin-top: 0px; border-radius: 4px;">Browser Occam</h3>
 <script src="editor.bundle.js"></script>
 <script src="jison/occam.js"></script>
 <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 
-<h3>Browser Occam</h3>
-
 <script>
     function parse () {
 
-        var input = codemirror.getCode().concat(" ")
-        
+        var input = codemirror.getCode().trim().concat(" ")
+
         try {
             var result = occam.parse(input);
             var tree = (organise(result));
-            document.getElementById("jsonTree").innerHTML = "Syntax tree as JSON: " + JSON.stringify(tree, null, 2);
+            //document.getElementById("jsonTree").innerHTML = "Syntax tree as JSON: " + JSON.stringify(tree, null, 2);
+            document.getElementById("jsonTree").innerHTML = "";
             return tree
 
         } catch (e) {
@@ -56,14 +56,17 @@
         }
     }
 </script>
+
+
 <body>
+
 <div style="display: flex; flex-direction: row; column-gap: 10px;">
 
-    <div style="width: 50vw; display:flex; flex-direction: column;">
-    <div id="editor"></div>
-        <button onclick="sendElm()">begin interpreting</button>
+    <div style="width: 40vw; display:flex; flex-direction: column;">
+        <div id="editor"></div>
+        <button onclick="sendElm()">Submit code</button>
 
-        <pre id="jsonTree"></pre>
+        <pre style="width: 40vw;" id="jsonTree"></pre>
     </div>
 
     <div id="elm-app-div" style="display: none;">
@@ -73,8 +76,9 @@
     <script>
     var app = Elm.Main.init({
         node: document.getElementById("elm-app")
-    });      
+    });
     </script>
 
 </div>
+
 </body>

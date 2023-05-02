@@ -77,7 +77,7 @@ SEQ
                 verticalPosition[i] := verticalPosition[i]+1
 ```
 
-You can receive number key presses, e.g. to a variable `x` with `KEYBOARD ? x`. Here is a piece of code which advances a red dot from left to right across the screen as you press the `1` key.
+You can receive number key presses, e.g. to a variable `x` with `KEYBOARD ? x`. Here is a piece of code which advances a red dot from left to right across the screen as you press any number key.
 
 ```
 SEQ

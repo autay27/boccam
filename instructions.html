@@ -6,8 +6,7 @@
   </head>
   <body>
   <a href="index.html">Browser Occam</a>
-
-    <p>This exercise is meant to help you get used to the Occam 1 programming language and the Browser Occam website. For a full reference of Occam, you can try <a href="https://www.wotug.org/occam/documentation/oc21refman.pdf">this page</a> although it is for a later version of the language. All the features you need to know should be given in the examples.</p>
+<p>This exercise is meant to help you get used to the Occam 1 programming language and the Browser Occam website. For a full reference of Occam, you can try <a href="https://www.wotug.org/occam/documentation/oc21refman.pdf">this page</a> although it is for a later version of the language. All the features you need to know should be given in the examples.</p>
 <p><strong>Exercise 1.</strong> Take a look at the following code.</p>
 <pre><code>SEQ
     SEQ i = [<span class="hljs-number">0</span> FOR <span class="hljs-number">31</span>]
@@ -31,18 +30,18 @@
 </code></pre><p>You can also receive from the channel into a variable with <code>?</code>. Here is a second process:</p>
 <pre><code><span class="hljs-attribute">myChannel</span> ? x
 </code></pre><p>When using <code>!</code>, the first process has to wait until someone receives its value before moving on. And when using <code>?</code>, the second process has to wait until someone sends it a value before it can move on. We say that a process <em>blocks</em> until the channel communication is successful.</p>
-<p>So, the following code will block forever after drawing a red dot, because we will never move past the sending line <code>myChannel ! 1</code>:</p>
+<p>So, the following code will block forever, because we will never move past the sending line <code>myChannel ! 1</code>:</p>
 <pre><code>SEQ
     CHAN <span class="hljs-keyword">OF</span> INT myChannel:
     INT x:
     SEQ
         SEQ
-            GRAPHICS<span class="hljs-comment">[0]</span><span class="hljs-comment">[0]</span> ! 3
             myChannel ! 1
+            GRAPHICS<span class="hljs-comment">[0]</span><span class="hljs-comment">[0]</span> ! 3
         SEQ
             myChannel ? x
-            GRAPHICS<span class="hljs-comment">[0]</span><span class="hljs-comment">[0]</span> ! 7
-</code></pre><p>However, if you were to change the second <code>SEQ</code> to a <code>PAR</code>, then the processes sending and receiving on the channel would become concurrent. Whichever used the channel first, would wait until the second one used the channel too, and then they would both succeed simultaneously. After that, the second process would be able to draw a blue dot. Try it for yourself.</p>
+            GRAPHICS<span class="hljs-comment">[1]</span><span class="hljs-comment">[1]</span> ! 7
+</code></pre><p>However, if you were to change the second <code>SEQ</code> to a <code>PAR</code>, then the processes sending and receiving on the channel would become concurrent. Whichever used the channel first, would wait until the second one used the channel too, and then they would both succeed simultaneously. After that, the processes would be able to draw a red and blue dot. Try it for yourself.</p>
 <p>How would you use a channel to modify the code from Exercise 2, so that it behaves the same as the code from Exercise 1? Paste your code into a text file.</p>
 <p><strong>Exercise 4. (Bonus: Dripping paint)</strong> The following code colours the screen blue from top to bottom, with each column of pixels coloured by a different process.</p>
 <pre><code>SEQ
@@ -66,6 +65,7 @@
             GRAPHICS[<span class="hljs-keyword">me</span>][<span class="hljs-number">0</span>] ! <span class="hljs-number">0</span>
             <span class="hljs-keyword">me</span> := <span class="hljs-keyword">me</span>+<span class="hljs-number">1</span>
 </code></pre><p>Try combining those two pieces of code, so that the red dot sets off the blue process in each column that it visits. You will need to use an array of channels, for example declaring a 32-element array as <code>[32]CHAN OF INT visited:</code> Paste your code into a text file.</p>
+
 
   </body>
 </html>

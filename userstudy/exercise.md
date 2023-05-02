@@ -44,7 +44,7 @@ myChannel ? x
 
 When using `!`, the first process has to wait until someone receives its value before moving on. And when using `?`, the second process has to wait until someone sends it a value before it can move on. We say that a process _blocks_ until the channel communication is successful.
 
-So, the following code will block forever after drawing a red dot, because we will never move past the sending line `myChannel ! 1`:
+So, the following code will block forever, because we will never move past the sending line `myChannel ! 1`:
 
 ```
 SEQ
@@ -52,14 +52,14 @@ SEQ
     INT x:
     SEQ
         SEQ
-            GRAPHICS[0][0] ! 3
             myChannel ! 1
+            GRAPHICS[0][0] ! 3
         SEQ
             myChannel ? x
-            GRAPHICS[0][0] ! 7
+            GRAPHICS[1][1] ! 7
 ```
 
-However, if you were to change the second `SEQ` to a `PAR`, then the processes sending and receiving on the channel would become concurrent. Whichever used the channel first, would wait until the second one used the channel too, and then they would both succeed simultaneously. After that, the second process would be able to draw a blue dot. Try it for yourself.
+However, if you were to change the second `SEQ` to a `PAR`, then the processes sending and receiving on the channel would become concurrent. Whichever used the channel first, would wait until the second one used the channel too, and then they would both succeed simultaneously. After that, the processes would be able to draw a red and blue dot. Try it for yourself.
 
 How would you use a channel to modify the code from Exercise 2, so that it behaves the same as the code from Exercise 1? Paste your code into a text file.
 

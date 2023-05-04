@@ -5,7 +5,6 @@ csl: ieee-with-url.csl
 title: "An interpreter for occam in the browser"
 ---
 
-
 \tableofcontents
 
 # Background
@@ -57,6 +56,25 @@ PAR
 ```
 `PAR` denotes that the next code block should be executed in parallel. In this case, only the single line `myChan ? y` will block until receiving the message from _p_. The subsequent lines of code, which are in parallel with it, will each run straight away as soon as they are scheduled. The order in which parallel processes are scheduled to run is not specified by occam and is down to the underlying implementation; we describe this as nondeterministic.
 
+## Tools used
+
+The interpreter is designed to run in the browser. This means that the interpreter must be built using only tools that compile to a language which can be run in the browser (i.e. with Javascript).
+
+### Jison and Jison-Lex
+
+Jison is a Javascript tool. Jison is a parser generator, while Jison-Lex is a lexer generator included in the package. The two are based on the widely used Flex and Bison, and have a similar API to them. The key difference is that Jison generates Javascript lexers and parsers, which can be run in the browser, and produce an output in the form of a Javascript array which can easily be processed further. [@jison] [@jisonlex]
+
+Jison-Lex is a regular expression-based lexer generator; it generates a program that can break text down into a list of tokens, the 'words' of a programming language, including predefined keywords as well as user-defined names and values.
+
+Jison is a shift-reduce parser generator; it generates a program that takes the list of tokens produced by the lexer, and repeatedly 'shifts' the first few tokens onto its stack, then 'reduces' them according to the rules of a context-free grammar, to arrive at the end result of an abstract syntax tree (AST).
+
+### Elm
+
+Elm is a functional programming language which compiles to Javascript, so it can be run in the browser. It is inspired by Haskell, but geared towards interactive uses, so I/O and other side effects are easy to use and cleanly separated out as part of Elm's program architecture. Elm also has functional languages' characteristic pattern matching capabilities, lack of runtime errors, and ease of handling user-defined exceptions. This makes it well suited for writing an interpreter.
+
+### CodeMirror
+
+CodeMirror is a Javascript tool which produces a customisable text editor which can be embedded in a web page. It is intended to be used for creating browser-based coding sites. Basic features such as line numbering, highlighting the line the text cursor is on, and indenting using the tab key are enough to make it feel familiar as a code editor and to make coding significantly easier. It is also extensible with features such as syntax highlighting, code linting, and automatic indenting.
 
 # Design
 
@@ -82,15 +100,13 @@ Here is a non-exhaustive list of occam 1 features which were implemented in the 
 
 We extended occam 1 to simulate input/output (IO) to hardware, and allow for displaying graphics in the browser. These would allow learners to create interactive and appealing programs such as games, simulations, calculators and visual artworks. This is a design philosophy also seen on the BBC micro:bit, a device designed for computer education, which provides input/outputs including two buttons, a serial connection and a "screen" consisting of a 5x5 LED matrix [@microbit]. Emphasis is also placed on visual outputs in the educational programming languages Logo, with its 'turtle graphics' [@logo], and Scratch, with its 'stage area' [@scratch].
 
-Graphical applications are also uniquely suited to concurrent programming, due to the large number of similar calculations needed to render each pixel to produce a single image. And conversely, due to the concurrent nature of human vision - able to view images 'as a whole', rather than bit by bit - visuals are excellent for displaying concurrent behaviours of processes in an intuitive way. **example of this - some kind of propagating across a grid to take the maximum across many processes? would make a nice demo too. sheet 3.4** **AR suggests concurrent bouncing balls**
+Graphical applications are also uniquely suited to concurrent programming, due to the large number of similar calculations needed to render each pixel to produce a single image. And conversely, due to the concurrent nature of human vision - able to view images 'as a whole', rather than bit by bit - visuals are excellent for displaying concurrent behaviours of processes in an intuitive way, and for perceiving the ordering of various events over time. **example of this - some kind of propagating across a grid to take the maximum across many processes? would make a nice demo too. sheet 3.4** **AR suggests concurrent bouncing balls**
 
 To facilitate pixel-based graphics, the language is extended with n-dimensional arrays of variables and channels, as described in the occam 2.1 reference manual [@oc21]. The displayed pixels are set using a two-dimensional array, but more dimensions may still be useful. For example, one can imagine a 3-dimensional array which stores additional information about each 2d coordinate, used when calculating its colour, along the third dimension.
 
 **image of the display showing all the colours nicely**
 
 ## Modelling nondeterminism
-
-**A bit long, shall I cut out the debate?**
 
 Since we simulate parallel processes with a fully sequential program, we have full control over what order parallel processes should be executed in. There are two basic options for what this order should be.
 
@@ -102,25 +118,31 @@ Due to the educational purpose of the interpreter and the target audience of mor
 
 ## User interface
 
-The interpreter is designed to run in the browser. This is convenient for teachers, and lowers the entry barrier for learners because they do not have to install anything to run their code. This means that the interpreter must be built using only tools that compile to a language which can be run in the browser (i.e. Javascript).
+Since the interpreter runs in the browser, the interface is a website which can be hosted and made available online. This is convenient for teachers, and lowers the entry barrier for learners because they do not have to install anything to run their code.
 
-We adopt the layout of code text box on the left, output on the right, which is used in other browser-based coding such as Codecademy [@codecademy].
+We adopt the layout of code text box on the left, output on the right, which is used in other browser-based coding such as Codecademy [@codecademy]. Both the graphics display and a log of the serial output are shown.
 
-**image - got to make it look pretty first...**
+Additionally, we include some features to help learners debug their code and understand its behaviour. Underneath the outputs, a list of all variables and their current values are displayed, similarly to in a normal debugger in a coding IDE. In the centre is a log of all inputs and outputs to channels, making it explicit when a process is attempting to send on a channel and what value is being sent, as well as when a process is attempting to receive from a channel.
+
+![Screenshot of the website, with the code box on the left, output and state on the right, and channel log in the middle](website_bordered.png)
+
+The following buttons are provided:
+
+- **Submit code** - attempt to parse the user's code and load it into the interpreter. If this fails, the parser's error message is displayed underneath.
+- **Step** - advance through the code execution by one step of the interpreter, typically corresponding to one line of code. Useful for slowly walking through the behaviour of the program.
+- **50 Steps** - arbitrarily chosen number, which allows the user to 'skip ahead' in the program by 50 steps. Especially useful if there are many steps of preamble before any logic begins.
+- **Run** - runs the code continuously with a 20ms delay between steps. This is slow enough to allow the user to perceive the program changing over time, e.g. noticing in what order pixels are drawn to the screen. It also allows for programs that can respond 'in real time' to keypresses.
+- **Pause** - Pauses the program in the middle of running it, allowing the user to inspect the state and logs at that moment. Pressing the Run button turns it into the Pause button and vice versa.
 
 # Implementation
 
 ## Lexing and parsing
 
-After the user inputs code to the browser, the package Jison is used for converting it into an abstract syntax tree. Jison-Lex is a lexer generator included in the package, while Jison itself is a parser generator. The two are based on the widely used Flex and Bison, and have a similar API to them. The key difference is that Jison generates Javascript lexers and parsers, which can be run in the browser, and produce an output in the form of a Javascript array which can easily be processed further. [@jison] [@jisonlex]
+After the user inputs code to the browser, the package Jison is used for converting it into an abstract syntax tree.
 
-Jison-Lex is a regular expression-based lexer generator; it generates a program that can break text down into a list of tokens, the 'words' of a programming language, including predefined keywords as well as user-defined names and values. Because occam is a language with significant whitespace, the default Jison-Lex tokeniser had to be extended to correctly tokenise indents, dedents and newlines. The example indent/dedent scanner provided as part of the documentation [@whitespace] was adapted for this purpose.
-
-Jison is a shift-reduce parser generator; it generates a program that takes the list of tokens produced by the lexer, and repeatedly 'shifts' the first few tokens onto its stack, then 'reduces' them according to the rules of a context-free grammar, to arrive at the end result of an abstract syntax tree (AST). Encoding the grammar of occam went smoothly, thanks to the list of rules provided in Appendix H of the occam 2.1 Reference Manual [@oc21].
+Because occam is a language with significant whitespace, the default Jison-Lex tokeniser had to be extended to correctly tokenise indents, dedents and newlines. The example indent/dedent scanner provided as part of the documentation [@whitespace] was adapted for this purpose. Encoding the grammar of occam went smoothly, thanks to the list of rules provided in Appendix H of the occam 2.1 Reference Manual [@oc21].
 
 ## Interpreting
-
-Elm is a functional programming language which compiles to Javascript, so it can be run in the browser. It is inspired by Haskell, but geared towards interactive uses, so I/O and other side effects are easy to use and cleanly separated out as part of Elm's program architecture. Elm also has functional languages' characteristic pattern matching capabilities, lack of runtime errors, and ease of handling user-defined exceptions. This makes it well suited for writing an interpreter.
 
 The AST produced by Jison is converted into JSON format using Javascript, in order for Elm to be able to convert the tree into a native Elm datatype. Then, it becomes the first element in the 'list of running processes' used when constructing the Elm model of the program.
 
@@ -166,7 +188,7 @@ We provide buttons in the form of input via the keyboard. Key presses can be rec
 
 We also provide a simplistic graphics display in the form of a 32x32 grid of squares (operating as 'pixels') which can each be set to one of several colours. The colour of a pixel at coordinates (i, j) can be set by outputting an integer to channel `GRAPHICS[i][j]`, with integers mapped to different colours (e.g. 0 is black, 1 is white, 2 is red, 3 is blue, everything above 3 is black; again, this is arbitrary).
 
-**image**
+![Drawing a variety of colours to the screen](rainbow.png)
 
 ### The program loop
 
@@ -211,7 +233,7 @@ Invariants tested for:
 - Messages from different processes are interleaved correctly
 - Parallel and sequential blocks are executed as expected, including when nested
 
-**I suppose I should put the programs in the appendix?**
+**put the programs in the appendix**
 
 [^1]: Actually, due to the way lists are constructed it would be backwards, but this is not an obstacle.
 
@@ -248,11 +270,20 @@ how could this project be extended, what flaws could be fixed up. endless list..
 - Good automated testing
 - Code linting, automatic indentation
 - Line numbers for error messages; clearer and helpful error messages in the style of Elm
-- Using codemirror
+- Upgrading codemirror - highlighting, syntaxing, etc.
+- I had an idea for highlighting PAR and SEQ blocks within the code, or highlighting processes (basically that's what indentation in occam si meant to do but it doesn't work because of the stoopid replicators)
 
 ### User testing
 
-send it to my friends.
+Three members of the target demographic participated in the user study. All three were university students who had done computer programming before, but not concurrent programming.
+
+Users were asked to participate in a small coding exercise, lasting about 40 minutes, consisting of following instructions in a document. They were first asked to read and understand the behaviour of some simple occam code. Then they were introduced to the concept of channels, and asked to modify the code by adding channels in order to achieve a desired result. Finally, they were given two larger fragments of code and asked to combine them using channels to achieve a desired result. Throughout the exercise they were encouraged to test out the code in the browser interpreter. The full document can be seen in Appendix (tba).
+
+Following the advice in [@benyonturner], the author sat with each participant individually in order to make note of their reactions, and to get them unstuck if necessary to avoid pointless frustration. This also simulated the presence of a teacher or lab demonstrator who may be present when the interpreter is presented to learners in practice.
+
+Afterwards, the participants were asked a few questions to check whether they were comfortable with the interface and how confident they felt in their understanding of processes and channels. These questions can also be seen in Appendix (tba).
+
+hmm don't know how to present results LOL can just do a verbal summary
 
 # Conclusions & Future Work
 
@@ -266,9 +297,13 @@ your experience/ what you learned / challenges and mistakes
 - Elm is awesome but it's SO strict about always needing to handle errors perfectly, I really felt the downside of functional programming and strict typing systems when trying to develop the prototype quickly. At the same time, these errors were useful because you could nearly always trace back to the exact bit of code where something failed.
 - Testing was so hard, because Elm is really only set up to test functions _without_ side effects, but my thing needs to have either side effects or a simulation of them, for the nondeterminism.
 - Well, need to do the user evaluation thing, then I'll have a lot more to say..
+- Creating a full lesson plan / tutorials and examples using this interpreter (+ some kind of automatic feedback?)
 
 ## Future work
 what directions could a further full student project go
+
+- Designing a new simple+pedagogic concurrent programming language (or a videogame to teach it, with pseudocode) based on the findings, and implementing the interpreter
+- Implementing networking so that users can communicate between different devices using channels in the browser interpreter (e.g. for online games)
 
 # Bibliography
 

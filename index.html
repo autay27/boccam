@@ -8,12 +8,26 @@
 </head>
 
 <script>
-    function parse () {
 
-        var input = codemirror.getCode().trim().concat(" ")
+    var time = 0
+    function parse (input) {
+
+        //var input = codemirror.getCode().trim().concat(" ")
+        //try {occam.parse("abba daba doo")} catch (e){console.log("parser doesn't REMEMBER")}
 
         try {
-            var result = occam.parse(input);
+
+            var error =
+            `SEQ k
+                x := 1`
+
+            var ok =
+            `SEQ
+                x := 1`
+
+            //var thisTime = (time == 0) ? error : ok
+            //var result = occam.parse(thisTime.trim().concat(" "));
+            var result = occam.parse(input.trim().concat(" "));
             var tree = (organise(result));
             //document.getElementById("jsonTree").innerHTML = "Syntax tree as JSON: " + JSON.stringify(tree, null, 2);
             document.getElementById("jsonTree").innerHTML = "";
@@ -21,7 +35,8 @@
 
         } catch (e) {
             document.getElementById("jsonTree").innerHTML = "I couldn't read your code, maybe you have a typo or a missing SEQ? Here is the error:<hr>" + e.message;
-            throw e
+            time = time + 1
+            try { occam.parse("INT x:".trim().concat(" ")) } catch(e){}
             return false
         }
 
@@ -31,7 +46,6 @@
             }else if (typeof input == "number"){
                 return {numleaf: input}
             } else {
-                console.log(input)
                 var cs = []
                 for (let i = 1; i < input.length; i++){
                     cs.push(organise(input[i]))
@@ -46,7 +60,7 @@
     function sendElm () {
 
         var elm = document.getElementById("elm-app-div");
-        var json = parse()
+        var json = parse(codemirror.getCode())
 
         if (json){
             app.ports.messageReceiver.send(json);

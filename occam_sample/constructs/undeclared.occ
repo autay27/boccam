@@ -1,0 +1,4 @@
+SEQ
+    INT y:
+    y := 1
+    x := y

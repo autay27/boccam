@@ -1,0 +1,4 @@
+ SEQ
+    INT x:
+    WHILE x < 5
+        x := x + 1

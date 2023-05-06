@@ -1,0 +1,4 @@
+ SEQ
+    INT x:
+    IF x
+        INT y:

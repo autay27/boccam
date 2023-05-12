@@ -7,19 +7,27 @@ title: "An interpreter for occam in the browser"
 
 \tableofcontents
 
+# Introduction
+
+occam is a high-level procedural programming language, designed to support concurrent applications. Based on the Communicating Sequential Processes algebra, it models programs as parallel processes communicating via blocking (synchronous) channels.
+
+This project presents a browser-based interpreter for occam ("BrowserOccam"), intended for use in teaching concurrent programming concepts. A parser, lexer, interpreter and user interface were all created. BrowserOccam implements the majority of occam 1, including variables, arithmetic and logical operators, control structures, parallel and sequential code blocks, and channels. The language is extended with keyboard input, serial output, and a colourful graphics display in order to make it interactive. Arrays of variables and channels were also added. Parallel execution is simulated via a pseudo-random scheduler to emphasise the non-deterministic order of parallel execution. Testing was carried out for the parser, lexer and interpreter.
+
+A user study was conducted to evaluate BrowserOccam, and it was found to be useful for teaching beginners about concurrent programming concepts and channels. Users were able to pick up occam and complete coding and code comprehension tasks in BrowserOccam without the need for extensive explanations. They enjoyed the interactive and graphical aspects, and agreed that the interface was intuitive and helpful.
+
 # Background
 
 ## History of occam
 
-occam is a high-level procedural programming language designed to support concurrent applications. One of the earliest concurrent languages designed for industrial use, it was first released in 1983 by David May and others at Inmos, advised by Tony Hoare. It was intended for use on the transputer, an early microprocessor from Inmos which was designed for parallel computing (source). Transputers were used in large networks, with each having integrated memory and serial communication links, rather than the network needing a central bus or RAM.
+occam was one of the earliest concurrent languages designed for industrial use. It was first released in 1983 by David May and others at Inmos, advised by Tony Hoare. It was intended for use on the transputer, an early microprocessor from Inmos which was designed for parallel computing [@transputer]. Transputers were used in large networks, with each having integrated memory and serial communication links, rather than the network needing a central bus or RAM.
 
 occam's design is based on the Communicating Sequential Processes (CSP) process algebra created by Tony Hoare, meaning that its programs are expressed in terms of concurrent _processes_ which communicate exclusively by passing messages via _channels_ [@oc1]. There are algebraic laws proving equivalence between different expressions in occam, allowing for formal proofs of the correctness of programs [@laws].
 
-While it is no longer in active use due to the transputer's failure to catch on, it has inspired the languages occam-pi [@occampi] and Ease [@ease] and shares features with other concurrent languages influenced by CSP, such as Go [@go] and Erlang [@erlang], both of which are currently popular in industry. occam and occam-pi have been used to teach concurrency and concurrent programming on Computer Science courses at various British universities (don't know how to cite this - I have an anecdote from my professor who learned it at Oxford, and some online comments).
+While it is no longer in active use due to the transputer's failure to catch on, it has inspired the languages occam-pi [@occampi] (a variant incorporating part of the pi-calculus, another process calculus) and Ease [@ease] and shares features with other concurrent languages influenced by CSP, such as Go [@go] and Erlang [@erlang], both of which are currently popular in industry. occam and occam-pi have been used to teach concurrency and concurrent programming on Computer Science courses at various British universities.
 
 occam retains interest as a teaching tool. It is suitable for an introduction to practical concurrent programming, as it natively supports concurrent processes and represents them clearly and intuitively as adjacent blocks of code, placed in a hierarchy by the use of significant whitespace (i.e. indentation changes the meaning of code). The use of channels makes the connections between processes explicit. It may also be useful for teaching theoretical computer science - its strong resemblance to CSP makes it a possible alternative to trace refinement checking tools for gaining intuition of how processes interact in a message-passing paradigm.
 
-## Description of Occam
+## Description of occam
 
 ### Channels
 
@@ -72,27 +80,29 @@ Elm is a functional programming language which compiles to Javascript, so it can
 
 ### CodeMirror
 
-CodeMirror is a Javascript tool which produces a customisable text editor which can be embedded in a web page. It is intended to be used for creating browser-based coding sites. Basic features such as line numbering, highlighting the line the text cursor is on, and indenting using the tab key are enough to make it feel familiar as a code editor and to make coding significantly easier. It is also extensible with features such as syntax highlighting, code linting, and automatic indenting.
+CodeMirror is a Javascript tool which produces a customisable text editor which can be embedded in a web page. It is intended to be used for creating browser-based coding sites. Basic features such as line numbering, highlighting the line the text cursor is on, and indenting using the tab key are enough to make it feel familiar as a code editor and to make coding significantly easier. It is also extensible with features such as syntax highlighting, code linting, and automatic indenting. [@codemirror]
 
-# Design
+\newpage
 
-The target audience for the interpreter is people who know the basics of programming, but have not done any concurrent programming before. These may be young people who are being encouraged to explore different programming concepts, or adults who are interested in concurrent programming or CSP. This project does not aim to provide a historical reference for the behaviour of the original occam language.
+# The design of a browser-based occam interpreter
 
-Existing literature on how to teach concurrency & programming - I'm not sure how to write about this. Many papers seem to be focused on specific teaching methods and topics, whereas I am writing about a tool which could be used in multiple ways.
-
-https://www.sciencedirect.com/science/article/pii/S0743731517300023
-
+The target audience for BrowserOccam is people who know the basics of programming, but have not done any concurrent programming before. These may be young people who are being encouraged to explore different programming concepts, or adults who are interested in concurrent programming or CSP. This project does not aim to provide a reference for the behaviour of the original occam language.
 
 ## A simple version of the language
 
-This project focuses on implementing and extending occam 1, a preliminary version of the language, which was designed with a minimal set of features in order to encourage users to get a feel for concurrent programming. This made it a perfect fit for our purposes. Notably, Occam 1 does not have common features of modern languages such as data types beyond integers, n-dimensional arrays, or functions [@oc1]. While these were added when occam was developed further with occam 2 and 2.1 [@oc21], we disregard their specifications and instead extend the language from occam 1 according to what makes sense for its use as a teaching tool.
+BrowserOccam focuses on implementing and extending occam 1, a preliminary version of the language, which was designed with a minimal set of features in order to encourage users to get a feel for concurrent programming. This made it a perfect fit for our purposes. Notably, Occam 1 does not have common features of modern languages such as data types beyond integers, n-dimensional arrays, or functions [@oc1]. While these were added when occam was developed further with occam 2 and 2.1 [@oc21], we disregard their specifications and instead extend the language from occam 1 according to what makes sense for its use as a teaching tool.
 
-Here is a non-exhaustive list of occam 1 features which were implemented in the interpreter:
+Here is a non-exhaustive list of occam 1 features which were implemented:
 
-- Variable declaration and assignment
+- Variable declaration and assignment (integers only)
 - Arithmetic and comparison on integers, and logical operators on booleans
 - Control structures (IF, WHILE)
-- etc...
+- Parallel and sequential code blocks (PAR, SEQ)
+- Channels (declaration, input, output, blocking)
+- Replicators (equivalent of FOR loops, usable on PAR and SEQ)
+- Alternator (ALT - able to receive/input from one of multiple channels, whose availability may be subject to a condition similar to an IF statement)
+
+The INMOS Limited occam Programming Manual [@oc1] was used as the primary reference for the language.
 
 ## Interactivity
 
@@ -112,17 +122,20 @@ The first is to try to execute parallelised processes in the order they are writ
 
 The second is to, when faced with a set of parallelised processes, always choose one uniformly at random to execute next. (The extra time and computation needed to include pseudorandom choices in the interpreter is negligible.) This is truly nondeterministic - to the extent that the pseudorandom generator used in the implementation is nondeterministic - and forces the user to reason about their program without having any way to predict the order in which parallelised events happen. This is more realistic, although not perfectly so. In reality, processes are typically scheduled by the operating system, and this is not done uniformly at random, but rather optimising for combinations of qualities such as wait time, throughput, and response time [@scheduling]. Also, processes would be scheduled based on real-time events such as clock or I/O interrupts, but in our implementation this is not the case. Instead, when a process is chosen to be executed, we simply attempt to execute its first line and then return it to the process list if it is not completed. This lack of realism makes it much simpler to implement.
 
-Due to the educational purpose of the interpreter and the target audience of more inexperienced programmers, we concluded that an unrealistic, yet unpredictable method of process scheduling was sufficient, so the second 'random' option was chosen.
+Due to the educational purpose of BrowserOccam and the target audience of more inexperienced programmers, we concluded that an unrealistic, yet unpredictable method of process scheduling was sufficient, so the second 'random' option was chosen.
 
 ## User interface
 
-Since the interpreter runs in the browser, the interface is a website which can be hosted and made available online. This is convenient for teachers, and lowers the entry barrier for learners because they do not have to install anything to run their code.
+The interface for BrowserOccam is a website which can be hosted and made available online. This is convenient for teachers, and lowers the entry barrier for learners because they do not have to install anything to run their code.
 
-We adopt the layout of code text box on the left, output on the right, which is used in other browser-based coding such as Codecademy [@codecademy]. Both the graphics display and a log of the serial output are shown.
+We adopt the layout of code text box on the left, output on the right, which is used in other browser-based coding such as Codecademy [@codecademy]. The code text box is generated by CodeMirror while the output is generated by Elm, with some formatting using HTML and CSS.
 
-Additionally, we include some features to help learners debug their code and understand its behaviour. Underneath the outputs, a list of all variables and their current values are displayed, similarly to in a normal debugger in a coding IDE. In the centre is a log of all inputs and outputs to channels, making it explicit when a process is attempting to send on a channel and what value is being sent, as well as when a process is attempting to receive from a channel.
+Both the graphics display and a log of the serial output are shown. Additionally, we include some features to help learners debug their code and understand its behaviour. Underneath the outputs, a list of all variables and their current values are displayed, similarly to in a normal debugger in a coding IDE.
+
+In the centre is a log of all inputs and outputs to channels, making it explicit when a process is attempting to send on a channel and what value is being sent, as well as when a process is attempting to receive from a channel.
 
 ![Screenshot of the website, with the code box on the left, output and state on the right, and channel log in the middle](website_bordered.png)
+
 
 The following buttons are provided:
 
@@ -132,11 +145,11 @@ The following buttons are provided:
 - **Run** - runs the code continuously with a 20ms delay between steps. This is slow enough to allow the user to perceive the program changing over time, e.g. noticing in what order pixels are drawn to the screen. It also allows for programs that can respond 'in real time' to keypresses.
 - **Pause** - Pauses the program in the middle of running it, allowing the user to inspect the state and logs at that moment. Pressing the Run button turns it into the Pause button and vice versa.
 
-# Implementation
+# Implementation of an interpreter simulating communicating processes
 
 ## Lexing and parsing
 
-After the user inputs code to the browser, the package Jison is used for converting it into an abstract syntax tree.
+After the user inputs code to BrowserOccam, the package Jison is used for converting it into an abstract syntax tree.
 
 Because occam is a language with significant whitespace, the default Jison-Lex tokeniser had to be extended to correctly tokenise indents, dedents and newlines. The example indent/dedent scanner provided as part of the documentation [@whitespace] was adapted for this purpose. Encoding the grammar of occam went smoothly, thanks to the list of rules provided in Appendix H of the occam 2.1 Reference Manual [@oc21].
 
@@ -184,27 +197,30 @@ When a process outputs on a channel, it sets the value and the boolean to true; 
 
 We provide buttons in the form of input via the keyboard. Key presses can be received along a designated `KEYBOARD` channel, with each key being mapped to a different integer (e.g. 1, 2, 3, 4 for up, down, left, right arrow keys; this mapping is arbitrary). We also simulate output via a serial connection, using a designated `SERIAL` channel; messages output to this channel are not received by another process, but instead displayed in order on the screen, simulating how they may be received instantaneously and recorded by another device. Both these channels are not truly channels, but instead are unlimited buffers. Each key press is enqueued in the _keyboard_ buffer, and a process taking input from `KEYBOARD` receives the first dequeued value, or blocks while the channel is empty; processes can output to `SERIAL` without blocking and the value will be enqueued in the _serial_ buffer until it can be dequeued and printed on the screen. This ensures that IO will behave as expected for the user, preserving the order and not losing any events.
 
-We also provide a simplistic graphics display in the form of a 32x32 grid of squares (operating as 'pixels') which can each be set to one of several colours. The colour of a pixel at coordinates (i, j) can be set by outputting an integer to channel `GRAPHICS[i][j]`, with integers mapped to different colours (e.g. 0 is black, 1 is white, 2 is red, 3 is blue, everything above 3 is black; again, this is arbitrary).
+We also provide a simplistic graphics display in the form of a 32x32 grid of squares (operating as 'pixels') which can each be set to one of several colours. The colour of a pixel at coordinates (i, j) can be set by outputting an integer to channel `GRAPHICS[i][j]`, with integers mapped to different colours (e.g. 0 is black, 1 is white, 2 is red, 3 is blue, everything above 3 is black; again, this is arbitrary). We communicate with the graphics display via a channel, rather than setting the value of pixels in an array, in order to simulate a screen as a separate piece of hardware.
 
 ![Drawing a variety of colours to the screen](rainbow.png)
 
+\newpage
+
 ### The program loop
 
-So overall, the model is a record containing the following types of data[^2]:
+So overall, the program model is a record containing the following types of data[^2]:
 
 - Running processes
 - Blocking processes
-- State (process IDs)
 - State (channels, variables)
 - I/O handling (buffers, arrays)
 
-[^2]: Some other data is stored which is specific to the Elm implementation. These are data related to pseudorandom generators, and a dictionary of PIDs to ensure uniqueness.
+[^2]: Some other data is stored which is specific to the Elm implementation. These are data related to pseudorandom generators, a dictionary of PIDs to ensure uniqueness, and a flag for whether the Run button has been pressed.
 
 The program transitions through states in this manner:
 
 ![The program loop](loop.jpg)
 
 The 'execute' may end in one of 3 outcomes: an error, a success, or a stopped program (either fully terminated or fully blocked). The 'unblock' processes the outcome to move any newly unblocked processes to the running list. Then, the outcome is passed to the main program which responds to the outcome (either by displaying an error message, or allowing the controller to trigger further execution steps). These make up the inner workings of the model which fits into the standard Model-View-Controller pattern.
+
+\newpage
 
 ### Errors
 
@@ -214,7 +230,7 @@ Lexer and parser errors are the default ones displayed by Jison (showing the lin
 
 Runtime errors were generated by the Elm interpreter, often composited from different strings over the course of evaluating the code tree to give a better indication of what the issue was. These errors are displayed as part of the channel activity log, to help users figure out when an error occurs and the sequence of events that leads to the error.
 
-# Testing & Evaluation
+# Testing & evaluation of the interpreter as a teaching aid
 
 ## Testing methodology
 
@@ -257,23 +273,23 @@ Invariants tested for:
 
 Three members of the target demographic participated in the user study. All three were university students who had done computer programming before, but not concurrent programming.
 
-Users were asked to participate in a small coding exercise, lasting about 40 minutes, on their personal laptops. This consisted of following instructions in a document. They were first asked to read and understand the behaviour of some simple occam code. Then they were introduced to the concept of channels, and asked to modify the code using channels in order to achieve a desired result. Finally, they were given two larger fragments of code and asked to combine them using channels. Throughout the exercise they were encouraged to test out the code in the browser interpreter. The full document can be seen in Appendix (tba).
+Users were asked to participate in a small coding exercise, lasting about 40 minutes, on their personal laptops. This consisted of following instructions in a document. They were first asked to read and understand the behaviour of some simple occam code. Then they were introduced to the concept of channels, and asked to modify the code using channels in order to achieve a desired result. Finally, they were given two larger fragments of code and asked to combine them using channels. Throughout the exercise they were encouraged to test out the code in BrowserOccam. The full document can be seen in Appendix (tba).
 
-Following the advice in [@benyonturner], the author sat with each participant individually in order to make note of their reactions, and to get them unstuck if necessary to avoid pointless frustration. This also simulated the presence of a teacher or lab demonstrator who may be present when the interpreter is presented to learners in practice.
+Following the advice in [@Benyon_Turner_Turner_2006], the author sat with each participant individually in order to make note of their reactions, and to get them unstuck if necessary to avoid pointless frustration. This also simulated the presence of a teacher or lab demonstrator who may be present when the interpreter is presented to learners in practice.
 
-Afterwards, the participants were asked a few questions to check whether they were comfortable with the interface and how confident they felt in their understanding of processes and channels. These questions can also be seen in Appendix (tba).
+Afterwards, the participants were asked a few questions to check whether they were comfortable with the BrowserOccam interface and how confident they felt in their understanding of processes and channels. These questions can also be seen in Appendix (tba).
 
 #### User experience
 
 One participant completed all four tasks within the time given, and another completed the first three tasks. The last completed the first two tasks, but was unable to solve the third, and completed the fourth using a shared variable rather than a channel (due to the lack of synchronisation between processes, this led to a slightly different, but mostly correct behaviour).
 
-![A participant's completed answer to the fourth question, resulting in a red cursor that draws dripping blue lines as it moves](drippingcursor2.png)
+![A participant's correct answer to the fourth question, resulting in a red cursor that sets off concurrent blue lines as it moves](drippingcursor2.png)
 
-All the participants found it easy to use the website interface, although it was noted that code highlighting and linting features would have been helpful. One participant suggested highlighting to show which lines of code were grouped together as one process (i.e. highlight a whole `WHILE` loop as one process, but highlight each line of a `SEQ` body as a separate process). Although occam already tries to show this information via the use of significant whitespace, the participants did not find it obvious.
+All the participants found it easy to use the BrowserOccam interface, although it was noted that code highlighting and linting features would have been helpful. One participant suggested highlighting to show which lines of code were grouped together as one process (i.e. highlight a whole `WHILE` loop as one process, but highlight each line of a `SEQ` body as a separate process). Although occam already tries to show this information via the use of significant whitespace, the participants did not find it obvious.
 
-`PAR` and `SEQ` replicators were used in the code and due to their un-intuitive syntax (unlike regular `PAR` and `SEQ`, they only allow one process in the body) their syntax had to be explained explicitly to the participants. Apart from this, they were able to understand all the code without further explanation, sometimes needing the help of trying it out on the interpreter.
+`PAR` and `SEQ` replicators were used in the code and due to their un-intuitive syntax (unlike regular `PAR` and `SEQ`, they only allow one process in the body) their syntax had to be explained explicitly to the participants. Apart from this, they were able to understand all the code without further explanation, sometimes needing the help of running it in BrowserOccam.
 
-Two of the participants struggled to understand the errors displayed by the website when they submitted code with syntactic errors or typos. Participants found the names of some tokens to be unclear and the errors often didn't point to the place in the code where a human would have caught the error.
+Two of the participants struggled to understand the errors displayed by BrowserOccam when they submitted code with syntactic errors or typos. Participants found the names of some tokens to be unclear and the errors often didn't point to the place in the code where a human would have caught the error.
 
 In the third and fourth questions, participants would begin by writing code with runtime errors or logic errors, but eventually recover. One participant found it helpful to check the values of variables in the state.
 
@@ -283,45 +299,59 @@ Participants often re-ran the same code multiple times in order to gain a better
 
 Some participants initially thought that a channel functioned like a 'mailbox', i.e. a value could be left inside it and the program would continue without blocking. However, at the end of the exercise, they were all able to correctly describe how blocking channels worked.
 
-When asked to explain, they all referred to a channel as a type of shared variable which could be used for synchronisation, some saying that this was because variables were a familiar concept from other programming languages. This is accurate in the case of channels within a single machine, as in the interpreter. However, channels between different hardware cannot be classed as shared variables. Perhaps it would have been better if participants conceptualised channels as something completely distinct from variables, such as a metaphorical phone call.
+When asked to explain, they all referred to a channel as a type of shared variable which could be used for synchronisation, some saying that this was because variables were a familiar concept from other programming languages. This is accurate in the case of channels within a single machine, as in the interpreter. However, channels between different hardware cannot be classed as shared variables. Perhaps it would have been better if participants conceptualised channels as something distinct from variables, such as a metaphorical phone call.
 
-All participants correctly described the behaviour of processes running in parallel, and noted the non-deterministic order of execution. Some initially attempted to determine a pattern in the order, or assumed that the interpreter was faulty because processes were not alternated between in a regular fashion.
+All participants correctly described the behaviour of processes running in parallel, and noted the non-deterministic order of execution. Some initially attempted to determine a pattern in the order, or assumed that the interpreter was faulty because processes were not alternated between in a regular fashion, but quickly acclimatised.
 
 ### Self-evaluation
 
 Due to the time constraints of the project, many improvements could still be made.
 
-In order to improve the usability of the tool, the first thing to improve would be better parser errors, ideally on par with those for real interpreters. For example, describing the grammar rule that is being used wrongly and offering a suggestion for how to fix it. Runtime errors could also be clearer, following best practices and include a trace of line numbers of where the error originated from in the code. Code highlighting, and linting for incorrect syntax, would also help users to quickly get to grips with coding in the language and minimise frustration. It migth be worth trying out highlighting code blocks according to whether they form a single process, or highlighting in a way that makes it clear which code blocks will be executed in parallel (for example, sequential and parallel highlighted pale blue and pale red respectively).
+In order to improve the usability of BrowserOccam, the first thing to improve would be better parser errors, ideally on par with those for real interpreters. For example, describing the grammar rule that is being used wrongly and offering a suggestion for how to fix it. Runtime errors could also be clearer, following best practices and include a trace of line numbers of where the error originated from in the code. Code highlighting, and linting for incorrect syntax, would also help users to quickly get to grips with coding in the language and minimise frustration. It might be worth highlighting code blocks according to whether they form a single process, or highlighting in a way that makes it clear which code blocks will be executed in parallel (for example, sequential and parallel highlighted pale blue and pale red respectively).
 
-Automatic indentation and other features commonly found in IDEs would also make life easier. The UI could also be tweaked (e.g. in hindsight a 'Reset' button would have been helpful). Extra features for beginners could be added such as example programs to be loaded in (common in tools like Scratch and Logo) and an accompanying documentation for the language.
+Automatic indentation and other features commonly found in IDEs would also make life easier. The UI could also be tweaked (e.g. in hindsight a 'Reset' button would have been helpful).
 
-The major feature of occam 1 that is missing from the implementation is the ability to call named subroutines; these would be especially useful to spawn copies of the same process at different times. This would also require a mechanism for scoping variables. Some invariants, such as rules forbidding two processes outputting to the same channel or variable shadowing, were implemented as runtime errors, but should have been detected by a code tree traversal prior to execution.
+The major feature of occam 1 that is missing from BrowserOccam is the ability to call named subroutines; these would be especially useful to spawn copies of the same process at different times. This would also require a mechanism for scoping variables. Some invariants, such as rules forbidding two processes outputting to the same channel or variable shadowing, were implemented as runtime errors, but should have been detected by a code tree traversal prior to execution.
 
-There are also many ways the language could be extended to make it more engaging as a teaching tool. For example, adding more datatypes for integers such as booleans, hexadecimal, characters and strings. Booleans are useful in control structures and more explicit than setting an integer to 0 or 1. The other types would allow for a greater variety of programs to be written and for the user to input text. These could also be used to implement a screen that can draw text, shapes and lines of various sizes directly, and for their colours to be specified via hexadecimal, which is a common convention.
+There are also many ways the language could be extended to make BrowserOccam more engaging as a teaching tool. For example, adding more datatypes for integers such as booleans, hexadecimal, characters and strings. Booleans are useful in control structures and more explicit than setting an integer to 0 or 1. The other types would allow for a greater variety of programs to be written and for the user to input text. These could also be used to implement a screen that can draw text, shapes and lines of various sizes directly, and for their colours to be specified via hexadecimal, which is a common convention.
 
 Other concerns are improving the execution speed (it is currently a little slow when accessing arrays) and to find a way for automated unit testing to be used, e.g. writing a full interface to Javascript so that a Javascript testing framework could be used while calling Elm functions and reading from the state.
 
 # Conclusions & Future Work
 
-your experience/ what you learned / challenges and mistakes
+Due to its basis in the CSP model and its syntactic representation of concurrent processes, occam makes for a good tool for teaching concurrent programming. This project has led to the creation of a fully fledged occam interpreter in the browser, which can be used to try out the language and do basic coding without having to install anything.
 
-- My first time coding a project that combines many different tools - parser, lexer, javascript processing, all the steps in elm. Debugging this kind of project it's invaluable to see a printout of the intermediate output after as many steps as possible.
-- Learned the advantages of prototyping a thing very simply and iterating on it
-- First time making major design choices. E.g. the program model, how should blocking work, etc. Designing with an end user experience in mind is fun
-- It's a gigantic code project by my standards and I learned you really have to stick to conventions (e.g. naming conventions, meanings of words, where to handle what kind of data) to not get confused.
-- First time using Jison, it doesn't have the clearest documentation, had to read old stuff about Flex and Bison
-- Elm is awesome but it's SO strict about always needing to handle errors perfectly, I really felt the downside of functional programming and strict typing systems when trying to develop the prototype quickly. At the same time, these errors were useful because you could nearly always trace back to the exact bit of code where something failed.
-- Testing was so hard, because Elm is really only set up to test functions _without_ side effects, but my thing needs to have either side effects or a simulation of them, for the nondeterminism.
-- Well, need to do the user evaluation thing, then I'll have a lot more to say..
-- Creating a full lesson plan / tutorials and examples using this interpreter (+ some kind of automatic feedback?)
+The interpreter is able to simulate concurrent execution of processes, the passing of values along channels, and correctly block and unblock processes in response to channel events and terminations of other processes. The language was also extended with arrays and keyboard, serial, and graphical IO features.
+
+Beginners were able to get to grips with the language quickly while using the website, and to debug occam code they had written. It was found that having a graphical display was an effective tactic to illustrate concurrent programming concepts and engage users.
+
+## Personal conclusions
+
+This was my first time coding a project which combined many different tools into a pipeline - parsing, lexing, Javascript processing, interpreting code, and providing a UI for it all. Apart from Javascript, HTML and CSS, all these tools were new to me. I learned firsthand the value of testing individual components, and seeing intermediate output from as many steps of the pipeline as possible in order to catch errors.
+
+Using Jison was a challenge due to the lack of documentation and reliance on the old documentation for Flex and Bison; it required self-confidence in my ability to understand the example code and the error messages from the tool.
+
+Meanwhile, Elm has excellent documentation and the only challenge in using it was ensuring I was reading carefully, because it has an unusual architecture which you can't just pick up as you go along. Previously, I had always preferred languages with strict typing systems, but Elm's made me understand that the philosophy of 'no runtime errors' can slow down development when you have to code all the errors yourself. However, it was undoubtedly useful when debugging such a complex program.
+
+The biggest challenge with the tools was probably using CodeMirror just because it was distributed as an unusual type of Javascript package, leading to compatibility issues, and I was unfamiliar with the package manager. That led to my first time submitting errors and help requests on online forums, which is a useful skill in itself.
+
+This was also the largest coding project I've ever worked on. I realised for the first time how fun it can be to make major design choices while keeping the end user in mind, such as when I designed the program model, the system for unblocking, or how the language should best be extended. I also realised that with a large project it is very important to stay consistent about things such as naming conventions, what types are handled where, grouping constructs with their functions in modules, and so on in order to make the code easy to understand after you have written it. I had to refactor parts of my code multiple times just to deal with these issues.
+
+The advice from my supervisor to create the simplest possible prototype and iterate on it was invaluable, as without this I would have been overwhelmed by the sheer number of features that needed to be included. Iteration was also helpful for quickly evaluating my design; for example, only after trying it out did I realise my system for tracking when a process had terminated needed to be rewritten to include inheritance.
+
+On the other hand, there were a few times where I think I could have saved effort by stopping to plan ahead and come up with a better method before iterating, particularly in areas where there was the possibility of extending the feature in the future. For example, when I decided to add arrays I found it very time-consuming to modify how variables were identified, which could have been avoided just by giving variable identifiers their own type from the start. A balance needs to be struck between planning and exploration.
+
+I also regret not doing test-driven development, because I believe if I had started by figuring out how to automatically test an Elm program with side effects, I would have done the rest of the project while keeping the program compatible with the tests and extending the tests to user inputs. Then I would have been able to benefit from the automated tests throughtout development rather than struggling and failing to implement them halfway through.
+
+This was also my first time reading about, designing and carrying out a user study. I originally had far too high expectations of what the users would be capable of achieving in a short time. Luckily, my supervisor encouraged me to keep it simple and focus on introducing the unfamiliar concepts of the language rather than skipping straight to using them. I was surprised by how willing my participants were to make an effort on the exercise and was also reminded of just how important comprehensible error messages are when learning a new programming language.
 
 ## Future work
 
-The interpreter could be re-used as part of a REPL allowing users to code with occam on their computer rather than requiring a browser and internet connection to access the website. In this case, the parallel execution of threads could really be parallelised on the user's operating system as opposed to just simulated, allowing users to witness the real performance benefits of paralellisation.
+For a project building directly on this one, the interpreter could be used as a component in a website or short course teaching concurrency. One part of the project could be researching teaching and technical writing, both in order to write good lessons and to write easily understandable error messages for the parser and interpreter. Elm error messages are a good example of what to aim for because they are aimed at beginners, written in natural English, and often suggest a way to fix the problem. Another part of the project would be to devise a full suite of example programs and coding exercises to introduce learners to different aspects of concurrent programming. For example, race conditions, divide and conquer, worker-controller pattern, locks, monitors, barriers, etc.
 
-To extend the existing interpreter significantly, a server and networking features could be implemented so that users of the website could send messages to each other via channels, even if they are on different computers. Together with a online database of user submitted code, this could allow users to interact with each other, play online games together or participate in group exercises to learn concurrency.
+One possible extension to this would be to demonstrate the value of what the learners are doing by displaying the time saved by the parallelisation. This may be by implementing JS multi-threading so that things literally happen in parallel, by changing the updating system so that events merely appear to be happening more quickly, or by calculating 'time spent' as a statistic that learners can aim to minimise. Another extension would be an automated way to verify whether a submitted piece of code is a valid solution to a given task.
 
-Based on the findings of this project, a simple pedagogic programming language could also be designed for channel-based concurrency, modernising occam's design. A puzzle game could also be designed using pseudocode or code bricks similar to Scratch or videogames such as 'Baba is You', providing a more casual way to learn.
+There are some more experimental options. For example, a server and networking features could be implemented so that users of the website could send messages to each other via channels, even if they are on different computers, demonstrating another use of concurrent programming ideas. The interpreter could also be re-used as part of a REPL allowing users to code with occam on their computer rather than requiring a browser and internet connection to access the website. In this case, the parallel execution of threads could really be parallelised on the user's operating system as opposed to just simulated.
 
 # Bibliography
 

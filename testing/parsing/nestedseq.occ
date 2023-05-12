@@ -1,3 +1,6 @@
+---
+parse: true
+---
 SEQ
     CHAN OF INT myChan:
     INT x:

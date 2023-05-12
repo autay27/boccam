@@ -1,6 +1,0 @@
----
-parse: false
----
-SEQ 
-    WHILE TRUE
-        x := (x+1)

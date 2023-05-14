@@ -1,0 +1,7 @@
+---
+parse: false
+---
+SEQ
+    [5]INT x:
+    x
+      [3] := 1

@@ -1,3 +1,6 @@
- SEQ
+---
+error
+---
+SEQ
     INT x:
     x := x + 1

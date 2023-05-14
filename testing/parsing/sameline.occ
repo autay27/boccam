@@ -1,0 +1,16 @@
+---
+parse: false
+---
+SEQ
+    INT x:
+    x := 1
+    CHAN OF INT chan:
+    CHAN OF INT chan2:
+    PAR
+        SEQ
+            chan ! x
+            SERIAL ! 0
+        SEQ
+            chan2 ? x SERIAL ! 1
+        SERIAL ! 2
+

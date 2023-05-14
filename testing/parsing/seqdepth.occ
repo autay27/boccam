@@ -1,0 +1,6 @@
+---
+parse: false
+---
+SEQ
+    CHAN OF INT myChan:
+      INT x:

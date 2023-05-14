@@ -1,0 +1,10 @@
+---
+parse: false
+---
+SEQ
+    CHAN OF INT myChan:
+    [5]CHAN OF INT x:
+    SEQ i = [0 FOR 31]
+        SEQ
+            myChan ? x
+            [3] ! 0

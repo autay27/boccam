@@ -5711,7 +5711,7 @@ var $author$project$Readfile$ruleFromString = function (str) {
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareVariable);
 		case 'declare_chan':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$DeclareChannel);
-		case 'SKIP':
+		case 'skip':
 			return $elm$json$Json$Decode$succeed($author$project$Readfile$Skip);
 		case 'AND':
 			return $elm$json$Json$Decode$succeed(
@@ -6639,7 +6639,8 @@ var $author$project$State$derefAndUpdateVariable = F4(
 										A3($elm$core$Dict$insert, d, v, dict))));
 						}
 					} else {
-						return $elm$core$Result$Err('Index out of bounds');
+						return $elm$core$Result$Err(
+							'Index ' + ($elm$core$String$fromInt(d) + ' out of bounds'));
 					}
 				} else {
 					var i = ds.a;
@@ -6665,7 +6666,8 @@ var $author$project$State$derefAndUpdateVariable = F4(
 							return $elm$core$Result$Err('Too many indexes for array ' + str);
 						}
 					} else {
-						return $elm$core$Result$Err('Index out of bounds');
+						return $elm$core$Result$Err(
+							'Index ' + ($elm$core$String$fromInt(d) + ' out of bounds'));
 					}
 				}
 			});
@@ -6932,7 +6934,8 @@ var $author$project$State$eval = F2(
 					}
 				}
 			}
-			return $elm$core$Result$Err('not a valid value');
+			return $elm$core$Result$Err(
+				'not a valid value ' + $author$project$State$printTree(t));
 		}
 		var _v31 = t.a;
 		return A2(
@@ -7113,7 +7116,8 @@ var $author$project$State$derefAndUpdateChannel = F4(
 											dict))));
 						}
 					} else {
-						return $elm$core$Result$Err('Index out of bounds');
+						return $elm$core$Result$Err(
+							'Index ' + ($elm$core$String$fromInt(d) + ' out of bounds'));
 					}
 				} else {
 					var i = ds.a;
@@ -7138,7 +7142,8 @@ var $author$project$State$derefAndUpdateChannel = F4(
 							return $elm$core$Result$Err('Too many indexes for array ' + str);
 						}
 					} else {
-						return $elm$core$Result$Err('Index out of bounds');
+						return $elm$core$Result$Err(
+							'Index ' + ($elm$core$String$fromInt(d) + ' out of bounds'));
 					}
 				}
 			});

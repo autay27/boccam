@@ -1,3 +1,6 @@
+---
+error
+---
 SEQ
     INT y:
     y := 1

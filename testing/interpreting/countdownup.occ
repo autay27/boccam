@@ -1,7 +1,6 @@
 ---
 filter xs (\x -> x > 0) == sort (filter xs (\x -> x > 0))
 filter xs (\x -> x < 0) == reverse (sort (filter xs (\x -> x < 0)))
-...Or something
 ---
 SEQ 
     CHAN OF INT left:

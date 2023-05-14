@@ -1,5 +1,5 @@
 ---
-parse: true
+parse: false
 ---
 SEQ
     CHAN OF INT myChan:

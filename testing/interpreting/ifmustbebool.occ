@@ -1,4 +1,8 @@
- SEQ
+---
+error
+---
+SEQ
     INT x:
+    x := 1
     IF x
         INT y:

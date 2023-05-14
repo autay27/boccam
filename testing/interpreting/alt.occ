@@ -1,0 +1,25 @@
+---
+filter (\x -> x != 3) (drop ((find 3 xs)-1) xs) == []
+length xs == find 3 xs
+---
+SEQ
+    [3]CHAN OF INT myChan:
+    INT seenthree:
+    seenthree := 0
+    INT x:
+    PAR
+        WHILE TRUE
+            ALT
+                seenthree < 1 & myChan[0] ? x
+                    SKIP
+                seenthree < 1 & myChan[1] ? x
+                    SKIP
+                myChan[2] ? x
+                    seenthree := 1
+        PAR
+            WHILE TRUE
+                myChan[0] ! 1
+            WHILE TRUE
+                myChan[1] ! 2
+            WHILE TRUE
+                myChan[2] ! 3

@@ -1,0 +1,15 @@
+---
+filter (\x -> x == 0) = 0
+---
+
+SEQ
+    INT x:
+    x := 37
+    CHAN chan:
+    PAR i = [2 FOR 37]
+        SEQ
+            INT c:
+            c := x
+            WHILE c >= 0
+                c := c - i
+            SERIAL ! c

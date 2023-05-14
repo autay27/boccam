@@ -49,7 +49,7 @@ ruleFromString str =
         "replicator" -> succeed Replicator
         "declare_var" -> succeed DeclareVariable
         "declare_chan" -> succeed DeclareChannel
-        "SKIP" -> succeed Skip
+        "skip" -> succeed Skip
         "AND" -> succeed (LBinop And)
         "OR" -> succeed (LBinop Or)
         "PLUS" -> succeed (ABinop Plus)

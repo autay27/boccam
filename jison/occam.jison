@@ -42,6 +42,8 @@ proc
         { $$ = ["while", $expr, $proc] }
     | conditional 
         { $$ = $conditional }
+    | SKIP
+        { $$ = ["skip"] }
     ;
 
 dimensions_list
@@ -91,9 +93,13 @@ alternative
 
 guard
     : input
-        { $$ = ["guard", "TRUE", $input] }
+        { $$ = ["guard", [ "id", "TRUE", ["dimensions_list"] ], $input] }
+    | output
+        { $$ = ["guard", [ "id", "TRUE", ["dimensions_list"] ], $output] }
     | expr AMPERSAND input
         { $$ = ["guard", $expr, $input] }
+    | expr AMPERSAND output
+        { $$ = ["guard", $expr, $output] }
     | expr AMPERSAND SKIP
         { $$ = ["guard", $expr, ["SKIP"]] }
     ;

@@ -1,0 +1,6 @@
+---
+parse: false
+---
+PAR
+    CHAN OF INT myChan:
+      INT x:

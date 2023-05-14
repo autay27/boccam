@@ -2,12 +2,11 @@
 sort xs = [1,2,3,4,5]
 ---
 SEQ
-    CHAN individuals[5]:
-    CHAN merged:
+    CHAN OF INT individuals[5]:
     PAR
         WHILE TRUE
             ALT i = [1 FOR 5]
                 individuals[i] ? x
-                    merged ! x
+                    SERIAL ! x
         PAR i = [1 FOR 5]
             individuals[i] ! i

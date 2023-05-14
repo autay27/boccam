@@ -3,7 +3,7 @@ xs = [0,1,2]
 ---
 SEQ
     [3]INT slots:
-    [3]CHAN chans:
+    [3]CHAN OF INT chans:
     SEQ
         PAR
             PAR i = [0 FOR 2]

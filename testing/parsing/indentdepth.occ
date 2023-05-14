@@ -4,4 +4,4 @@ parse: true
 SEQ 
     INT x:
     WHILE TRUE
-        x := (x+1)
+      x := (x+1)

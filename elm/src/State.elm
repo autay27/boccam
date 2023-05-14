@@ -81,14 +81,14 @@ derefAndUpdateVariable val str dims state =
                 [] -> case Dict.get d dict of
                     Just (Array _) -> Err ("Not enough indexes for array " ++ str)
                     Just oldvalue -> Ok (oldvalue, Array (Dict.insert d v dict))
-                    Nothing -> Err "Index out of bounds"
+                    Nothing -> Err ("Index " ++ (String.fromInt d) ++ " out of bounds")
                 (i::is) -> case Dict.get d dict of
                     Just (Array dict2) ->
                         dAUArray v i is dict2 |> Result.andThen (\(oldvalue, newstruct) ->
                             Ok (oldvalue, Array (Dict.insert d newstruct dict))
                         )
                     Just oldvalue -> Err ("Too many indexes for array " ++ str)
-                    Nothing -> Err "Index out of bounds"
+                    Nothing -> Err ("Index " ++ (String.fromInt d) ++ " out of bounds")
     in
         case Dict.get str state.vars of
             Nothing -> Err ("Variable " ++ str ++ " not declared")
@@ -112,14 +112,14 @@ derefAndUpdateChannel ch str dims state =
                 [] -> case Dict.get d dict of
                     Just (ChanArray _) -> Err ("Not enough indexes for array " ++ str)
                     Just (ChanSingle oldchan) -> Ok (oldchan, ChanArray (Dict.insert d (ChanSingle ch) dict))
-                    Nothing -> Err "Index out of bounds"
+                    Nothing -> Err ("Index " ++ (String.fromInt d) ++ " out of bounds")
                 (i::is) -> case Dict.get d dict of
                     Just (ChanArray dict2) ->
                         dAUArray i is dict2 |> Result.andThen (\(oldchan, newstruct) ->
                             Ok (oldchan, ChanArray (Dict.insert d newstruct dict))
                         )
                     Just _ -> Err ("Too many indexes for array " ++ str)
-                    Nothing -> Err "Index out of bounds"
+                    Nothing -> Err ("Index " ++ (String.fromInt d) ++ " out of bounds")
     in
         case Dict.get str state.chans of
             Nothing -> Err ("Channel " ++ str ++ " not declared")
@@ -154,7 +154,7 @@ eval t state =
 
         Branch (LBinop b) (x::y::[]) -> logicEval b x y state
 
-        _ -> Err "not a valid value"
+        _ -> Err ("not a valid value " ++ (printTree t))
 
 arithEval: ABop -> Tree -> Tree -> State -> Result String Value
 arithEval op x y state =

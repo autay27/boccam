@@ -4,6 +4,13 @@
 <script src="editor.bundle.js"></script>
 <script src="jison/occam.js"></script>
 <link rel="stylesheet" type="text/css" href="index.css">
+
+<script>
+    window.addEventListener("load", (event) => {
+    console.log("page is fully loaded");
+    sendElm();
+    });
+</script>
 </head>
 <h3 style="padding: 15px; margin-bottom: 4px; margin-top: 0px; border-radius: 4px;"><a href="index.html">Browser Occam</a></h3>
 <div class="navbar"><a href="index.html"><div>Home</div></a><a href="instructions.html"><div>Tutorial</div></a><a href="examples.html"><div>Examples</div></a><a href="https://github.com/autay27/boccam/"><div>GitHub</div></a></div>
@@ -69,19 +76,22 @@
             elm.style.display = "none";
         }
     }
+
+
+
 </script>
 
 
 <body>
-<div style="display: flex; flex-direction: row; column-gap: 10px;">
+<div style="display: flex; flex-direction: row; column-gap: 20px;">
 
-    <div style="width: 40vw; display:flex; flex-direction: column;">
+    <div style="width: 40%; max-width: 600px; display:flex; flex-direction: column;">
     <button onclick="sendElm()">Submit code</button>
     <div id="editor"></div>
-        <pre style="width: 40vw;" id="jsonTree"></pre>
+        <pre style="width: 40%; max-width: 600px;" id="jsonTree"></pre>
     </div>
 
-    <div id="elm-app-div" style="display: none;">
+    <div id="elm-app-div">
         <div id="elm-app"></div>
     </div>
     <script src="elm/elm.js"></script>
@@ -89,6 +99,8 @@
     var app = Elm.Main.init({
         node: document.getElementById("elm-app")
     });
+
+
     </script>
 
 </div>

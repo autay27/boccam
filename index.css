@@ -1,6 +1,12 @@
+body {
+    padding-left: 50px;
+    margin: auto;
+}
+
 .navbar {
     background-color: #555555;
     display: flex;
+    margin-bottom: 5px;
 }
 
 .navbar > a {
@@ -28,6 +34,10 @@ h3 > a {
 
 .twopanel > div {
     width: 340px;
+}
+
+.twopanel > div > hr {
+    margin-right: 15px;
 }
 
 .twopanel > div > div {

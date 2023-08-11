@@ -22282,19 +22282,14 @@ var codemirror = (function (exports) {
    ])();
 
    const exampleCode = `SEQ
-    CHAN OF INT chan:
-    INT x:
-    INT y:
-    x := 0
-    PAR
-        WHILE TRUE
+    [9]INT verticalPosition:
+    SEQ i = [0 FOR 8]
+        verticalPosition[i] := 0
+    PAR i = [0 FOR 8]
+        WHILE i+verticalPosition[i] < 32
             SEQ
-                chan ! x
-                x := (x+1)
-        WHILE TRUE
-            SEQ
-                chan ? y
-                SERIAL ! y
+                GRAPHICS[i+verticalPosition[i]][verticalPosition[i]] ! i
+                verticalPosition[i] := verticalPosition[i]+1
 `;
 
    var cm;

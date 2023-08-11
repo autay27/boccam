@@ -36,8 +36,6 @@ occam was one of the earliest concurrent languages designed for industrial use. 
 
 occam's design is based on the CSP process algebra created by Tony Hoare, meaning that its programs are expressed in terms of concurrent _processes_ which communicate exclusively by passing messages via _channels_ [@oc1]. There are algebraic laws proving equivalence between different expressions in occam, allowing for formal proofs of the correctness of programs [@laws].
 
-\newpage
-
 While it is no longer in active use due to the transputer's failure to catch on, it has inspired the languages occam-pi [@occampi] (a variant incorporating part of the pi-calculus, another process calculus) and Ease [@ease] and shares features with other concurrent languages influenced by CSP, such as Go [@go] and Erlang [@erlang], both of which are currently popular in industry. occam and occam-pi have been used to teach concurrency and concurrent programming on Computer Science courses at various British universities.
 
 occam retains interest as a teaching tool, and has some advantages for use in teaching concurrent programming. Its simplicity means that learners can start coding and putting things in parallel immediately without having to learn technical keywords or concepts. It also clearly delineates which lines of code make up each process, and which will be executed in parallel or sequence, via whitespace and simple keywords such as PAR and SEQ. By contrast, in other languages code is more abstract with processes defined in one place and run in another. The use of whitespace also resembles Python, the language that learners are most likely to have tried already. When teaching about channels specifically, the syntax is simpler than Go, the other general-purpose language providing channels. Although other programming languages have packages which provide channels, installing packages can prove a challenge for students.
@@ -107,6 +105,8 @@ The target audience for BrowserOccam is people who know the basics of programmin
 
 BrowserOccam focuses on implementing and extending occam 1, a preliminary version of the language, which was designed with a minimal set of features in order to encourage users to get a feel for concurrent programming. This made it a perfect fit for our purposes. Notably, Occam 1 does not have common features of modern languages such as data types beyond integers, n-dimensional arrays, or functions [@oc1]. While these were added when occam was developed further with occam 2 and 2.1 [@oc21], we disregard their specifications and instead extend the language from occam 1 according to what makes sense for its use as a teaching tool.
 
+\newpage
+
 Here is a non-exhaustive list of occam 1 features which were implemented:
 
 - Variable declaration and assignment (integers only)
@@ -128,6 +128,8 @@ Graphical applications are also uniquely suited to concurrent programming, due t
 ![32 independent processes, each drawing one cell in the "Rule 30" 1-D automaton over time; they communicate with a ring of channels](timelapse.png)
 
 To facilitate pixel-based graphics, the language is extended with n-dimensional arrays of variables and channels, as described in the occam 2.1 reference manual [@oc21]. The displayed pixels are set using a two-dimensional array, but more dimensions may still be useful. For example, one can imagine a 3-dimensional array which stores additional information about each 2d coordinate, used when calculating its colour, along the third dimension.
+
+\newpage
 
 ## Modelling nondeterminism
 
@@ -184,6 +186,8 @@ We represent a process by:
 - Its unique process id (PID)
 - The PID of its 'latest waiting ancestor', i.e. the most recent process which is waiting for it to terminate. This is inherited from the parent when the parent does not wait for the child to terminate. Otherwise, it is set to the PID of the parent process.
 
+\newpage
+
 Meanwhile, a blocking process is represented by:
 
 - The original process
@@ -210,12 +214,11 @@ When a process outputs on a channel, it sets the value and the boolean to true; 
 
 ### I/O
 
-![Drawing a variety of colours to the screen](rainbow.png)
-
 We provide buttons in the form of input via the keyboard. Key presses can be received along a designated `KEYBOARD` channel, with each key being mapped to a different integer (e.g. 1, 2, 3, 4 for up, down, left, right arrow keys; this mapping is arbitrary). We also simulate output via a serial connection, using a designated `SERIAL` channel; messages output to this channel are not received by another process, but instead displayed in order on the screen, simulating how they may be received instantaneously and recorded by another device. Both these channels are not truly channels, but instead are unlimited buffers. Each key press is enqueued in the _keyboard_ buffer, and a process taking input from `KEYBOARD` receives the first dequeued value, or blocks while the channel is empty; processes can output to `SERIAL` without blocking and the value will be enqueued in the _serial_ buffer until it can be dequeued and printed on the screen. This ensures that IO will behave as expected for the user, preserving the order and not losing any events.
 
 We also provide a simplistic graphics display in the form of a 32x32 grid of squares (operating as 'pixels') which can each be set to one of several colours. The colour of a pixel at coordinates (i, j) can be set by outputting an integer to channel `GRAPHICS[i][j]`, with integers mapped to different colours (e.g. 0 is black, 1 is white, 2 is red, 3 is blue, everything above 3 is black; again, this is arbitrary). We communicate with the graphics display via a channel, rather than setting the value of pixels in an array, in order to simulate a screen as a separate piece of hardware.
 
+![Drawing a variety of colours to the screen](rainbow.png)
 
 ### The program loop
 
@@ -344,7 +347,7 @@ Due to its basis in the CSP model and its syntactic representation of concurrent
 
 The interpreter is able to simulate concurrent execution of processes, the passing of values along channels, and correctly block and unblock processes in response to channel events and terminations of other processes. The language was also extended with arrays and keyboard, serial, and graphical IO features.
 
-Beginners were able to get to grips with the language quickly while using the website, and to debug occam code they had written. It was found that having a graphical display was an effective tactic to illustrate concurrent programming concepts and engage users.
+Beginners were able to get to grips with the language quickly while using the website, and to debug occam code they had written. It was found that having a graphical display was an effective tactic to illustrate concurrent programming concepts and engage users. However, it was found that good error messages are key when learning a new language and that learners may need more guidance to conceptualise concurrency primitives in a helpful way.
 
 ## Personal conclusions
 

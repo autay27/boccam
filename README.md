@@ -2,7 +2,7 @@
 
 ## About
 
-`occam` is a concurrent programming language from the 1980s based on the Communicating Sequential Processes algebra (channel based concurrency model which also influenced Go, Erlang, etc). Boccam is an interpreter for `occam` which can be run in the browser, intended as a tool for teaching concurrency. Parallel execution is simulated via a pseudo-random scheduler. It is extended with I/O and a visualiser so students can create interactive programs.
+occam is a concurrent programming language from the 1980s based on the Communicating Sequential Processes algebra (channel based concurrency model which also influenced Go, Erlang, etc). Boccam is an interpreter for occam which can be run in the browser, intended as a tool for teaching concurrency. Parallel execution is simulated via a pseudo-random scheduler. It is extended with I/O and a visualiser so students can create interactive programs.
 
 Try it live [here](https://autay27.github.io/boccam/).
 
@@ -12,9 +12,10 @@ Try it live [here](https://autay27.github.io/boccam/).
 For more details about this project, see the final report:
 
 [Final Report PDF](https://github.com/autay27/boccam/blob/main/report/final.pdf)
+
 [Report Text (Markdown)](https://github.com/autay27/boccam/blob/main/report/report.md)
 
-### Known issues
+## Known issues
 
 - Incomplete .gitignore
 - Replicators not implemented for all constructs

@@ -4,6 +4,18 @@ elm/elm-stuff/**
 
 elm/elm.js
 
+jison/occam.js
+
+lezer/occam.js
+lezer/occam.terms.js
+
 node_modules/**
 
-report.pdf
+*.pdf
+!report/final.pdf
+
+*.kate-swp
+
+# private
+
+report/named_titlepage.md

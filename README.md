@@ -17,8 +17,8 @@ For more details about this project, see the final report:
 
 ## Known issues
 
-- Incomplete .gitignore
 - Replicators not implemented for all constructs
+- Examples page not filled out
 
 ## Acknowledgements
 

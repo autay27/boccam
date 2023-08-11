@@ -2,14 +2,16 @@
 
 elm/elm-stuff/**
 
-elm/elm.js
-
-jison/occam.js
-
-lezer/occam.js
-lezer/occam.terms.js
-
 node_modules/**
+
+# compiled but needed for live version on GH pages
+
+# elm/elm.js
+
+# jison/occam.js
+
+# lezer/occam.js
+# lezer/occam.terms.js
 
 *.pdf
 !report/final.pdf

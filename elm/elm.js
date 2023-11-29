@@ -9300,12 +9300,15 @@ var $author$project$Main$printout = function (s) {
 		A2($elm$core$List$map, $elm$html$Html$text, s));
 };
 var $author$project$Main$RunOverTime = {$: 'RunOverTime'};
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $author$project$Main$runovertimebtn = function (model) {
 	return model.runFlag ? A2(
 		$elm$html$Html$button,
 		_List_fromArray(
 			[
-				$elm$html$Html$Events$onClick($author$project$Main$StopRunning)
+				$elm$html$Html$Events$onClick($author$project$Main$StopRunning),
+				A2($elm$html$Html$Attributes$style, 'background-color', 'orange')
 			]),
 		_List_fromArray(
 			[
@@ -9314,7 +9317,8 @@ var $author$project$Main$runovertimebtn = function (model) {
 		$elm$html$Html$button,
 		_List_fromArray(
 			[
-				$elm$html$Html$Events$onClick($author$project$Main$RunOverTime)
+				$elm$html$Html$Events$onClick($author$project$Main$RunOverTime),
+				A2($elm$html$Html$Attributes$style, 'background-color', 'limegreen')
 			]),
 		_List_fromArray(
 			[

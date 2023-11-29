@@ -4,7 +4,7 @@ import Browser
 import Browser.Events exposing (onKeyDown)
 import Html exposing (Html, button, div, text, br, hr)
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, style)
 import Json.Decode
 import Time
 
@@ -144,7 +144,7 @@ printdisplay display =
       Just n -> String.fromInt n 
   in text str
 
-runovertimebtn model = if model.runFlag then button [ onClick (StopRunning) ] [ text "Pause" ] else button [ onClick (RunOverTime) ] [ text "Run" ]
+runovertimebtn model = if model.runFlag then button [ onClick (StopRunning), style "background-color" "orange" ] [ text "Pause" ] else button [ onClick (RunOverTime), style "background-color" "limegreen" ] [ text "Run" ]
 
 maybeSerial model = if (List.length model.display) > 0 then [ hr [] [], div [] [text "Serial Output Log:"], div [] [(text (String.join ", " (List.map String.fromInt model.display)))], hr [] [] ] else [ hr [] [] ]
 

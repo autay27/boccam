@@ -22309,14 +22309,18 @@ var codemirror = (function (exports) {
 
    };
 
-
-
-
    function getCode() {
      return cm.state.doc.toString()
    }
 
+   function replaceContents(newContent) {
+     cm.dispatch({
+       changes: {from: 0, to: cm.state.doc.length, insert: newContent}
+     });
+   }
+
    exports.getCode = getCode;
+   exports.replaceContents = replaceContents;
 
    Object.defineProperty(exports, '__esModule', { value: true });
 

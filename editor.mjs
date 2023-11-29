@@ -31,9 +31,12 @@ window.onload = function() {
 
 }
 
-
-
-
 export function getCode() {
   return cm.state.doc.toString()
+}
+
+export function replaceContents(newContent) {
+  cm.dispatch({
+    changes: {from: 0, to: cm.state.doc.length, insert: newContent}
+  })
 }

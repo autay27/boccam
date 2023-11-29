@@ -1,15 +1,12 @@
 SEQ
-    [32]INT me:
-    SEQ i = [0 FOR 31]
-        me[i] := 0
-    me[16] := 1
-    [32]INT myLeft:
-    [32]CHAN OF INT left:
+    [32]INT behindMe:
+    [32]CHAN OF INT passForward:
     PAR
         SEQ
-            left[0] ! me[0]
-            left[31] ? myLeft[0]
+            passForward[0] ! 1
+            passForward[31] ? behindMe[0]
+            SERIAL ! behindMe[0]
         PAR i = [1 FOR 31]
             SEQ
-                left[i-1] ? myLeft[i]
-                left[i] ! me[i]
+                passForward[i-1] ? behindMe[i]
+                passForward[i] ! behindMe[i]

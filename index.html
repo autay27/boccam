@@ -13,14 +13,11 @@
 </script>
 </head>
 <h3 style="padding: 15px; margin-bottom: 4px; margin-top: 0px; border-radius: 4px;"><a href="index.html">Browser Occam</a></h3>
-<div class="navbar"><a href="index.html"><div>Home</div></a><a href="instructions.html"><div>Tutorial</div></a><a href="examples.html"><div>Examples</div></a><a href="https://github.com/autay27/boccam/"><div>GitHub</div></a></div>
+<div class="navbar"><a href="index.html"><div>Home</div></a><a href="instructions.html"><div>Tutorial</div></a><a href="https://github.com/autay27/boccam/"><div>GitHub</div></a></div>
 <script>
 
     var time = 0
     function parse (input) {
-
-        //var input = codemirror.getCode().trim().concat(" ")
-        //try {occam.parse("abba daba doo")} catch (e){console.log("parser doesn't REMEMBER")}
 
         try {
 
@@ -77,7 +74,103 @@
         }
     }
 
+    var rainbow = `SEQ
+    [9]INT verticalPosition:
+    SEQ i = [0 FOR 8]
+        verticalPosition[i] := 0
+    PAR i = [0 FOR 8]
+        WHILE i+verticalPosition[i] < 32
+            SEQ
+                GRAPHICS[i+verticalPosition[i]][verticalPosition[i]] ! i
+                verticalPosition[i] := verticalPosition[i]+1
+`
 
+    var automata = `SEQ
+    [2][2][2]INT rule:
+    rule [0][0][0] := 1
+    rule [0][0][1] := 0
+    rule [0][1][0] := 1
+    rule [0][1][1] := 1
+    rule [1][0][0] := 0
+    rule [1][0][1] := 1
+    rule [1][1][0] := 1
+    rule [1][1][1] := 0
+    [32]INT yCoord:
+    [32]INT me:
+    SEQ i = [0 FOR 31]
+        me[i] := 0
+    me[16] := 1
+    [32]INT myLeft:
+    [32]INT myRight:
+    [32]CHAN OF INT left:
+    [32]CHAN OF INT right:
+    PAR
+        SEQ
+            yCoord[0] := 0
+            WHILE yCoord[0] < 32
+                SEQ
+                    GRAPHICS[0][yCoord[0]] ! me[0]+7
+                    left[0] ! me[0]
+                    left[31] ? myLeft[0]
+                    right[31] ! me[0]
+                    right[0] ? myRight[0]
+                    me[0] := rule[myLeft[0]][me[0]][myRight[0]]
+                    yCoord[0] := yCoord[0] + 1
+        PAR i = [1 FOR 31]
+            SEQ
+                yCoord[i] := 0
+                WHILE yCoord[i] < 32
+                    SEQ
+                        GRAPHICS[i][yCoord[i]] ! me[i]+7
+                        left[i-1] ? myLeft[i]
+                        left[i] ! me[i]
+                        right[i] ? myRight[i]
+                        right[i-1] ! me[i]
+                        me[i] := rule[myLeft[i]][me[i]][myRight[i]]
+                        yCoord[i] := yCoord[i] + 1
+`
+    var alternator = `SEQ
+    CHAN OF INT left:
+    CHAN OF INT right:
+    INT x:
+    INT y:
+    INT received:
+    x := 1
+    y := 1
+    PAR
+        WHILE TRUE
+            SEQ
+                right ! x
+                x := (x+1)
+        WHILE TRUE
+            SEQ
+                left ! y
+                y := (y-1)
+        WHILE TRUE
+            ALT
+                TRUE & left ? received
+                    SERIAL ! received
+                right ? received
+                    SERIAL ! received`
+
+    var ring = `SEQ
+    [32]INT received:
+    [32]CHAN OF INT passAlong:
+    PAR
+        SEQ
+            passAlong[0] ! 1
+            passAlong[31] ? received[0]
+            SERIAL ! received[0]
+        PAR i = [1 FOR 31]
+            SEQ
+                passAlong[i-1] ? received[i]
+                passAlong[i] ! received[i]
+`
+
+    function loadExample(example) {
+        codemirror.replaceContents(example);
+        sendElm();
+    }
 
 </script>
 
@@ -86,7 +179,16 @@
 <div style="display: flex; flex-direction: row; column-gap: 20px;">
 
     <div style="width: 40%; max-width: 600px; display:flex; flex-direction: column;">
-    <button onclick="sendElm()">Submit code</button>
+    <div style="display: flex;">
+        <label for="examples">Load Example:</label>
+        <select autocomplete="off">
+            <option onclick="loadExample(rainbow)">Rainbow Race</option>
+            <option onclick="loadExample(automata)">Cellular Automaton</option>
+            <option onclick="loadExample(alternator)">Listening on two channels</option>
+            <option onclick="loadExample(ring)">Passing message in a ring</option>
+        </select>
+    <button style="flex-grow: 1;" onclick="sendElm()">Submit code</button>
+    </div>
     <div id="editor"></div>
         <pre style="width: 40%; max-width: 600px;" id="jsonTree"></pre>
     </div>

@@ -7,7 +7,7 @@ SEQ
     CHAN OF INT right:
     INT x:
     INT y:
-    INT z:
+    INT received:
     x := 1
     y := 1
     PAR
@@ -21,7 +21,7 @@ SEQ
                 y := (y-1)
         WHILE TRUE
             ALT
-                TRUE & left ? z
-                    SERIAL ! z
-                right ? z
-                    SERIAL ! z
+                TRUE & left ? received
+                    SERIAL ! received
+                right ? received
+                    SERIAL ! received
